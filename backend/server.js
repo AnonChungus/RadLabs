@@ -21,6 +21,7 @@ const FEE_WALLET = process.env.FEE_WALLET || 'YOUR_BTC_WALLET_ADDRESS_HERE';
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
+app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));
 
 /**
  * Proxy to RadFi PRODUCTION API with required headers
