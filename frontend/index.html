@@ -227,30 +227,42 @@
     
     .nav a.active {
       color: var(--text-primary);
-      background: linear-gradient(135deg, var(--miami-pink), var(--miami-purple));
+      background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+      border: 2px solid transparent;
+      background-image: 
+        linear-gradient(135deg, #1a1a1a, #2d2d2d),
+        linear-gradient(135deg, var(--miami-pink), var(--miami-cyan));
+      background-origin: border-box;
+      background-clip: padding-box, border-box;
     }
     
     .connect-btn {
       font-family: inherit;
-      background: linear-gradient(135deg, var(--miami-pink), var(--miami-purple));
+      background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
       color: white;
-      border: none;
+      border: 2px solid transparent;
+      background-image: 
+        linear-gradient(135deg, #1a1a1a, #2d2d2d),
+        linear-gradient(135deg, var(--miami-pink), var(--miami-cyan));
+      background-origin: border-box;
+      background-clip: padding-box, border-box;
       padding: 0.75rem 1.5rem;
       border-radius: 12px;
       font-weight: 600;
       font-size: 0.9rem;
       cursor: pointer;
       transition: all 0.2s;
-      box-shadow: 0 4px 20px rgba(255,45,146,0.3);
     }
     
     .connect-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 30px rgba(255,45,146,0.4);
+      box-shadow: 0 4px 20px rgba(255,45,146,0.3);
     }
     
     .connect-btn.connected {
-      background: linear-gradient(135deg, var(--green), var(--miami-cyan));
+      background-image: 
+        linear-gradient(135deg, #1a1a1a, #2d2d2d),
+        linear-gradient(135deg, var(--green), var(--miami-cyan));
       box-shadow: 0 4px 20px rgba(0,255,136,0.3);
     }
     
@@ -1383,7 +1395,7 @@
             <div class="info-row"><span class="label">Network Fee</span><span class="value">~500 sats</span></div>
           </div>
           
-          <button class="trade-btn buy" id="tradeBtn" disabled>Connect Wallet</button>
+          <button class="trade-btn buy" id="tradeBtn" onclick="handleTrade()">Connect Wallet</button>
         </div>
       </div>
     </div>
@@ -1746,7 +1758,7 @@
         return `
           <span class="ticker-item">
             <span class="sym">${name}</span>
-            <span class="price mono">${fmtSats(t.priceInSats || 0)} sats</span>
+            <span class="price mono">$${fmtCompact(t.marketCap || 0)}</span>
             <span class="${changeClass}">${change >= 0 ? '+' : ''}${change.toFixed(2)}%</span>
           </span>
         `;
@@ -1761,14 +1773,16 @@
       updateToDisplay();
       
       const name = t.displayTicker || t.symbol || '?';
+      const mcap = t.marketCap || 0;
       document.getElementById('chartImg').textContent = t.symbol || '?';
       document.getElementById('chartName').textContent = name;
       document.getElementById('chartRune').textContent = t.spacedRune || '';
-      document.getElementById('chartMcap').textContent = '$' + fmtCompact(t.marketCap || 0);
+      document.getElementById('chartMcap').textContent = '$' + fmtCompact(mcap);
       document.getElementById('chartVol').textContent = '$' + fmtCompact(t.volume24h || 0);
       document.getElementById('chartLiq').textContent = '$' + fmtCompact(t.volumeAllTime || 0);
-      document.getElementById('chartPrice').textContent = fmtSats(t.priceInSats || 0) + ' sats';
-      document.getElementById('chartUsd').textContent = '≈ $' + fmtNum(t.price || 0);
+      // Show market cap as "price" everywhere
+      document.getElementById('chartPrice').textContent = '$' + fmtCompact(mcap);
+      document.getElementById('chartUsd').textContent = 'Market Cap';
       
       const change = ((t.priceChange24h || 0) - (t.price || 0)) / ((t.price || 1)) * 100;
       const changeEl = document.getElementById('chartChange');
@@ -1829,7 +1843,9 @@
     function updateChart() {
       if (!S.selected || !S.candleSeries) return;
       
-      const data = generateCandleData(S.selected.priceInSats || 1);
+      // Use market cap for chart values
+      const mcap = S.selected.marketCap || 1000000;
+      const data = generateCandleData(mcap);
       S.candleSeries.setData(data);
       
       const lineData = data.map(d => ({ time: d.time, value: d.close }));
@@ -1838,28 +1854,28 @@
       S.chart.timeScale().fitContent();
     }
 
-    function generateCandleData(currentPrice) {
+    function generateCandleData(currentMcap) {
       const now = Math.floor(Date.now() / 1000);
       const data = [];
       // Start from 90 days ago to show months of history like RadFi
       const daysAgo = 90;
       const candles = daysAgo * 96; // 15-min candles per day
-      let price = currentPrice * (0.3 + Math.random() * 0.4); // Start lower for realistic growth
+      let mcap = currentMcap * (0.3 + Math.random() * 0.4); // Start lower for realistic growth
       
       for (let i = candles; i >= 0; i--) {
         const time = now - i * 900; // 15 min candles
-        const open = price;
-        const vol = price * 0.08;
-        const close = price + (Math.random() - 0.48) * vol;
+        const open = mcap;
+        const vol = mcap * 0.08;
+        const close = mcap + (Math.random() - 0.48) * vol;
         const high = Math.max(open, close) + Math.random() * vol * 0.5;
         const low = Math.min(open, close) - Math.random() * vol * 0.5;
         data.push({ time, open, high, low, close });
-        // Gradual uptrend toward current price
+        // Gradual uptrend toward current market cap
         const progress = 1 - (i / candles);
-        const targetPrice = currentPrice;
-        price = close + (targetPrice - close) * 0.002 * progress;
+        const targetMcap = currentMcap;
+        mcap = close + (targetMcap - close) * 0.002 * progress;
       }
-      data[data.length - 1].close = currentPrice;
+      data[data.length - 1].close = currentMcap;
       return data;
     }
     
@@ -1886,6 +1902,15 @@
     }
 
     // TRADE
+    function handleTrade() {
+      if (!S.address) {
+        connectWallet();
+        return;
+      }
+      // Execute trade logic here
+      toast('Trade execution coming soon!', 'info');
+    }
+    
     function setTradeMode(mode) {
       S.mode = mode;
       document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
