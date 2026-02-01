@@ -290,10 +290,12 @@ class InventoryTracker {
 // ============================================
 
 class SpreadCalculator {
-  constructor() {
-    this.baseSpreadBPS = 100; // 1% base spread (100 basis points)
-    this.minSpreadBPS = 50;     // 0.5% minimum
-    this.maxSpreadBPS = 200;    // 2% maximum
+  constructor(tokenConfig = {}) {
+    // REALITY CHECK: RadFi has extremely low volume!
+    // Default to wide spreads (5-10%) instead of tight (1%)
+    this.baseSpreadBPS = tokenConfig.baseSpreadBPS || 500; // 5% base spread
+    this.minSpreadBPS = tokenConfig.minSpreadBPS || 300;     // 3% minimum
+    this.maxSpreadBPS = tokenConfig.maxSpreadBPS || 1000;    // 10% maximum
   }
 
   /**

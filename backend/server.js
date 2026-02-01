@@ -574,6 +574,77 @@ app.get('/api/etch/rewards-amount', async (req, res) => {
   }
 });
 
+// ============ MARKET MAKER ENDPOINTS ============
+
+const { API: mmAPI } = require('../mm/orchestrator.js');
+
+// Create MM position (user deposits)
+app.post('/api/mm/deposit', async (req, res) => {
+  try {
+    const result = await mmAPI.deposit({ body: req.body });
+    if (result.success) {
+      res.json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (error) {
+    console.error('[MM] Deposit error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get user's MM position
+app.get('/api/mm/position/:userAddress', async (req, res) => {
+  try {
+    const result = await mmAPI.getPosition({ params: req.params });
+    if (result.success) {
+      res.json(result);
+    } else {
+      res.status(404).json(result);
+    }
+  } catch (error) {
+    console.error('[MM] Get position error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get all MM positions (admin)
+app.get('/api/mm/positions', async (req, res) => {
+  try {
+    const result = await mmAPI.getAllPositions({ query: req.query });
+    res.json(result);
+  } catch (error) {
+    console.error('[MM] Get all positions error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Withdraw from MM
+app.post('/api/mm/withdraw/:userAddress', async (req, res) => {
+  try {
+    const result = await mmAPI.withdraw({ params: req.params });
+    if (result.success) {
+      res.json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (error) {
+    console.error('[MM] Withdraw error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get global metrics
+app.get('/api/mm/metrics', async (req, res) => {
+  try {
+    const result = await mmAPI.getMetrics({ query: req.query });
+    res.json(result);
+  } catch (error) {
+    console.error('[MM] Get metrics error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // ============ SERVE FRONTEND ============
 
 app.get('*', (req, res) => {
