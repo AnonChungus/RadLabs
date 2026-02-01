@@ -2445,6 +2445,25 @@
       chartType: 'Candle',
       timeframe: 15 // minutes per candle
     };
+    
+    // Global BTC price cache
+    let btcPriceUSD = 100000; // Default fallback
+    
+    // Fetch real BTC price from CoinGecko
+    async function fetchBTCPrice() {
+      try {
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+        const data = await response.json();
+        if (data.bitcoin && data.bitcoin.usd) {
+          btcPriceUSD = data.bitcoin.usd;
+          console.log('[Price] BTC price updated: $' + btcPriceUSD.toLocaleString());
+          return btcPriceUSD;
+        }
+      } catch (error) {
+        console.error('[Price] Failed to fetch BTC price:', error);
+      }
+      return btcPriceUSD;
+    }
 
     // LOTTERY TIMER
     function updateLotteryTimer() {
@@ -2553,7 +2572,7 @@
         console.log('[Tokens] Loaded', S.tokens.length, 'tokens');
         
         renderTable();
-        renderTicker();
+        // renderTicker(); // Disabled - ticker removed
         
         if (S.tokens.length > 0) {
           selectToken(S.tokens[0]);
@@ -3620,9 +3639,22 @@ To fund your trading wallet:
       positions: []
     };
 
-    function populateMMTokens() {
+    async function populateMMTokens() {
       const select = document.getElementById('mmTokenSelect');
-      S.tokens.slice(0, 20).forEach(t => {
+      if (!select) return;
+      
+      // Filter tokens that have poolId
+      const validTokens = S.tokens.filter(t => t.poolId);
+      
+      if (validTokens.length === 0) {
+        select.innerHTML = '<option>No pools available</option>';
+        return;
+      }
+      
+      // Clear existing options
+      select.innerHTML = '<option value="">-- Choose Token --</option>';
+      
+      validTokens.slice(0, 20).forEach(t => {
         const opt = document.createElement('option');
         opt.value = t.tokenId;
         opt.textContent = `${t.displayTicker || t.symbol} ($${fmtCompact(t.marketCap || 0)})`;
@@ -3630,7 +3662,8 @@ To fund your trading wallet:
         select.appendChild(opt);
       });
 
-      select.addEventListener('change', (e) => {
+      // Remove old listener and add new one (use onchange to avoid duplicates)
+      select.onchange = async (e) => {
         if (!e.target.value) {
           document.getElementById('mmTokenInfo').style.display = 'none';
           mmState.selectedToken = null;
@@ -3640,11 +3673,32 @@ To fund your trading wallet:
         const token = JSON.parse(e.target.selectedOptions[0].dataset.token);
         mmState.selectedToken = token;
         
+        console.log('[MM] Selected token:', token.symbol, 'poolId:', token.poolId);
+        
+        // Fetch pool to get REAL TVL
+        try {
+          const poolRes = await fetch(`/api/pools`);
+          const poolData = await poolRes.json();
+          const pool = poolData.data.find(p => p._id === token.poolId);
+          
+          if (pool && pool.tvl) {
+            // TVL is in BTC, convert to USD
+            const tvlUSD = pool.tvl * btcPriceUSD;
+            document.getElementById('mmPoolTVL').textContent = '$' + fmtCompact(tvlUSD);
+            console.log('[MM] Pool TVL:', pool.tvl.toFixed(4), 'BTC = $' + tvlUSD.toFixed(0));
+          } else {
+            document.getElementById('mmPoolTVL').textContent = '$' + fmtCompact(token.marketCap || 0);
+            console.log('[MM] Pool not found, using market cap fallback');
+          }
+        } catch (error) {
+          console.error('[MM] Failed to fetch pool TVL:', error);
+          document.getElementById('mmPoolTVL').textContent = '$' + fmtCompact(token.marketCap || 0);
+        }
+        
         document.getElementById('mmTokenMcap').textContent = '$' + fmtCompact(token.marketCap || 0);
         document.getElementById('mmTokenVol').textContent = '$' + fmtCompact(token.volume24h || 0);
-        document.getElementById('mmPoolTVL').textContent = '$' + fmtCompact(token.liquidity || 0);
         document.getElementById('mmTokenInfo').style.display = 'block';
-      });
+      };
     }
 
     function setMMAmount(amt) {
@@ -3652,13 +3706,11 @@ To fund your trading wallet:
       updateMMUSD();
     }
     
-    // Update USD display for MM deposit amount
-    function updateMMUSD() {
+    // Update USD display for MM deposit amount with REAL BTC price
+    async function updateMMUSD() {
       const btcAmount = parseFloat(document.getElementById('mmDepositAmount').value) || 0;
-      // Fetch current BTC price from selected token or use approximate rate
-      const btcPriceUSD = 100000; // Approximate BTC price, could fetch from API
-      const usdAmount = (btcAmount * btcPriceUSD).toFixed(0);
-      document.getElementById('mmDepositUSD').textContent = usdAmount.toLocaleString();
+      const usdAmount = (btcAmount * btcPriceUSD).toFixed(2);
+      document.getElementById('mmDepositUSD').textContent = parseFloat(usdAmount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     }
 
     function selectMMStrategy(strategy) {
@@ -4175,36 +4227,39 @@ To fund your trading wallet:
       console.log('[RadLabs] Initializing...');
       
       try {
-        // 1. Restore session first
+        // 1. Fetch BTC price
+        fetchBTCPrice();
+        setInterval(fetchBTCPrice, 60000); // Update every minute
+        
+        // 2. Restore session first
         restoreSession();
         
-        // 2. Set up lottery timer
+        // 3. Set up lottery timer
         updateLotteryTimer();
         setInterval(updateLotteryTimer, 1000);
         
-        // 3. Initialize chart
+        // 4. Initialize chart
         if (document.getElementById('tvChart')) {
           initChart();
           console.log('[RadLabs] Chart initialized');
         }
         
-        // 4. Load tokens (async)
+        // 5. Load tokens (async)
         loadTokens();
         
-        // 5. Load MM positions
+        // 6. Load MM positions
         loadMMLoc();
         
-        // 6. Initialize RadPad if elements exist
+        // 7. Initialize RadPad if elements exist
         if (document.getElementById('feeTier')) {
           updateSliders();
           updatePreview();
         }
         
-        // 7. Populate MM tokens after brief delay
+        // 8. Populate MM tokens after brief delay
         setTimeout(() => {
           if (S.tokens.length > 0) {
             populateMMTokens();
-            setInterval(populateMMTokens, 60000);
             console.log('[RadLabs] MM tokens populated');
           } else {
             // Retry if tokens not loaded yet
@@ -4214,12 +4269,12 @@ To fund your trading wallet:
           }
         }, 1000);
         
-        // 8. Load etched runes if on RadPad page
+        // 9. Load etched runes if on RadPad page
         if (document.getElementById('etchedRunes')) {
           loadEtchedRunes();
         }
         
-        // 9. Update MM positions periodically
+        // 10. Update MM positions periodically
         setInterval(updateMMPositions, 5 * 60 * 1000);
         setTimeout(updateMMPositions, 10000);
         
