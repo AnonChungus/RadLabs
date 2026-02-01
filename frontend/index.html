@@ -3903,54 +3903,7 @@ async function fetchRealChartData(token, timeframeMinutes) {
         
         console.log(`[Auth] Connected wallet: ${userAddress}`);
         
-        // Step 2: Check if RadFi trading wallet already exists
-        toast('Checking for existing RadFi wallet...', 'info');
-        
-        const checkResponse = await fetch(`/api/wallets/details/${userAddress}`);
-        const checkData = await checkResponse.json();
-        
-        let tradingAddress = null;
-        let isExistingWallet = false;
-        
-        if (checkData.code === '1' && checkData.data && checkData.data.exists) {
-          // Wallet exists on RadFi - use it!
-          tradingAddress = checkData.data.tradingAddress;
-          isExistingWallet = true;
-          console.log(`[Auth] Found existing RadFi wallet: ${tradingAddress}`);
-          toast('Found your existing RadFi wallet!', 'info');
-        } else {
-          // No wallet exists - create one
-          console.log(`[Auth] No existing wallet found, creating new one`);
-          toast('Creating new RadFi trading wallet...', 'info');
-          
-          const createResponse = await fetch('/api/wallets', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              walletAddress: userAddress,
-              publicKey: publicKey
-            })
-          });
-          
-          const createData = await createResponse.json();
-          
-          if (createData.code === '1' && createData.data && createData.data.tradingAddress) {
-            tradingAddress = createData.data.tradingAddress;
-            console.log(`[Auth] Created new RadFi wallet: ${tradingAddress}`);
-          } else {
-            toast('Failed to create trading wallet: ' + (createData.message || 'Unknown error'), 'error');
-            return;
-          }
-        }
-        
-        if (!tradingAddress) {
-          toast('Failed to get trading wallet address', 'error');
-          return;
-        }
-        
-        S.tradingAddress = tradingAddress;
-        
-        // Step 3: Sign message for BIP322 authentication
+        // Step 2: Sign message for BIP322 authentication
         toast('Signing authentication message...', 'info');
         
         const message = Date.now().toString();
@@ -3973,8 +3926,8 @@ async function fetchRealChartData(token, timeframeMinutes) {
           return;
         }
         
-        // Step 4: Authenticate with RadFi API to get JWT tokens
-        toast('Authenticating...', 'info');
+        // Step 3: Authenticate with RadFi API (this returns your original trading wallet!)
+        toast('Authenticating with RadFi...', 'info');
         
         const authResponse = await fetch('/api/auth/authenticate', {
           method: 'POST',
@@ -3994,20 +3947,16 @@ async function fetchRealChartData(token, timeframeMinutes) {
           return;
         }
         
-        // Step 5: Store tokens and verify trading wallet address matches
+        // Step 4: RadFi auth response contains the tradingAddress (your original wallet!)
         S.accessToken = authData.data.accessToken;
         S.refreshToken = authData.data.refreshToken;
-        
-        // Verify the trading address from auth matches what we got earlier
-        if (authData.data.tradingAddress && authData.data.tradingAddress !== tradingAddress) {
-          console.warn(`[Auth] Trading address mismatch! Expected: ${tradingAddress}, Got: ${authData.data.tradingAddress}`);
-          // Use the one from auth response as source of truth
-          S.tradingAddress = authData.data.tradingAddress;
-        }
-        
+        S.tradingAddress = authData.data.tradingAddress; // This is the source of truth!
         S.walletData = authData.data.wallet;
         
-        console.log(`[Auth] Final trading wallet: ${S.tradingAddress}`);
+        const isExistingWallet = authData.data.wallet && authData.data.wallet.createdAt < (Date.now() - 60000);
+        
+        console.log(`[Auth] Authenticated! Trading wallet: ${S.tradingAddress}`);
+        console.log(`[Auth] Wallet created:`, new Date(authData.data.wallet?.createdAt).toLocaleString());
         
         // Save to localStorage
         localStorage.setItem('radfi_auth', JSON.stringify({
