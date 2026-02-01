@@ -1864,40 +1864,42 @@
     function generateCandleData(currentMcap) {
       const now = Math.floor(Date.now() / 1000);
       const data = [];
-      // Start from 90 days ago to show months of history like RadFi
       const daysAgo = 90;
       const candles = daysAgo * 96; // 15-min candles per day
       
-      // Generate more realistic price action - start closer to current, vary around it
-      let mcap = currentMcap * (0.85 + Math.random() * 0.15); // Start at 85-100% of current
+      // Generate realistic price action that fluctuates around current market cap
+      // Similar to RadFi - normal trading activity, not massive drops or pumps
       
       for (let i = candles; i >= 0; i--) {
         const time = now - i * 900; // 15 min candles
-        const open = mcap;
+        const daysFromNow = i / 96;
         
-        // Smaller volatility (3-8% instead of 8%)
-        const vol = mcap * (0.03 + Math.random() * 0.05);
-        const close = mcap + (Math.random() - 0.5) * vol;
-        const high = Math.max(open, close) * (1 + Math.random() * 0.02);
-        const low = Math.min(open, close) * (1 - Math.random() * 0.02);
+        // Create a base price that oscillates around currentMcap
+        // Add some longer-term trends (monthly cycles) but keep close to current
+        const monthCycle = Math.sin((daysFromNow / 30) * Math.PI * 2);
+        const weekCycle = Math.sin((daysFromNow / 7) * Math.PI * 2);
+        
+        // Base price oscillates +/- 15% around current market cap
+        const baseVariation = (monthCycle * 0.10) + (weekCycle * 0.05);
+        const baseMcap = currentMcap * (1 + baseVariation);
+        
+        // Individual candle volatility (2-4% per 15min candle)
+        const volatility = baseMcap * (0.02 + Math.random() * 0.02);
+        const change = (Math.random() - 0.5) * volatility;
+        
+        const open = baseMcap;
+        const close = baseMcap + change;
+        const high = Math.max(open, close) * (1 + Math.random() * 0.015);
+        const low = Math.min(open, close) * (1 - Math.random() * 0.015);
         
         data.push({ time, open, high, low, close });
-        
-        // Very gentle drift toward current price over time
-        const progress = 1 - (i / candles);
-        const drift = (currentMcap - mcap) * 0.001 * progress;
-        mcap = close + drift;
-        
-        // Add some longer-term trends (weekly cycles)
-        const weekCycle = Math.sin((i / 96 / 7) * Math.PI * 2);
-        mcap = mcap * (1 + weekCycle * 0.05);
       }
       
-      // Make sure last candle is close to current price
+      // Ensure the last candle closes exactly at current market cap
       const lastCandle = data[data.length - 1];
       lastCandle.close = currentMcap;
-      lastCandle.high = Math.max(lastCandle.high, currentMcap);
-      lastCandle.low = Math.min(lastCandle.low, currentMcap);
+      lastCandle.high = Math.max(lastCandle.open, currentMcap) * 1.01;
+      lastCandle.low = Math.min(lastCandle.open, currentMcap) * 0.99;
       
       return data;
     }
