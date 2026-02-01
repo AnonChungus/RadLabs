@@ -2841,7 +2841,28 @@
           const lineData = data.map(d => ({ time: d.time, value: d.close }));
           S.lineSeries.setData(lineData);
           
+          // Auto-scale to fit the data range
           S.chart.timeScale().fitContent();
+          
+          // Set price scale to fit the market cap range
+          const prices = data.map(d => [d.high, d.low]).flat();
+          const minPrice = Math.min(...prices);
+          const maxPrice = Math.max(...prices);
+          const margin = (maxPrice - minPrice) * 0.1; // 10% margin
+          
+          S.candleSeries.applyOptions({
+            priceFormat: {
+              type: 'custom',
+              formatter: (price) => {
+                if (price >= 1000000) return '$' + (price / 1000000).toFixed(1) + 'M';
+                if (price >= 1000) return '$' + (price / 1000).toFixed(0) + 'k';
+                if (price >= 1) return '$' + price.toFixed(2);
+                if (price >= 0.0001) return '$' + price.toFixed(6);
+                return '$' + price.toExponential(2);
+              }
+            }
+          });
+          
         } else {
           console.log('[Chart] No real data, using fallback');
           // Fallback to generated data if no real data available
@@ -2894,18 +2915,44 @@ async function fetchRealChartData(token, timeframeMinutes) {
     
     console.log('[Chart] Pool decimals - BTC:', token0Decimal, 'Rune:', token1Decimal);
     
-    // Fetch swap histories
-    const pageSize = timeframeMinutes <= 15 ? 500 : 1000;
-    const response = await fetch(`/api/histories?poolId=${token.poolId}&type=swap&pageSize=${pageSize}&sort=btcBlockTime`);
-    const data = await response.json();
+    // Fetch ALL swap histories - fetch multiple pages to get months of data
+    let allSwaps = [];
+    let page = 1;
+    const pageSize = 1000;
+    let hasMore = true;
     
-    if (!data.data || data.data.length === 0) {
+    // Fetch up to 5 pages (5000 swaps) to get historical data
+    while (hasMore && page <= 5) {
+      const response = await fetch(`/api/histories?poolId=${token.poolId}&type=swap&pageSize=${pageSize}&page=${page}&sort=btcBlockTime`);
+      const data = await response.json();
+      
+      if (!data.data || data.data.length === 0) {
+        hasMore = false;
+        break;
+      }
+      
+      allSwaps = allSwaps.concat(data.data);
+      
+      // Stop if we got fewer results than page size (last page)
+      if (data.data.length < pageSize) {
+        hasMore = false;
+      }
+      
+      page++;
+    }
+    
+    if (allSwaps.length === 0) {
       console.log('[Chart] No swap history found');
       return null;
     }
     
-    const swaps = data.data;
-    console.log('[Chart] Fetched', swaps.length, 'swaps');
+    // Sort by time ascending (oldest first)
+    allSwaps.sort((a, b) => a.btcBlockTime - b.btcBlockTime);
+    
+    console.log('[Chart] Fetched', allSwaps.length, 'swaps spanning', 
+      new Date(allSwaps[0].btcBlockTime * 1000).toLocaleDateString(), 
+      'to',
+      new Date(allSwaps[allSwaps.length - 1].btcBlockTime * 1000).toLocaleDateString());
     
     // Get current market cap from token data
     const currentMarketCap = token.marketCap || 337000; // Fallback to $337k
@@ -2914,7 +2961,7 @@ async function fetchRealChartData(token, timeframeMinutes) {
     // Calculate price RATIOS from each swap (just the relative price, no USD yet)
     const ratios = [];
     
-    for (const swap of swaps) {
+    for (const swap of allSwaps) {
       const amount0 = parseFloat(swap.token0Amount); // BTC in smallest unit
       const amount1 = parseFloat(swap.token1Amount); // Rune in smallest unit
       
@@ -2986,15 +3033,23 @@ async function fetchRealChartData(token, timeframeMinutes) {
     const candles = Object.values(candleMap)
       .sort((a, b) => a.time - b.time);
     
-    // Fill gaps between candles (max 10 intervals)
+    console.log('[Chart] Generated', candles.length, 'raw candles from', Object.keys(candleMap).length, 'buckets');
+    console.log('[Chart] Time range:', 
+      new Date(candles[0].time * 1000).toLocaleString(), 
+      'to', 
+      new Date(candles[candles.length - 1].time * 1000).toLocaleString());
+    
+    // Fill gaps between candles (max 50 intervals for larger timeframes)
+    const maxGapFill = timeframeMinutes >= 60 ? 50 : 20;
     const filledCandles = [];
+    
     for (let i = 0; i < candles.length; i++) {
       if (i > 0) {
         const prevTime = candles[i - 1].time;
         const currTime = candles[i].time;
         const gap = (currTime - prevTime) / intervalSeconds - 1;
         
-        if (gap > 0 && gap <= 10) {
+        if (gap > 0 && gap <= maxGapFill) {
           const prevClose = candles[i - 1].close;
           for (let j = 1; j <= gap; j++) {
             filledCandles.push({
@@ -3010,7 +3065,7 @@ async function fetchRealChartData(token, timeframeMinutes) {
       filledCandles.push(candles[i]);
     }
     
-    console.log('[Chart] Generated', filledCandles.length, 'candles');
+    console.log('[Chart] Final:', filledCandles.length, 'candles (after gap filling)');
     return filledCandles;
     
   } catch (error) {
