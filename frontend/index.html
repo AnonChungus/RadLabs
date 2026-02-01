@@ -1201,6 +1201,273 @@
     .toast.success { border-color: var(--green); }
     .toast.error { border-color: var(--red); }
     
+    /* ===== MARKET MAKER ===== */
+    .mm-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .mm-header h1 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--miami-pink), var(--miami-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .mm-header p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+    
+    .mm-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+    
+    .mm-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      padding: 1.5rem;
+    }
+    
+    .mm-card.full-width {
+      grid-column: 1 / -1;
+    }
+    
+    .mm-card h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .mm-desc {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .mm-select-token,
+    .mm-deposit-input {
+      margin-bottom: 1.5rem;
+    }
+    
+    .mm-select-token label,
+    .mm-deposit-input label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+    }
+    
+    .mm-dropdown,
+    .mm-deposit-input input {
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    
+    .mm-dropdown:focus,
+    .mm-deposit-input input:focus {
+      outline: none;
+      border-color: var(--miami-cyan);
+    }
+    
+    .mm-quick-amounts {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    .mm-quick-amounts button {
+      background: rgba(0,255,136,0.1);
+      border: 1px solid var(--green);
+      color: var(--green);
+      padding: 0.5rem;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .mm-quick-amounts button:hover {
+      background: var(--green);
+      color: var(--bg-primary);
+    }
+    
+    .mm-token-info {
+      background: rgba(0,0,0,0.2);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .mm-stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--card-border);
+    }
+    
+    .mm-stat:last-child {
+      border-bottom: none;
+    }
+    
+    .mm-stat span:first-child {
+      color: var(--text-muted);
+    }
+    
+    .mm-stat span:last-child {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: var(--matrix-green);
+    }
+    
+    .mm-btn {
+      width: 100%;
+      padding: 1rem;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .mm-btn.primary {
+      background: linear-gradient(135deg, var(--green), #00cc77);
+      color: var(--bg-primary);
+      box-shadow: 0 4px 20px rgba(0,255,136,0.3);
+    }
+    
+    .mm-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 30px rgba(0,255,136,0.4);
+    }
+    
+    .mm-strategy-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .mm-strategy-option {
+      background: rgba(0,0,0,0.2);
+      border: 2px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .mm-strategy-option:hover {
+      border-color: var(--miami-cyan);
+      background: rgba(0,212,255,0.05);
+    }
+    
+    .mm-strategy-option.active {
+      border-color: var(--matrix-green);
+      background: rgba(0,255,136,0.1);
+    }
+    
+    .mm-strategy-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .mm-strategy-icon {
+      font-size: 2rem;
+    }
+    
+    .mm-strategy-header h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .mm-strategy-header p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    
+    .mm-strategy-stats {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    
+    .mm-strategy-params {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--card-border);
+    }
+    
+    .mm-strategy-params h4 {
+      margin-bottom: 1rem;
+    }
+    
+    .mm-param {
+      margin-bottom: 1rem;
+    }
+    
+    .mm-param label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .mm-param input {
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.5rem;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .mm-empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+    
+    .mm-empty-state p {
+      color: var(--text-secondary);
+      margin: 0.5rem 0;
+    }
+    
+    .mm-positions table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .mm-positions th,
+    .mm-positions td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--card-border);
+    }
+    
+    .mm-positions th {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    
     /* ===== RESPONSIVE ===== */
     @media (max-width: 1024px) {
       .trade-grid { grid-template-columns: 1fr; }
@@ -1282,7 +1549,7 @@
       <a href="#" class="active" data-page="trade">Trade</a>
       <a href="#" data-page="tokens">Tokens</a>
       <a href="#" data-page="games">Games</a>
-      <a href="https://app.radfi.co/explore" target="_blank">RadFi ↗</a>
+      <a href="#" data-page="market-maker">Market Maker</a>
     </nav>
     
     <button class="connect-btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
@@ -1535,6 +1802,139 @@
             <div class="game-stat"><div class="label">Max Multi</div><div class="value">500x</div></div>
           </div>
           <button class="play-btn">Play Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MARKET MAKER PAGE -->
+  <div class="page" id="page-market-maker">
+    <div class="mm-header">
+      <h1>🏦 RadLabs Market Maker</h1>
+      <p>Provide liquidity and earn fees through automated market making on RadFi pools</p>
+    </div>
+
+    <div class="mm-grid">
+      <!-- Deposit Card -->
+      <div class="mm-card">
+        <h2>💰 Deploy Capital</h2>
+        <p class="mm-desc">Choose a token and deposit funds to start market making</p>
+        
+        <div class="mm-select-token">
+          <label>Select Token to Market Make</label>
+          <select id="mmTokenSelect" class="mm-dropdown">
+            <option value="">-- Choose Token --</option>
+          </select>
+        </div>
+
+        <div class="mm-token-info" id="mmTokenInfo" style="display:none">
+          <div class="mm-stat">
+            <span>Current Price:</span>
+            <span id="mmTokenPrice">--</span>
+          </div>
+          <div class="mm-stat">
+            <span>Market Cap:</span>
+            <span id="mmTokenMcap">--</span>
+          </div>
+          <div class="mm-stat">
+            <span>24h Volume:</span>
+            <span id="mmTokenVol">--</span>
+          </div>
+          <div class="mm-stat">
+            <span>RadFi Pool TVL:</span>
+            <span id="mmPoolTVL">--</span>
+          </div>
+        </div>
+
+        <div class="mm-deposit-input">
+          <label>Deposit Amount (BTC)</label>
+          <input type="number" id="mmDepositAmount" placeholder="0.01" min="0.001" step="0.001">
+          <div class="mm-quick-amounts">
+            <button onclick="setMMAmount(0.01)">0.01</button>
+            <button onclick="setMMAmount(0.05)">0.05</button>
+            <button onclick="setMMAmount(0.1)">0.1</button>
+            <button onclick="setMMAmount(0.5)">0.5</button>
+          </div>
+        </div>
+
+        <button class="mm-btn primary" onclick="depositToMM()">Deposit & Start MM</button>
+      </div>
+
+      <!-- Strategy Card -->
+      <div class="mm-card">
+        <h2>📊 Strategy Selection</h2>
+        <p class="mm-desc">Choose your market making approach</p>
+
+        <div class="mm-strategy-list">
+          <div class="mm-strategy-option" onclick="selectMMStrategy('jane-street')">
+            <div class="mm-strategy-header">
+              <span class="mm-strategy-icon">🏛️</span>
+              <div>
+                <h3>Jane Street Style</h3>
+                <p>Tight spreads, high frequency, mean reversion</p>
+              </div>
+            </div>
+            <div class="mm-strategy-stats">
+              <span>Target APY: 25-40%</span>
+              <span>Risk: Medium</span>
+            </div>
+          </div>
+
+          <div class="mm-strategy-option" onclick="selectMMStrategy('citadel')">
+            <div class="mm-strategy-header">
+              <span class="mm-strategy-icon">🏢</span>
+              <div>
+                <h3>Citadel Style</h3>
+                <p>Adaptive spreads, inventory management</p>
+              </div>
+            </div>
+            <div class="mm-strategy-stats">
+              <span>Target APY: 30-50%</span>
+              <span>Risk: Medium-High</span>
+            </div>
+          </div>
+
+          <div class="mm-strategy-option" onclick="selectMMStrategy('custom')">
+            <div class="mm-strategy-header">
+              <span class="mm-strategy-icon">⚙️</span>
+              <div>
+                <h3>Custom</h3>
+                <p>Configure your own parameters</p>
+              </div>
+            </div>
+            <div class="mm-strategy-stats">
+              <span>Target APY: Variable</span>
+              <span>Risk: Configurable</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mm-strategy-params" id="mmStrategyParams" style="display:none">
+          <h4>Strategy Parameters</h4>
+          <div class="mm-param">
+            <label>Spread (%)</label>
+            <input type="number" id="mmSpread" value="0.5" step="0.1" min="0.1">
+          </div>
+          <div class="mm-param">
+            <label>Rebalance Threshold (%)</label>
+            <input type="number" id="mmRebalance" value="2" step="0.5" min="0.5">
+          </div>
+          <div class="mm-param">
+            <label>Max Position Size (%)</label>
+            <input type="number" id="mmMaxPos" value="20" step="5" min="5" max="100">
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Positions Card -->
+      <div class="mm-card full-width">
+        <h2>📈 Your Active Positions</h2>
+        <div class="mm-positions" id="mmPositions">
+          <div class="mm-empty-state">
+            <span style="font-size:3rem">💼</span>
+            <p>No active market making positions</p>
+            <p class="mm-desc">Deploy capital above to get started</p>
+          </div>
         </div>
       </div>
     </div>
@@ -2187,9 +2587,158 @@
       });
     });
 
+    // MARKET MAKER
+    let mmState = {
+      selectedToken: null,
+      selectedStrategy: null,
+      positions: []
+    };
+
+    function populateMMTokens() {
+      const select = document.getElementById('mmTokenSelect');
+      S.tokens.slice(0, 20).forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.tokenId;
+        opt.textContent = `${t.displayTicker || t.symbol} ($${fmtCompact(t.marketCap || 0)})`;
+        opt.dataset.token = JSON.stringify(t);
+        select.appendChild(opt);
+      });
+
+      select.addEventListener('change', (e) => {
+        if (!e.target.value) {
+          document.getElementById('mmTokenInfo').style.display = 'none';
+          mmState.selectedToken = null;
+          return;
+        }
+        
+        const token = JSON.parse(e.target.selectedOptions[0].dataset.token);
+        mmState.selectedToken = token;
+        
+        document.getElementById('mmTokenPrice').textContent = '$' + fmtCompact(token.marketCap || 0);
+        document.getElementById('mmTokenMcap').textContent = '$' + fmtCompact(token.marketCap || 0);
+        document.getElementById('mmTokenVol').textContent = '$' + fmtCompact(token.volume24h || 0);
+        document.getElementById('mmPoolTVL').textContent = '$' + fmtCompact(token.volumeAllTime || 0);
+        document.getElementById('mmTokenInfo').style.display = 'block';
+      });
+    }
+
+    function setMMAmount(amt) {
+      document.getElementById('mmDepositAmount').value = amt;
+    }
+
+    function selectMMStrategy(strategy) {
+      mmState.selectedStrategy = strategy;
+      document.querySelectorAll('.mm-strategy-option').forEach(o => o.classList.remove('active'));
+      event.target.closest('.mm-strategy-option').classList.add('active');
+      
+      if (strategy === 'custom') {
+        document.getElementById('mmStrategyParams').style.display = 'block';
+      } else {
+        document.getElementById('mmStrategyParams').style.display = 'none';
+      }
+    }
+
+    function depositToMM() {
+      if (!S.address) {
+        connectWallet();
+        return;
+      }
+
+      if (!mmState.selectedToken) {
+        toast('Please select a token to market make', 'error');
+        return;
+      }
+
+      if (!mmState.selectedStrategy) {
+        toast('Please select a market making strategy', 'error');
+        return;
+      }
+
+      const amount = parseFloat(document.getElementById('mmDepositAmount').value);
+      if (!amount || amount < 0.001) {
+        toast('Minimum deposit is 0.001 BTC', 'error');
+        return;
+      }
+
+      // TODO: Implement deposit logic via RadFi API
+      toast('Market Maker feature coming soon! Backend integration in progress.', 'info');
+      
+      // Placeholder for active position
+      const position = {
+        token: mmState.selectedToken,
+        strategy: mmState.selectedStrategy,
+        amount: amount,
+        startTime: Date.now(),
+        pnl: 0
+      };
+      
+      mmState.positions.push(position);
+      renderMMPositions();
+    }
+
+    function renderMMPositions() {
+      const container = document.getElementById('mmPositions');
+      
+      if (mmState.positions.length === 0) {
+        container.innerHTML = `
+          <div class="mm-empty-state">
+            <span style="font-size:3rem">💼</span>
+            <p>No active market making positions</p>
+            <p class="mm-desc">Deploy capital above to get started</p>
+          </div>
+        `;
+        return;
+      }
+
+      const html = `
+        <table>
+          <thead>
+            <tr>
+              <th>Token</th>
+              <th>Strategy</th>
+              <th>Capital</th>
+              <th>Running</th>
+              <th>PnL</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${mmState.positions.map((p, i) => `
+              <tr>
+                <td>${p.token.displayTicker || p.token.symbol}</td>
+                <td>${p.strategy}</td>
+                <td class="mono">${p.amount} BTC</td>
+                <td>${Math.floor((Date.now() - p.startTime) / 60000)} min</td>
+                <td class="mono ${p.pnl >= 0 ? 'green' : 'red'}">
+                  ${p.pnl >= 0 ? '+' : ''}${p.pnl.toFixed(4)} BTC
+                </td>
+                <td>
+                  <button onclick="stopMM(${i})" style="padding:0.25rem 0.75rem;background:var(--red);border:none;border-radius:6px;color:white;cursor:pointer">Stop</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+      container.innerHTML = html;
+    }
+
+    function stopMM(index) {
+      if (confirm('Stop market making for this position?')) {
+        mmState.positions.splice(index, 1);
+        renderMMPositions();
+        toast('Market making position stopped', 'success');
+      }
+    }
+
     // INIT
     initChart();
     loadTokens();
+    
+    // Populate MM tokens once loaded
+    setTimeout(() => {
+      if (S.tokens.length > 0) populateMMTokens();
+    }, 2000);
   </script>
 </body>
 </html>
