@@ -1637,13 +1637,35 @@
       padding: 2rem;
     }
     
-    .profile-header {
-      text-align: center;
-      margin-bottom: 3rem;
+    /* Deposit CTA Banner */
+    .deposit-cta-banner {
+      background: linear-gradient(135deg, rgba(255,45,146,0.15), rgba(0,212,255,0.15));
+      border: 2px solid;
+      border-image: linear-gradient(135deg, var(--miami-pink), var(--miami-cyan)) 1;
+      border-radius: 20px;
+      padding: 2rem 2.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 2rem;
+      box-shadow: 0 8px 32px rgba(0,212,255,0.2);
     }
     
-    .profile-header h1 {
-      font-size: 2.5rem;
+    .deposit-cta-content {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex: 1;
+    }
+    
+    .deposit-cta-icon {
+      font-size: 3rem;
+      line-height: 1;
+    }
+    
+    .deposit-cta-text h2 {
+      font-size: 1.8rem;
       font-weight: 800;
       margin-bottom: 0.5rem;
       background: linear-gradient(135deg, var(--miami-pink), var(--miami-cyan));
@@ -1652,9 +1674,28 @@
       background-clip: text;
     }
     
-    .profile-header p {
+    .deposit-cta-text p {
       color: var(--text-secondary);
+      font-size: 1rem;
+    }
+    
+    .deposit-cta-btn {
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+      border: 2px solid var(--green);
+      border-radius: 12px;
+      color: var(--text-primary);
       font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+    
+    .deposit-cta-btn:hover {
+      background: linear-gradient(135deg, #2d2d2d, #3a3a3a);
+      box-shadow: 0 4px 20px rgba(0,255,136,0.4);
+      transform: translateY(-2px);
     }
     
     .profile-grid {
@@ -2882,7 +2923,7 @@
           <label>Deposit Amount (BTC)</label>
           <input type="number" id="mmDepositAmount" placeholder="0.01" min="0.001" step="0.001" oninput="updateMMUSD()">
           <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem;">
-            ≈ $<span id="mmDepositUSD">0</span> USD  ·  <span style="color: var(--miami-orange);">Min: 0.001 BTC</span>
+            ≈ $<span id="mmDepositUSD">0</span> USD  ·  <span style="color: var(--miami-orange);">Min: 0.00005 BTC</span>
           </div>
           <div class="mm-quick-amounts">
             <button onclick="setMMAmount(0.01)">0.01</button>
@@ -3006,9 +3047,9 @@
         <h3>⚠️ Important Safety Guidelines</h3>
         <ul>
           <li><strong>Only send Bitcoin (BTC)</strong> to this address. Do NOT send Runes, tokens, or NFTs directly.</li>
-          <li><strong>Minimum amount:</strong> We recommend depositing at least 0.001 BTC ($78+) to cover trading fees.</li>
+          <li><strong>Minimum amount:</strong> We recommend depositing at least 0.00005 BTC (~$4) to cover trading fees.</li>
           <li><strong>Network fees:</strong> Your wallet provider will charge Bitcoin network fees for the deposit.</li>
-          <li><strong>Confirmation time:</strong> Deposits typically confirm within 10-30 minutes depending on network congestion.</li>
+          <li><strong>Confirmation time:</strong> Deposits require 2-3 Bitcoin blocks to confirm (~20-30 minutes).</li>
           <li><strong>This is a 2-of-2 multisig wallet</strong> - RadLabs co-signs transactions for security. You always control withdrawals.</li>
         </ul>
       </div>
@@ -3027,9 +3068,18 @@
   <!-- PROFILE PAGE -->
   <div class="page" id="page-profile">
     <div class="profile-container">
-      <div class="profile-header">
-        <h1>👤 Profile</h1>
-        <p>Manage your wallets, balances, and positions</p>
+      <!-- Deposit CTA Banner -->
+      <div class="deposit-cta-banner" id="depositCTABanner">
+        <div class="deposit-cta-content">
+          <div class="deposit-cta-icon">💰</div>
+          <div class="deposit-cta-text">
+            <h2>Fund Your Trading Wallet</h2>
+            <p>Deposit BTC to start trading Runes • Minimum: 0.00005 BTC (~$4)</p>
+          </div>
+        </div>
+        <button class="deposit-cta-btn" onclick="showDepositModal()">
+          Deposit Now →
+        </button>
       </div>
 
       <div class="profile-grid">
@@ -4550,6 +4600,12 @@ To fund your trading wallet:
           const data = await res.json();
           const tradingBalance = (data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum) / 100000000;
           document.getElementById('profileTradingBalance').textContent = tradingBalance.toFixed(8) + ' BTC';
+          
+          // Hide deposit CTA if user has balance
+          const depositBanner = document.getElementById('depositCTABanner');
+          if (depositBanner) {
+            depositBanner.style.display = tradingBalance > 0 ? 'none' : 'flex';
+          }
         }
       } catch (e) {
         console.error('Failed to load wallet balances:', e);
@@ -5016,8 +5072,8 @@ To fund your trading wallet:
       }
 
       const amount = parseFloat(document.getElementById('mmDepositAmount').value);
-      if (!amount || amount < 0.001) {
-        toast('Minimum deposit is 0.001 BTC', 'error');
+      if (!amount || amount < 0.00005) {
+        toast('Minimum deposit is 0.00005 BTC', 'error');
         return;
       }
 
