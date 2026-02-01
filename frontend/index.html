@@ -2024,12 +2024,15 @@
     // STATE
     const S = {
       tokens: [],
-      userAddress: null,      // User's wallet address (Xverse/Unisat/OKX)
-      tradingAddress: null,   // RadFi trading wallet address (2-of-2 multisig)
-      publicKey: null,        // User's public key
-      walletType: null,       // 'unisat' | 'xverse' | 'okx'
-      accessToken: null,      // JWT access token
-      refreshToken: null,     // JWT refresh token
+      userAddress: null,          // User's wallet address (Xverse/Unisat/OKX)
+      tradingAddress: null,       // RadFi trading wallet address (2-of-2 multisig)
+      tradingWalletBalance: 0,    // Trading wallet balance in sats
+      publicKey: null,            // User's public key
+      walletType: null,           // 'unisat' | 'xverse' | 'okx'
+      walletData: null,           // Full wallet object from RadFi
+      hasWalletHistory: false,    // True if wallet was used on RadFi before
+      accessToken: null,          // JWT access token
+      refreshToken: null,         // JWT refresh token
       mode: 'buy',
       from: { symbol: 'BTC', tokenId: '0:0', priceInSats: 100000000 },
       to: null,
@@ -2619,6 +2622,10 @@
         S.accessToken = authData.data.accessToken;
         S.refreshToken = authData.data.refreshToken;
         S.tradingAddress = authData.data.tradingAddress;
+        S.walletData = authData.data.wallet;
+        
+        // Check if this is an existing wallet (created on RadFi before)
+        const isExistingWallet = authData.data.wallet && authData.data.wallet.createdAt < (Date.now() - 60000);
         
         // Save to localStorage
         localStorage.setItem('radfi_auth', JSON.stringify({
@@ -2627,7 +2634,8 @@
           publicKey,
           walletType: type,
           accessToken: S.accessToken,
-          refreshToken: S.refreshToken
+          refreshToken: S.refreshToken,
+          walletData: S.walletData
         }));
         
         // Update UI
@@ -2636,11 +2644,224 @@
         document.getElementById('tradeBtn').disabled = false;
         document.getElementById('tradeBtn').textContent = S.mode === 'buy' ? 'Buy' : 'Sell';
         
-        toast(`✅ Trading wallet ready: ${S.tradingAddress.slice(0, 10)}...`, 'success');
+        if (isExistingWallet) {
+          toast(`✅ Synced existing RadFi wallet: ${S.tradingAddress.slice(0, 10)}...`, 'success');
+        } else {
+          toast(`✅ Trading wallet ready: ${S.tradingAddress.slice(0, 10)}...`, 'success');
+        }
+        
+        // Step 5: Fetch and display wallet balance
+        await fetchTradingWalletBalance();
+        
+        // Step 6: Sync existing RadFi positions (if any)
+        setTimeout(() => syncExistingPositions(), 2000);
         
       } catch (e) {
         console.error('Wallet connection error:', e);
         toast('Connection failed: ' + e.message, 'error');
+      }
+    }
+    
+    // Fetch trading wallet balance and details
+    async function fetchTradingWalletBalance() {
+      if (!S.tradingAddress) return;
+      
+      try {
+        // Fetch wallet details from RadFi API
+        const response = await fetch(`/api/wallets/details/${S.tradingAddress}`, {
+          headers: S.accessToken ? { 'Authorization': `Bearer ${S.accessToken}` } : {}
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          const wallet = data.data;
+          S.tradingWalletBalance = wallet.balance || 0;
+          S.walletData = wallet;
+          
+          // Check wallet history to see if it's been used before
+          await checkWalletHistory();
+          
+          // Display balance in UI
+          displayWalletInfo(wallet);
+          
+          // Show balance toast
+          const balanceBTC = (wallet.balance || 0) / 1e8;
+          if (balanceBTC > 0) {
+            toast(`💰 Trading wallet balance: ${balanceBTC.toFixed(8)} BTC`, 'success');
+          } else if (S.hasWalletHistory) {
+            toast(`✅ Synced existing RadFi wallet (previously used)`, 'info');
+          } else {
+            toast(`ℹ️ New trading wallet created. Fund it to start trading.`, 'info');
+          }
+          
+          return wallet;
+        }
+      } catch (error) {
+        console.error('Failed to fetch trading wallet balance:', error);
+      }
+    }
+    
+    // Check if wallet has previous transaction history
+    async function checkWalletHistory() {
+      if (!S.tradingAddress) return;
+      
+      try {
+        // Check for any previous transactions
+        const historyResponse = await fetch(`/api/histories?userAddress=${S.tradingAddress}&pageSize=1`);
+        const historyData = await historyResponse.json();
+        
+        if (historyData.success && historyData.data && historyData.data.length > 0) {
+          S.hasWalletHistory = true;
+          
+          // Get wallet creation date from wallet data
+          const createdDate = S.walletData?.createdAt ? new Date(S.walletData.createdAt) : null;
+          const firstTxDate = new Date(historyData.data[0].createdAt);
+          
+          console.log('Existing RadFi wallet detected:');
+          console.log('  Created:', createdDate?.toLocaleDateString() || 'Unknown');
+          console.log('  First transaction:', firstTxDate.toLocaleDateString());
+          console.log('  Total transactions: Checking...');
+          
+          // Check positions (LP/Market Maker)
+          const positionsResponse = await fetch(`/api/positions?userAddress=${S.tradingAddress}&pageSize=1`);
+          const positionsData = await positionsResponse.json();
+          
+          if (positionsData.success && positionsData.data && positionsData.data.length > 0) {
+            console.log('  Has LP positions: Yes');
+          }
+        } else {
+          S.hasWalletHistory = false;
+          console.log('New trading wallet (no previous activity)');
+        }
+      } catch (error) {
+        console.error('Failed to check wallet history:', error);
+        S.hasWalletHistory = false;
+      }
+    }
+    
+    // Display wallet info in header
+    function displayWalletInfo(wallet) {
+      const connectBtn = document.getElementById('connectBtn');
+      const balanceBTC = ((wallet.balance || 0) / 1e8).toFixed(4);
+      
+      // Update button to show balance
+      connectBtn.title = `Trading Wallet: ${S.tradingAddress}\nBalance: ${balanceBTC} BTC\nClick to view details`;
+      connectBtn.style.cursor = 'pointer';
+      
+      // Make button clickable to show wallet details
+      connectBtn.onclick = showWalletDetails;
+      
+      // Add balance indicator to header if not exists
+      let balanceIndicator = document.getElementById('walletBalance');
+      if (!balanceIndicator) {
+        balanceIndicator = document.createElement('span');
+        balanceIndicator.id = 'walletBalance';
+        balanceIndicator.style.cssText = 'margin-left: 0.5rem; padding: 0.25rem 0.75rem; background: rgba(0,255,136,0.1); border: 1px solid var(--green); border-radius: 12px; font-family: "JetBrains Mono", monospace; font-size: 0.85rem; color: var(--green); cursor: pointer;';
+        balanceIndicator.onclick = () => fetchTradingWalletBalance();
+        balanceIndicator.title = 'Click to refresh balance';
+        connectBtn.parentNode.insertBefore(balanceIndicator, connectBtn.nextSibling);
+      }
+      
+      balanceIndicator.textContent = `${balanceBTC} BTC`;
+    }
+    
+    // Show wallet details modal
+    function showWalletDetails() {
+      if (!S.tradingAddress) {
+        connectWallet();
+        return;
+      }
+      
+      const balanceBTC = (S.tradingWalletBalance / 1e8).toFixed(8);
+      const created = S.walletData?.createdAt ? new Date(S.walletData.createdAt).toLocaleDateString() : 'Unknown';
+      
+      const details = `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RadFi Trading Wallet Details
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+User Wallet (${S.walletType}):
+${S.userAddress}
+
+Trading Wallet (2-of-2 multisig):
+${S.tradingAddress}
+
+Balance: ${balanceBTC} BTC
+Created: ${created}
+Status: ${S.hasWalletHistory ? 'Previously used on RadFi' : 'New wallet'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+View on RadFi:
+https://app.radfi.co
+
+To fund your trading wallet:
+1. Go to app.radfi.co
+2. Connect with ${S.walletType}
+3. Transfer from your main wallet
+      `.trim();
+      
+      alert(details);
+    }
+    
+    // Sync existing RadFi positions (if any)
+    async function syncExistingPositions() {
+      if (!S.tradingAddress || !S.accessToken) return;
+      
+      try {
+        console.log('Checking for existing RadFi positions...');
+        
+        // Fetch user's LP positions from RadFi
+        const positionsResponse = await fetch(`/api/positions?userAddress=${S.tradingAddress}&pageSize=50`, {
+          headers: { 'Authorization': `Bearer ${S.accessToken}` }
+        });
+        
+        const positionsData = await positionsResponse.json();
+        
+        if (positionsData.success && positionsData.data && positionsData.data.length > 0) {
+          console.log(`Found ${positionsData.data.length} existing LP positions`);
+          
+          // Convert RadFi positions to our MM format
+          for (const pos of positionsData.data) {
+            // Check if we already have this position
+            const exists = mmState.positions.find(p => p.nftId === pos.nftId);
+            if (exists) continue;
+            
+            // Get token info
+            const token = S.tokens.find(t => t.tokenId === pos.token1Id || t.tokenId === pos.token0Id);
+            if (!token) continue;
+            
+            // Calculate deposited BTC amount
+            const btcAmount = pos.token0Id === '0:0' ? parseFloat(pos.amount0) / 1e8 : parseFloat(pos.amount1) / 1e8;
+            
+            // Add to our MM positions
+            const mmPosition = {
+              id: 'radfi-' + pos.nftId,
+              nftId: pos.nftId,
+              token: token,
+              pool: { _id: pos.poolId, token0Id: pos.token0Id, token1Id: pos.token1Id },
+              strategy: 'radfi-lp',
+              depositedBTC: btcAmount,
+              startTime: new Date(pos.createdAt).getTime(),
+              entryPrice: 0, // Will be calculated
+              feesEarned: 0,  // Will be calculated
+              ilLoss: 0,
+              status: 'active',
+              syncedFromRadFi: true
+            };
+            
+            mmState.positions.push(mmPosition);
+          }
+          
+          if (positionsData.data.length > 0) {
+            saveMMLoc();
+            renderMMPositions();
+            toast(`✅ Synced ${positionsData.data.length} existing position(s) from RadFi`, 'success');
+          }
+        }
+      } catch (error) {
+        console.error('Failed to sync existing positions:', error);
       }
     }
     
@@ -2656,6 +2877,7 @@
           S.walletType = auth.walletType;
           S.accessToken = auth.accessToken;
           S.refreshToken = auth.refreshToken;
+          S.walletData = auth.walletData;
           
           // Update UI
           document.getElementById('connectBtn').textContent = auth.userAddress.slice(0, 6) + '...' + auth.userAddress.slice(-4);
@@ -2664,6 +2886,14 @@
           document.getElementById('tradeBtn').textContent = S.mode === 'buy' ? 'Buy' : 'Sell';
           
           console.log('Session restored. Trading wallet:', S.tradingAddress);
+          
+          // Fetch balance for restored session
+          fetchTradingWalletBalance();
+          
+          // Sync existing positions after tokens load
+          setTimeout(() => {
+            if (S.tokens.length > 0) syncExistingPositions();
+          }, 3000);
         } catch (e) {
           console.error('Failed to restore session:', e);
           localStorage.removeItem('radfi_auth');
