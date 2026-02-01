@@ -2830,8 +2830,17 @@
     function toggleMute() {
       const video = document.getElementById('bgVideo');
       const btn = document.getElementById('muteBtn');
-      video.muted = !video.muted;
-      btn.textContent = video.muted ? '🔇' : '🔊';
+      
+      if (video.muted) {
+        video.muted = false;
+        video.volume = 0.3; // Set to 30% volume
+        btn.textContent = '🔊';
+        // Ensure video is playing
+        video.play().catch(e => console.log('[Video] Play error:', e));
+      } else {
+        video.muted = true;
+        btn.textContent = '🔇';
+      }
     }
 
     function setChartType(type) {
@@ -3933,22 +3942,70 @@ To fund your trading wallet:
       `).join('');
     }
 
-    // INIT
-    restoreSession(); // Restore RadFi trading wallet session
-    initChart();
-    loadTokens();
-    loadMMLoc(); // Load saved MM positions
-    updateSliders();
-    updatePreview();
+    // INIT - Enhanced with proper DOM ready check
+    function initializeApp() {
+      console.log('[RadLabs] Initializing...');
+      
+      try {
+        // 1. Restore session first
+        restoreSession();
+        
+        // 2. Set up lottery timer
+        updateLotteryTimer();
+        setInterval(updateLotteryTimer, 1000);
+        
+        // 3. Initialize chart
+        if (document.getElementById('tvChart')) {
+          initChart();
+          console.log('[RadLabs] Chart initialized');
+        }
+        
+        // 4. Load tokens (async)
+        loadTokens();
+        
+        // 5. Load MM positions
+        loadMMLoc();
+        
+        // 6. Initialize RadPad if elements exist
+        if (document.getElementById('feeTier')) {
+          updateSliders();
+          updatePreview();
+        }
+        
+        // 7. Populate MM tokens after brief delay
+        setTimeout(() => {
+          if (S.tokens.length > 0) {
+            populateMMTokens();
+            setInterval(populateMMTokens, 60000);
+            console.log('[RadLabs] MM tokens populated');
+          } else {
+            // Retry if tokens not loaded yet
+            setTimeout(() => {
+              if (S.tokens.length > 0) populateMMTokens();
+            }, 2000);
+          }
+        }, 1000);
+        
+        // 8. Load etched runes if on RadPad page
+        if (document.getElementById('etchedRunes')) {
+          loadEtchedRunes();
+        }
+        
+        // 9. Update MM positions periodically
+        setInterval(updateMMPositions, 5 * 60 * 1000);
+        setTimeout(updateMMPositions, 10000);
+        
+        console.log('[RadLabs] Initialization complete');
+      } catch (error) {
+        console.error('[RadLabs] Initialization error:', error);
+      }
+    }
     
-    // Populate MM tokens once loaded
-    setTimeout(() => {
-      if (S.tokens.length > 0) populateMMTokens();
-    }, 2000);
-    
-    // Load etched runes for RadPad page
-    if (document.getElementById('etchedRunes')) {
-      loadEtchedRunes();
+    // Start when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+      initializeApp();
     }
   </script>
 </body>

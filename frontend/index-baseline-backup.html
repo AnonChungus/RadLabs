@@ -1540,6 +1540,339 @@
       .page { padding: 1rem; }
       .quick-amounts { grid-template-columns: repeat(2, 1fr); }
     }
+  
+
+/* ===== RADPAD ===== */
+    .radpad-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .radpad-header h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--miami-pink), var(--miami-cyan), var(--miami-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    
+    .radpad-header p {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+    }
+    
+    .etch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    
+    .etch-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2rem;
+      backdrop-filter: blur(20px);
+    }
+    
+    .etch-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--text-primary);
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--miami-cyan);
+      box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    
+    .slider-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .slider-group label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .slider-value {
+      float: right;
+      color: var(--miami-cyan);
+      font-weight: 600;
+    }
+    
+    .slider-group input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 10px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    
+    .slider-group input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: var(--miami-cyan);
+      cursor: pointer;
+      border-radius: 50%;
+      box-shadow: 0 2px 10px rgba(0,212,255,0.5);
+    }
+    
+    .slider-group input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: var(--miami-cyan);
+      cursor: pointer;
+      border-radius: 50%;
+      box-shadow: 0 2px 10px rgba(0,212,255,0.5);
+      border: none;
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+    
+    .checkbox-group label {
+      margin: 0;
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .etch-preview {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .etch-preview h3 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: var(--miami-cyan);
+    }
+    
+    .preview-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .preview-item:last-child {
+      border-bottom: none;
+    }
+    
+    .preview-item .label {
+      color: var(--text-secondary);
+    }
+    
+    .preview-item .value {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    
+    .etch-btn {
+      width: 100%;
+      background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(255,255,255,0.1));
+      border: 2px solid transparent;
+      border-image: linear-gradient(135deg, var(--miami-pink), var(--miami-cyan), var(--miami-purple)) 1;
+      color: var(--text-primary);
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .etch-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(255,45,146,0.3);
+    }
+    
+    .etch-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .etch-info {
+      background: rgba(0,212,255,0.1);
+      border: 1px solid rgba(0,212,255,0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    
+    .etch-list {
+      margin-top: 3rem;
+    }
+    
+    .etch-list h2 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    
+    .etch-items {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .etch-item {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .etch-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(255,45,146,0.2);
+    }
+    
+    .etch-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .etch-item-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--miami-cyan);
+    }
+    
+    .etch-item-symbol {
+      background: rgba(255,45,146,0.2);
+      border: 1px solid var(--miami-pink);
+      padding: 0.25rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    
+    .etch-item-description {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+    
+    .etch-item-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    
+    .etch-item-stat {
+      background: rgba(0,0,0,0.3);
+      padding: 0.5rem;
+      border-radius: 6px;
+    }
+    
+    .etch-item-stat .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    
+    .etch-item-stat .value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--matrix-green);
+    }
+    
+    .etch-item-socials {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    
+    .social-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--glass-border);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    
+    .social-link:hover {
+      background: rgba(0,212,255,0.1);
+      border-color: var(--miami-cyan);
+      color: var(--miami-cyan);
+    }
   </style>
 </head>
 <body>
@@ -1611,7 +1944,7 @@
       <a href="#" data-page="market-maker">Market Maker</a>
     </nav>
     
-    <button class="connect-btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+    <button class="connect-btn" id="connectBtn" onclick="doConnect()">Connect Wallet</button>
   </header>
 
   <!-- TRADE PAGE -->
@@ -1776,91 +2109,165 @@
     </div>
   </div>
 
-  <!-- GAMES PAGE -->
-  <div class="page" id="page-games">
-    <div class="games-header">
-      <h1>🎮 GAMES</h1>
-      <p>Bet BTC. Win Big. Have Fun.</p>
-      <div class="rake-info">2% rake fee → $RAD buybacks 🔥</div>
+    <!-- RADPAD PAGE -->
+  <div class="page" id="page-radpad">
+    <div class="radpad-header">
+      <h1>🚀 RadPad</h1>
+      <p>Launch your Rune on Bitcoin with instant liquidity</p>
     </div>
-
-    <!-- Crash Game -->
-    <div class="crash-game">
-      <h3 style="margin-bottom:1rem;font-size:1.5rem">🚀 Crypto Crash</h3>
-      <div class="crash-display">
-        <div class="crash-multiplier" id="crashMultiplier">1.00x</div>
-      </div>
-      <div class="crash-controls">
-        <div class="crash-input">
-          <label>Bet Amount (BTC)</label>
-          <input type="number" id="crashBet" value="0.0001" step="0.0001">
+    
+    <div class="etch-grid">
+      <!-- Left: Rune Details -->
+      <div class="etch-card">
+        <h2>Rune Details</h2>
+        
+        <div class="form-group">
+          <label>Rune Name *</label>
+          <input type="text" id="runeName" placeholder="UNCOMMON•GOODS" 
+                 onkeyup="updatePreview()">
         </div>
-        <div class="crash-input">
-          <label>Auto Cashout At</label>
-          <input type="number" id="crashAuto" value="2.00" step="0.1">
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Symbol *</label>
+            <input type="text" id="symbol" placeholder="UG" maxlength="4"
+                   onkeyup="updatePreview()">
+          </div>
+          
+          <div class="form-group">
+            <label>Display Ticker</label>
+            <input type="text" id="displayTicker" placeholder="UG"
+                   onkeyup="updatePreview()">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Description *</label>
+          <textarea id="description" placeholder="Describe your Rune project..."
+                    onkeyup="updatePreview()"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label>Inscription Type</label>
+          <input type="text" id="inscriptionType" value="text/plain" readonly>
+        </div>
+        
+        <div class="form-group">
+          <label>Inscription Content</label>
+          <textarea id="inscriptionContent" placeholder="Additional inscription data..."
+                    onkeyup="updatePreview()"></textarea>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Twitter/X</label>
+            <input type="text" id="socialX" placeholder="https://x.com/yourproject"
+                   onkeyup="updatePreview()">
+          </div>
+          
+          <div class="form-group">
+            <label>Telegram</label>
+            <input type="text" id="socialTg" placeholder="https://t.me/yourproject"
+                   onkeyup="updatePreview()">
+          </div>
         </div>
       </div>
-      <div class="crash-btns">
-        <button class="bet-btn" onclick="placeCrashBet()">Place Bet</button>
-        <button class="cashout-btn" onclick="cashoutCrash()" disabled id="cashoutBtn">Cash Out</button>
-      </div>
-      <div style="margin-top:1rem;padding:1rem;background:rgba(0,0,0,0.3);border-radius:10px">
-        <div style="display:flex;justify-content:space-between;font-size:0.9rem;color:var(--text-secondary)">
-          <span>Players this round: <span style="color:var(--matrix-green)">47</span></span>
-          <span>Total pot: <span style="color:var(--yellow)">0.0234 BTC</span></span>
+      
+      <!-- Right: Launch Parameters -->
+      <div class="etch-card">
+        <h2>Launch Parameters</h2>
+        
+        <div class="slider-group">
+          <label>
+            Fee Tier
+            <span class="slider-value" id="feeTierVal">1.0%</span>
+          </label>
+          <input type="range" id="feeTier" min="5000" max="100000" step="5000" value="10000"
+                 oninput="updateSliders(); updatePreview();">
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+            Trading fee percentage for your token's liquidity pool
+          </div>
+        </div>
+        
+        <div class="slider-group">
+          <label>
+            Liquidity Allocation
+            <span class="slider-value" id="lpRateVal">20%</span>
+          </label>
+          <input type="range" id="lpRate" min="0" max="100" step="5" value="20"
+                 oninput="updateSliders(); updatePreview();">
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+            % of raised BTC going to liquidity (rest goes to creator)
+          </div>
+        </div>
+        
+        <div class="slider-group">
+          <label>
+            Diamond Hands Reward
+            <span class="slider-value" id="rewardRateVal">50%</span>
+          </label>
+          <input type="range" id="rewardRate" min="0" max="100" step="5" value="50"
+                 oninput="updateSliders(); updatePreview();">
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+            Long-term holder reward (% of available 66.67% rewards)
+          </div>
+        </div>
+        
+        <div class="checkbox-group">
+          <input type="checkbox" id="blockWithdrawals" onchange="updatePreview()">
+          <label for="blockWithdrawals">
+            Block external withdrawals (only internal RadFi transfers allowed)
+          </label>
+        </div>
+        
+        <div class="etch-preview">
+          <h3>Launch Preview</h3>
+          <div class="preview-item">
+            <span class="label">Rune Name:</span>
+            <span class="value" id="prevName">-</span>
+          </div>
+          <div class="preview-item">
+            <span class="label">Symbol:</span>
+            <span class="value" id="prevSymbol">-</span>
+          </div>
+          <div class="preview-item">
+            <span class="label">Fee Tier:</span>
+            <span class="value" id="prevFee">1.0%</span>
+          </div>
+          <div class="preview-item">
+            <span class="label">LP Allocation:</span>
+            <span class="value" id="prevLP">20%</span>
+          </div>
+          <div class="preview-item">
+            <span class="label">Creator Gets:</span>
+            <span class="value" id="prevCreator">80%</span>
+          </div>
+          <div class="preview-item">
+            <span class="label">Diamond Reward:</span>
+            <span class="value" id="prevReward">33.33%</span>
+          </div>
+          <div class="preview-item">
+            <span class="label">Withdrawals:</span>
+            <span class="value" id="prevWithdraw">Allowed</span>
+          </div>
+        </div>
+        
+        <button class="etch-btn" onclick="launchRune()">
+          Launch Rune
+        </button>
+        
+        <div class="etch-info">
+          ℹ️ Connect your wallet to etch a new Rune. You'll need BTC for the inscription and etching fees.
         </div>
       </div>
     </div>
-
-    <div class="games-grid">
-      <div class="game-card">
-        <div class="game-preview">
-          <div class="bg-anim"></div>
-          <span>🎲</span>
-        </div>
-        <div class="game-info">
-          <h3>Satoshi Dice</h3>
-          <p>Classic provably fair dice. Roll under your target to win!</p>
-          <div class="game-stats">
-            <div class="game-stat"><div class="label">Players</div><div class="value">124</div></div>
-            <div class="game-stat"><div class="label">Wagered</div><div class="value">2.4 BTC</div></div>
-            <div class="game-stat"><div class="label">Max Win</div><div class="value">99x</div></div>
-          </div>
-          <button class="play-btn">Play Now</button>
-        </div>
-      </div>
-
-      <div class="game-card">
-        <div class="game-preview">
-          <div class="bg-anim"></div>
-          <span>🎰</span>
-        </div>
-        <div class="game-info">
-          <h3>Rune Slots</h3>
-          <p>Match 3 runes to win. Jackpot up to 1000x!</p>
-          <div class="game-stats">
-            <div class="game-stat"><div class="label">Jackpot</div><div class="value">0.5 BTC</div></div>
-            <div class="game-stat"><div class="label">Spins</div><div class="value">5.2K</div></div>
-            <div class="game-stat"><div class="label">RTP</div><div class="value">96%</div></div>
-          </div>
-          <button class="play-btn">Play Now</button>
-        </div>
-      </div>
-
-      <div class="game-card">
-        <div class="game-preview">
-          <div class="bg-anim"></div>
-          <span>⚡</span>
-        </div>
-        <div class="game-info">
-          <h3>Lightning Roulette</h3>
-          <p>European roulette with random multipliers up to 500x!</p>
-          <div class="game-stats">
-            <div class="game-stat"><div class="label">Players</div><div class="value">89</div></div>
-            <div class="game-stat"><div class="label">24h Vol</div><div class="value">1.8 BTC</div></div>
-            <div class="game-stat"><div class="label">Max Multi</div><div class="value">500x</div></div>
-          </div>
-          <button class="play-btn">Play Now</button>
+    
+    <!-- Recently Launched -->
+    <div class="etch-list">
+      <h2>Recently Launched</h2>
+      <div class="etch-items" id="etchedRunes">
+        <div style="text-align: center; padding: 2rem; grid-column: 1/-1; color: var(--text-secondary);">
+          Loading recently etched Runes...
         </div>
       </div>
     </div>
@@ -2024,6 +2431,7 @@
     // STATE
     const S = {
       tokens: [],
+      etchedRunes: [],           // Recently etched runes for RadPad
       userAddress: null,          // User's wallet address (Xverse/Unisat/OKX)
       tradingAddress: null,       // RadFi trading wallet address (2-of-2 multisig)
       tradingWalletBalance: 0,    // Trading wallet balance in sats
@@ -2909,6 +3317,7 @@ To fund your trading wallet:
       document.getElementById(`page-${page}`)?.classList.add('active');
       
       if (page === 'tokens') renderAllTokens();
+      if (page === 'radpad') loadEtchedRunes();
     }
 
     document.querySelectorAll('.nav a[data-page]').forEach(a => {
@@ -3342,16 +3751,205 @@ To fund your trading wallet:
     // Initial update after 10 seconds
     setTimeout(updateMMPositions, 10000);
 
+    // ===== RADPAD FUNCTIONS =====
+    
+    function updateSliders() {
+      const feeTier = document.getElementById('feeTier').value;
+      const lpRate = document.getElementById('lpRate').value;
+      const rewardRate = document.getElementById('rewardRate').value;
+      
+      document.getElementById('feeTierVal').textContent = (feeTier / 10000).toFixed(1) + '%';
+      document.getElementById('lpRateVal').textContent = lpRate + '%';
+      document.getElementById('rewardRateVal').textContent = rewardRate + '%';
+    }
+    
+    function updatePreview() {
+      const runeName = document.getElementById('runeName').value;
+      const symbol = document.getElementById('symbol').value;
+      const feeTier = document.getElementById('feeTier').value;
+      const lpRate = document.getElementById('lpRate').value;
+      const rewardRate = document.getElementById('rewardRate').value;
+      const blockWithdrawals = document.getElementById('blockWithdrawals').checked;
+      
+      document.getElementById('prevName').textContent = runeName || '-';
+      document.getElementById('prevSymbol').textContent = symbol || '-';
+      document.getElementById('prevFee').textContent = (feeTier / 10000).toFixed(1) + '%';
+      document.getElementById('prevLP').textContent = lpRate + '%';
+      document.getElementById('prevCreator').textContent = (100 - lpRate) + '%';
+      
+      const actualReward = (rewardRate / 100) * 66.67;
+      document.getElementById('prevReward').textContent = actualReward.toFixed(2) + '%';
+      
+      document.getElementById('prevWithdraw').textContent = blockWithdrawals ? 'Blocked' : 'Allowed';
+    }
+    
+    async function launchRune() {
+      if (!S.accessToken) {
+        toast('Please connect your wallet first', 'error');
+        return;
+      }
+      
+      const runeName = document.getElementById('runeName').value.trim();
+      const symbol = document.getElementById('symbol').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const inscriptionContent = document.getElementById('inscriptionContent').value.trim();
+      
+      if (!runeName || !symbol || !description) {
+        toast('Please fill in all required fields', 'error');
+        return;
+      }
+      
+      try {
+        toast('Building commit transaction...', 'info');
+        
+        const etchParams = {
+          runeName,
+          inscriptionType: 'text/plain',
+          inscriptionContent: inscriptionContent || 'Etched on RadFi',
+          userAddress: S.tradingAddress || S.userAddress,
+          feeTier: parseInt(document.getElementById('feeTier').value),
+          diamondHandRewardRate: parseInt(document.getElementById('rewardRate').value) / 100,
+          blockWithdrawals: document.getElementById('blockWithdrawals').checked,
+          addLpSatsRate: parseInt(document.getElementById('lpRate').value) / 100
+        };
+        
+        const commitResponse = await fetch('/api/etch/commit-tx', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${S.accessToken}`
+          },
+          body: JSON.stringify(etchParams)
+        });
+        
+        const commitData = await commitResponse.json();
+        
+        if (!commitData.success) {
+          throw new Error(commitData.error || 'Failed to build commit transaction');
+        }
+        
+        toast('Please sign the transaction in your wallet', 'info');
+        
+        let signedPsbt;
+        if (S.walletType === 'unisat') {
+          signedPsbt = await window.unisat.signPsbt(commitData.psbt);
+        } else if (S.walletType === 'xverse') {
+          throw new Error('Xverse PSBT signing not implemented yet');
+        } else if (S.walletType === 'okx') {
+          signedPsbt = await window.okxwallet.bitcoin.signPsbt(commitData.psbt);
+        }
+        
+        const submitResponse = await fetch('/api/etch/submit-etching', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${S.accessToken}`
+          },
+          body: JSON.stringify({
+            signedBase64Psbt: signedPsbt,
+            runeName,
+            inscriptionType: 'text/plain',
+            inscriptionContent: inscriptionContent || 'Etched on RadFi',
+            symbol,
+            creator: S.userAddress,
+            description,
+            displayTicker: document.getElementById('displayTicker').value || symbol,
+            social: {
+              x: document.getElementById('socialX').value || undefined,
+              telegram: document.getElementById('socialTg').value || undefined
+            }
+          })
+        });
+        
+        const submitData = await submitResponse.json();
+        
+        if (!submitData.success) {
+          throw new Error(submitData.error || 'Failed to submit etching');
+        }
+        
+        toast('Rune etching submitted successfully! 🎉', 'success');
+        setTimeout(() => loadEtchedRunes(), 2000);
+        
+      } catch (error) {
+        console.error('Launch error:', error);
+        toast('Failed to launch rune: ' + error.message, 'error');
+      }
+    }
+    
+    async function loadEtchedRunes() {
+      try {
+        const response = await fetch('/api/etch/runes?pageSize=20&sort=-createdAt');
+        const data = await response.json();
+        S.etchedRunes = data.data || [];
+        renderEtchedRunes();
+      } catch (error) {
+        console.error('Failed to load etched runes:', error);
+      }
+    }
+    
+    function renderEtchedRunes() {
+      const container = document.getElementById('etchedRunes');
+      if (!container) return;
+      
+      if (S.etchedRunes.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 2rem; grid-column: 1/-1; color: var(--text-secondary);">No runes etched yet. Be the first!</div>';
+        return;
+      }
+      
+      container.innerHTML = S.etchedRunes.map(rune => `
+        <div class="etch-item">
+          <div class="etch-item-header">
+            <div class="etch-item-name">${rune.runeName}</div>
+            <div class="etch-item-symbol">${rune.symbol}</div>
+          </div>
+          <div class="etch-item-description">
+            ${rune.description || 'No description provided'}
+          </div>
+          <div class="etch-item-stats">
+            <div class="etch-item-stat">
+              <span class="label">Market Cap</span>
+              <span class="value">${fmtCompact(rune.marketCap || 0)}</span>
+            </div>
+            <div class="etch-item-stat">
+              <span class="label">Holders</span>
+              <span class="value">${rune.holders || 0}</span>
+            </div>
+            <div class="etch-item-stat">
+              <span class="label">Fee Tier</span>
+              <span class="value">${((rune.feeTier || 10000) / 10000).toFixed(1)}%</span>
+            </div>
+            <div class="etch-item-stat">
+              <span class="label">LP Allocation</span>
+              <span class="value">${((rune.addLpSatsRate || 0) * 100).toFixed(0)}%</span>
+            </div>
+          </div>
+          ${rune.social && (rune.social.x || rune.social.telegram) ? `
+            <div class="etch-item-socials">
+              ${rune.social.x ? `<a href="${rune.social.x}" class="social-link" target="_blank">𝕏</a>` : ''}
+              ${rune.social.telegram ? `<a href="${rune.social.telegram}" class="social-link" target="_blank">📱</a>` : ''}
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
     // INIT
     restoreSession(); // Restore RadFi trading wallet session
     initChart();
     loadTokens();
     loadMMLoc(); // Load saved MM positions
+    updateSliders();
+    updatePreview();
     
     // Populate MM tokens once loaded
     setTimeout(() => {
       if (S.tokens.length > 0) populateMMTokens();
     }, 2000);
+    
+    // Load etched runes for RadPad page
+    if (document.getElementById('etchedRunes')) {
+      loadEtchedRunes();
+    }
   </script>
 </body>
 </html>
