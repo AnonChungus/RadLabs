@@ -2024,7 +2024,12 @@
     // STATE
     const S = {
       tokens: [],
-      address: null,
+      userAddress: null,      // User's wallet address (Xverse/Unisat/OKX)
+      tradingAddress: null,   // RadFi trading wallet address (2-of-2 multisig)
+      publicKey: null,        // User's public key
+      walletType: null,       // 'unisat' | 'xverse' | 'okx'
+      accessToken: null,      // JWT access token
+      refreshToken: null,     // JWT refresh token
       mode: 'buy',
       from: { symbol: 'BTC', tokenId: '0:0', priceInSats: 100000000 },
       to: null,
@@ -2064,7 +2069,7 @@
     let crashBetPlaced = false;
 
     function placeCrashBet() {
-      if (!S.address) { connectWallet(); return; }
+      if (!S.userAddress) { connectWallet(); return; }
       if (crashBetPlaced) return;
       
       crashBetPlaced = true;
@@ -2434,7 +2439,7 @@
 
     // TRADE
     function handleTrade() {
-      if (!S.address) {
+      if (!S.userAddress) {
         connectWallet();
         return;
       }
@@ -2449,7 +2454,7 @@
       
       const btn = document.getElementById('tradeBtn');
       btn.className = `trade-btn ${mode}`;
-      btn.textContent = S.address ? (mode === 'buy' ? 'Buy' : 'Sell') : 'Connect Wallet';
+      btn.textContent = S.userAddress ? (mode === 'buy' ? 'Buy' : 'Sell') : 'Connect Wallet';
     }
 
     function setAmt(amt) {
@@ -2521,36 +2526,148 @@
       });
     }
 
-    // WALLET
+    // WALLET - RadFi Trading Wallet Flow
     function connectWallet() {
       document.getElementById('walletModal').classList.add('active');
     }
 
     async function doConnect(type) {
       document.getElementById('walletModal').classList.remove('active');
+      
       try {
-        let addr = null;
+        toast('Connecting wallet...', 'info');
+        
+        let userAddress = null;
+        let publicKey = null;
+        
+        // Step 1: Connect to user's wallet and get public key
         if (type === 'unisat' && window.unisat) {
-          addr = (await window.unisat.requestAccounts())[0];
+          userAddress = (await window.unisat.requestAccounts())[0];
+          publicKey = await window.unisat.getPublicKey();
         } else if (type === 'xverse' && window.XverseProviders) {
-          const res = await window.XverseProviders.request('getAccounts', null);
-          if (res.result) addr = res.result[0].address;
+          const res = await window.XverseProviders.BitcoinProvider.request('getAccounts', {
+            purposes: ['payment', 'ordinals']
+          });
+          if (res.result && res.result.length > 0) {
+            const account = res.result.find(a => a.purpose === 'payment') || res.result[0];
+            userAddress = account.address;
+            publicKey = account.publicKey;
+          }
         } else if (type === 'okx' && window.okxwallet) {
-          addr = (await window.okxwallet.bitcoin.connect()).address;
+          const conn = await window.okxwallet.bitcoin.connect();
+          userAddress = conn.address;
+          publicKey = conn.publicKey;
         } else {
           toast(`${type} wallet not installed`, 'error');
           return;
         }
-        if (addr) {
-          S.address = addr;
-          document.getElementById('connectBtn').textContent = addr.slice(0, 6) + '...' + addr.slice(-4);
+        
+        if (!userAddress || !publicKey) {
+          toast('Failed to get wallet details', 'error');
+          return;
+        }
+        
+        S.userAddress = userAddress;
+        S.publicKey = publicKey;
+        S.walletType = type;
+        
+        toast('Signing authentication message...', 'info');
+        
+        // Step 2: Sign message for BIP322 authentication
+        const message = Date.now().toString();
+        let signature = null;
+        
+        if (type === 'unisat') {
+          signature = await window.unisat.signMessage(message);
+        } else if (type === 'xverse') {
+          const signRes = await window.XverseProviders.BitcoinProvider.request('signMessage', {
+            address: userAddress,
+            message: message
+          });
+          signature = signRes.result.signature;
+        } else if (type === 'okx') {
+          signature = await window.okxwallet.bitcoin.signMessage(message, 'bip322-simple');
+        }
+        
+        if (!signature) {
+          toast('Failed to sign message', 'error');
+          return;
+        }
+        
+        toast('Creating RadFi trading wallet...', 'info');
+        
+        // Step 3: Authenticate with RadFi API (creates/retrieves trading wallet)
+        const authResponse = await fetch('/api/auth/authenticate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message,
+            signature,
+            address: userAddress,
+            publicKey
+          })
+        });
+        
+        const authData = await authResponse.json();
+        
+        if (!authData.success) {
+          toast('Authentication failed: ' + (authData.message || 'Unknown error'), 'error');
+          return;
+        }
+        
+        // Step 4: Store tokens and trading wallet address
+        S.accessToken = authData.data.accessToken;
+        S.refreshToken = authData.data.refreshToken;
+        S.tradingAddress = authData.data.tradingAddress;
+        
+        // Save to localStorage
+        localStorage.setItem('radfi_auth', JSON.stringify({
+          userAddress,
+          tradingAddress: S.tradingAddress,
+          publicKey,
+          walletType: type,
+          accessToken: S.accessToken,
+          refreshToken: S.refreshToken
+        }));
+        
+        // Update UI
+        document.getElementById('connectBtn').textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
+        document.getElementById('connectBtn').classList.add('connected');
+        document.getElementById('tradeBtn').disabled = false;
+        document.getElementById('tradeBtn').textContent = S.mode === 'buy' ? 'Buy' : 'Sell';
+        
+        toast(`✅ Trading wallet ready: ${S.tradingAddress.slice(0, 10)}...`, 'success');
+        
+      } catch (e) {
+        console.error('Wallet connection error:', e);
+        toast('Connection failed: ' + e.message, 'error');
+      }
+    }
+    
+    // Restore session from localStorage
+    function restoreSession() {
+      const stored = localStorage.getItem('radfi_auth');
+      if (stored) {
+        try {
+          const auth = JSON.parse(stored);
+          S.userAddress = auth.userAddress;
+          S.tradingAddress = auth.tradingAddress;
+          S.publicKey = auth.publicKey;
+          S.walletType = auth.walletType;
+          S.accessToken = auth.accessToken;
+          S.refreshToken = auth.refreshToken;
+          
+          // Update UI
+          document.getElementById('connectBtn').textContent = auth.userAddress.slice(0, 6) + '...' + auth.userAddress.slice(-4);
           document.getElementById('connectBtn').classList.add('connected');
           document.getElementById('tradeBtn').disabled = false;
           document.getElementById('tradeBtn').textContent = S.mode === 'buy' ? 'Buy' : 'Sell';
-          toast('Wallet connected!', 'success');
+          
+          console.log('Session restored. Trading wallet:', S.tradingAddress);
+        } catch (e) {
+          console.error('Failed to restore session:', e);
+          localStorage.removeItem('radfi_auth');
         }
-      } catch (e) {
-        toast('Connection failed', 'error');
       }
     }
 
@@ -2681,7 +2798,7 @@
     }
 
     function depositToMM() {
-      if (!S.address) {
+      if (!S.userAddress) {
         connectWallet();
         return;
       }
@@ -2746,7 +2863,7 @@
           status: 'pending-auth',
           vmTxParams: {
             poolId: pool._id,
-            userAddress: S.address,
+            userAddress: S.tradingAddress || S.userAddress, // Use trading wallet
             amount0,
             amount1,
             token0Id: pool.token0Id,
@@ -2886,7 +3003,7 @@
 
         const withdrawPayload = {
           nftId: position.nftId || '1',
-          userAddress: S.address,
+          userAddress: S.tradingAddress || S.userAddress, // Use trading wallet
           liquidityValue: Math.floor(position.depositedBTC * 1e8),
           amount0: '0',
           amount1: '0',
@@ -2996,6 +3113,7 @@
     setTimeout(updateMMPositions, 10000);
 
     // INIT
+    restoreSession(); // Restore RadFi trading wallet session
     initChart();
     loadTokens();
     loadMMLoc(); // Load saved MM positions
