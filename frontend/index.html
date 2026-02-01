@@ -1816,6 +1816,13 @@
           horzLines: { color: 'rgba(0,255,65,0.05)' },
         },
         crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+        localization: {
+          priceFormatter: (price) => {
+            if (price >= 1000000) return '$' + (price / 1000000).toFixed(1) + 'M';
+            if (price >= 1000) return '$' + (price / 1000).toFixed(0) + 'k';
+            return '$' + price.toFixed(0);
+          },
+        },
         rightPriceScale: { borderColor: 'rgba(255,255,255,0.1)' },
         timeScale: { borderColor: 'rgba(255,255,255,0.1)', timeVisible: true },
       });
@@ -1860,22 +1867,38 @@
       // Start from 90 days ago to show months of history like RadFi
       const daysAgo = 90;
       const candles = daysAgo * 96; // 15-min candles per day
-      let mcap = currentMcap * (0.3 + Math.random() * 0.4); // Start lower for realistic growth
+      
+      // Generate more realistic price action - start closer to current, vary around it
+      let mcap = currentMcap * (0.85 + Math.random() * 0.15); // Start at 85-100% of current
       
       for (let i = candles; i >= 0; i--) {
         const time = now - i * 900; // 15 min candles
         const open = mcap;
-        const vol = mcap * 0.08;
-        const close = mcap + (Math.random() - 0.48) * vol;
-        const high = Math.max(open, close) + Math.random() * vol * 0.5;
-        const low = Math.min(open, close) - Math.random() * vol * 0.5;
+        
+        // Smaller volatility (3-8% instead of 8%)
+        const vol = mcap * (0.03 + Math.random() * 0.05);
+        const close = mcap + (Math.random() - 0.5) * vol;
+        const high = Math.max(open, close) * (1 + Math.random() * 0.02);
+        const low = Math.min(open, close) * (1 - Math.random() * 0.02);
+        
         data.push({ time, open, high, low, close });
-        // Gradual uptrend toward current market cap
+        
+        // Very gentle drift toward current price over time
         const progress = 1 - (i / candles);
-        const targetMcap = currentMcap;
-        mcap = close + (targetMcap - close) * 0.002 * progress;
+        const drift = (currentMcap - mcap) * 0.001 * progress;
+        mcap = close + drift;
+        
+        // Add some longer-term trends (weekly cycles)
+        const weekCycle = Math.sin((i / 96 / 7) * Math.PI * 2);
+        mcap = mcap * (1 + weekCycle * 0.05);
       }
-      data[data.length - 1].close = currentMcap;
+      
+      // Make sure last candle is close to current price
+      const lastCandle = data[data.length - 1];
+      lastCandle.close = currentMcap;
+      lastCandle.high = Math.max(lastCandle.high, currentMcap);
+      lastCandle.low = Math.min(lastCandle.low, currentMcap);
+      
       return data;
     }
     
