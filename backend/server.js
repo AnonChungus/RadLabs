@@ -645,6 +645,279 @@ app.get('/api/mm/metrics', async (req, res) => {
   }
 });
 
+// ============ VOLUME BOT API ============
+
+const VolumeBot = require('../mm/volume-bot');
+const PerformanceMonitor = require('../mm/monitors/performance');
+const RiskMonitor = require('../mm/monitors/risk');
+const ReportingMonitor = require('../mm/monitors/reporting');
+
+const performanceMonitor = new PerformanceMonitor();
+const riskMonitor = new RiskMonitor();
+const reportingMonitor = new ReportingMonitor();
+
+// Active volume bots by user
+const activeBots = new Map(); // userAddress -> Map(ticker -> VolumeBot)
+
+// Deposit and start volume bot
+app.post('/api/volume-bot/deposit', async (req, res) => {
+  try {
+    const { userAddress, amount, tokenAllocations } = req.body;
+    
+    if (!userAddress || !amount || !tokenAllocations) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: userAddress, amount, tokenAllocations'
+      });
+    }
+    
+    // Initialize user's bot map if not exists
+    if (!activeBots.has(userAddress)) {
+      activeBots.set(userAddress, new Map());
+    }
+    
+    const userBots = activeBots.get(userAddress);
+    const startedBots = [];
+    
+    // Start a bot for each token allocation
+    for (const alloc of tokenAllocations) {
+      const { ticker, allocation } = alloc;
+      const tokenConfig = require('../mm/production-config').TOKENS[ticker];
+      
+      if (!tokenConfig) {
+        console.warn(`[VolumeBot] Unknown ticker: ${ticker}`);
+        continue;
+      }
+      
+      // Create and start bot
+      const bot = new VolumeBot(userAddress, tokenConfig, allocation);
+      await bot.start();
+      
+      userBots.set(ticker, bot);
+      startedBots.push({
+        ticker,
+        allocation,
+        status: 'started'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: {
+        userAddress,
+        totalDeposited: amount,
+        bots: startedBots
+      }
+    });
+    
+  } catch (error) {
+    console.error('[VolumeBot] Deposit error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get metrics for a user
+app.get('/api/volume-bot/metrics/:userAddress', async (req, res) => {
+  try {
+    const { userAddress } = req.params;
+    const metrics = await performanceMonitor.getMetrics(userAddress);
+    
+    res.json({
+      success: true,
+      data: metrics
+    });
+  } catch (error) {
+    console.error('[VolumeBot] Get metrics error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get dashboard data (metrics + alerts + trades)
+app.get('/api/volume-bot/dashboard/:userAddress', async (req, res) => {
+  try {
+    const { userAddress } = req.params;
+    const dashboard = await reportingMonitor.getDashboardData(userAddress);
+    
+    res.json({
+      success: true,
+      data: dashboard
+    });
+  } catch (error) {
+    console.error('[VolumeBot] Get dashboard error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get position details for a specific token
+app.get('/api/volume-bot/position/:userAddress/:ticker', async (req, res) => {
+  try {
+    const { userAddress, ticker } = req.params;
+    const position = await reportingMonitor.getPositionDetails(userAddress, ticker);
+    
+    if (!position) {
+      return res.status(404).json({
+        success: false,
+        error: 'Position not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: position
+    });
+  } catch (error) {
+    console.error('[VolumeBot] Get position error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get alerts
+app.get('/api/volume-bot/alerts/:userAddress', async (req, res) => {
+  try {
+    const { userAddress } = req.params;
+    const alerts = await riskMonitor.checkLimits(userAddress);
+    const summary = riskMonitor.getAlertSummary(alerts);
+    
+    res.json({
+      success: true,
+      data: summary
+    });
+  } catch (error) {
+    console.error('[VolumeBot] Get alerts error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Pause volume bot for a token
+app.post('/api/volume-bot/pause/:userAddress/:ticker', async (req, res) => {
+  try {
+    const { userAddress, ticker } = req.params;
+    
+    // Stop the running bot if exists
+    if (activeBots.has(userAddress)) {
+      const userBots = activeBots.get(userAddress);
+      if (userBots.has(ticker)) {
+        await userBots.get(ticker).stop();
+        userBots.delete(ticker);
+      }
+    }
+    
+    // Mark as paused in storage
+    await riskMonitor.pausePosition(userAddress, ticker);
+    
+    res.json({
+      success: true,
+      message: `Volume bot paused for ${ticker}`
+    });
+  } catch (error) {
+    console.error('[VolumeBot] Pause error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Resume volume bot for a token
+app.post('/api/volume-bot/resume/:userAddress/:ticker', async (req, res) => {
+  try {
+    const { userAddress, ticker } = req.params;
+    
+    // Mark as resumed in storage
+    await riskMonitor.resumePosition(userAddress, ticker);
+    
+    // Restart the bot
+    const tokenConfig = require('../mm/production-config').TOKENS[ticker];
+    if (!tokenConfig) {
+      return res.status(400).json({
+        success: false,
+        error: `Unknown ticker: ${ticker}`
+      });
+    }
+    
+    // Load saved state and restart
+    const bot = new VolumeBot(userAddress, tokenConfig, 0);
+    const loaded = await bot.loadState(userAddress, ticker);
+    
+    if (loaded) {
+      await bot.start();
+      
+      if (!activeBots.has(userAddress)) {
+        activeBots.set(userAddress, new Map());
+      }
+      activeBots.get(userAddress).set(ticker, bot);
+    }
+    
+    res.json({
+      success: true,
+      message: `Volume bot resumed for ${ticker}`
+    });
+  } catch (error) {
+    console.error('[VolumeBot] Resume error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Withdraw all funds and close positions
+app.post('/api/volume-bot/withdraw/:userAddress', async (req, res) => {
+  try {
+    const { userAddress } = req.params;
+    
+    // Stop all running bots
+    if (activeBots.has(userAddress)) {
+      const userBots = activeBots.get(userAddress);
+      for (const [ticker, bot] of userBots.entries()) {
+        await bot.stop();
+      }
+      activeBots.delete(userAddress);
+    }
+    
+    // Calculate final metrics and fees
+    const metrics = await performanceMonitor.getMetrics(userAddress);
+    
+    // Calculate platform fee (10% of profits only)
+    let platformFee = 0;
+    if (metrics.netPnL > 0) {
+      platformFee = metrics.netPnL * 0.10;
+    }
+    
+    const netWithdrawal = metrics.currentValue - platformFee;
+    
+    res.json({
+      success: true,
+      data: {
+        totalDeposited: metrics.totalDeposited,
+        currentValue: metrics.currentValue,
+        netPnL: metrics.netPnL,
+        platformFee,
+        netWithdrawal,
+        feeWallet: FEE_WALLET
+      }
+    });
+    
+    // TODO: Execute actual withdrawal transaction to user's wallet
+    
+  } catch (error) {
+    console.error('[VolumeBot] Withdraw error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get recent trades
+app.get('/api/volume-bot/trades/:userAddress', async (req, res) => {
+  try {
+    const { userAddress } = req.params;
+    const { limit = 20 } = req.query;
+    
+    const trades = await performanceMonitor.getRecentTrades(userAddress, parseInt(limit));
+    
+    res.json({
+      success: true,
+      data: trades
+    });
+  } catch (error) {
+    console.error('[VolumeBot] Get trades error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // ============ SERVE FRONTEND ============
 
 app.get('*', (req, res) => {
