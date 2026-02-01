@@ -3942,8 +3942,13 @@ async function fetchRealChartData(token, timeframeMinutes) {
         
         const authData = await authResponse.json();
         
+        console.log('[Auth] === FULL AUTH RESPONSE ===');
+        console.log(JSON.stringify(authData, null, 2));
+        console.log('[Auth] ========================');
+        
         if (authData.code !== '1' || !authData.data) {
           toast('Authentication failed: ' + (authData.message || 'Unknown error'), 'error');
+          console.error('[Auth] Failed response:', authData);
           return;
         }
         
@@ -3955,8 +3960,19 @@ async function fetchRealChartData(token, timeframeMinutes) {
         
         const isExistingWallet = authData.data.wallet && authData.data.wallet.createdAt < (Date.now() - 60000);
         
-        console.log(`[Auth] Authenticated! Trading wallet: ${S.tradingAddress}`);
+        console.log(`[Auth] ✅ Authenticated! Trading wallet: ${S.tradingAddress}`);
+        console.log(`[Auth] User wallet: ${userAddress}`);
         console.log(`[Auth] Wallet created:`, new Date(authData.data.wallet?.createdAt).toLocaleString());
+        console.log(`[Auth] Access token:`, S.accessToken ? 'SET' : 'MISSING');
+        
+        // CRITICAL: Verify we're using the RIGHT address
+        if (S.tradingAddress === 'bc1prjkny0jxeax3pxne92vqjqgjgk80atvp33uzwz9g9rk9h78zul4q8kkw79') {
+          console.log('[Auth] ✅✅✅ CORRECT WALLET DETECTED!');
+        } else if (S.tradingAddress === 'bc1pswy3y5vkcsdrp0t34r0nq0t8u8zvtlucddlpy4cwyfh3kld7pzssglrnzw') {
+          console.error('[Auth] ❌❌❌ WRONG WALLET! Auth returned the incorrect wallet!');
+        } else {
+          console.warn('[Auth] ⚠️ Unknown wallet:', S.tradingAddress);
+        }
         
         // Save to localStorage
         localStorage.setItem('radfi_auth', JSON.stringify({
@@ -4205,6 +4221,19 @@ To fund your trading wallet:
       if (stored) {
         try {
           const auth = JSON.parse(stored);
+          
+          console.log('[Restore] === RESTORING FROM LOCALSTORAGE ===');
+          console.log('[Restore] User address:', auth.userAddress);
+          console.log('[Restore] Trading address:', auth.tradingAddress);
+          
+          // CRITICAL: Check if this is the WRONG wallet
+          if (auth.tradingAddress === 'bc1pswy3y5vkcsdrp0t34r0nq0t8u8zvtlucddlpy4cwyfh3kld7pzssglrnzw') {
+            console.error('[Restore] ❌ WRONG WALLET IN LOCALSTORAGE! Clearing and forcing re-auth...');
+            localStorage.removeItem('radfi_auth');
+            toast('Cached wallet was incorrect. Please reconnect.', 'info');
+            return;
+          }
+          
           S.userAddress = auth.userAddress;
           S.tradingAddress = auth.tradingAddress;
           S.publicKey = auth.publicKey;
@@ -4219,7 +4248,7 @@ To fund your trading wallet:
           document.getElementById('tradeBtn').disabled = false;
           document.getElementById('tradeBtn').textContent = S.mode === 'buy' ? 'Buy' : 'Sell';
           
-          console.log('Session restored. Trading wallet:', S.tradingAddress);
+          console.log('[Restore] ✅ Session restored. Trading wallet:', S.tradingAddress);
           
           // Fetch balance for restored session
           fetchTradingWalletBalance();
@@ -4229,11 +4258,54 @@ To fund your trading wallet:
             if (S.tokens.length > 0) syncExistingPositions();
           }, 3000);
         } catch (e) {
-          console.error('Failed to restore session:', e);
+          console.error('[Restore] Failed to restore session:', e);
           localStorage.removeItem('radfi_auth');
         }
+      } else {
+        console.log('[Restore] No stored session found');
       }
     }
+    
+    // DEBUGGING: Global function to completely reset everything
+    window.radlabsReset = function() {
+      console.log('[Reset] Clearing ALL storage and state...');
+      localStorage.clear();
+      sessionStorage.clear();
+      S.userAddress = null;
+      S.tradingAddress = null;
+      S.publicKey = null;
+      S.walletType = null;
+      S.accessToken = null;
+      S.refreshToken = null;
+      S.walletData = null;
+      console.log('[Reset] ✅ Done! Reload page: location.reload(true)');
+    };
+    
+    // DEBUGGING: Check current state
+    window.radlabsDebug = function() {
+      console.log('=== RADLABS DEBUG ===');
+      console.log('User Address:', S.userAddress);
+      console.log('Trading Address:', S.tradingAddress);
+      console.log('Wallet Type:', S.walletType);
+      console.log('Access Token:', S.accessToken ? 'SET' : 'NOT SET');
+      console.log('\n=== LOCALSTORAGE ===');
+      const stored = localStorage.getItem('radfi_auth');
+      if (stored) {
+        const auth = JSON.parse(stored);
+        console.log('Stored User:', auth.userAddress);
+        console.log('Stored Trading:', auth.tradingAddress);
+      } else {
+        console.log('No stored auth');
+      }
+      console.log('\n=== VERIFICATION ===');
+      if (S.tradingAddress === 'bc1prjkny0jxeax3pxne92vqjqgjgk80atvp33uzwz9g9rk9h78zul4q8kkw79') {
+        console.log('✅ CORRECT wallet');
+      } else if (S.tradingAddress === 'bc1pswy3y5vkcsdrp0t34r0nq0t8u8zvtlucddlpy4cwyfh3kld7pzssglrnzw') {
+        console.log('❌ WRONG wallet');
+      } else {
+        console.log('⚠️ Unknown wallet');
+      }
+    };
 
     // ========== PROFILE PAGE ==========
     
