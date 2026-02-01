@@ -2534,62 +2534,59 @@
     const API = '';
 
     async function loadTokens() {
-  try {
-    console.log('[Tokens] Loading...');
-    
-    const tokensRes = await fetch(`${API}/api/tokens?pageSize=100&sort=-volume24h`);
-    const tokensData = await tokensRes.json();
-    
-    if (!tokensData.data) {
-      throw new Error('No token data received');
-    }
-    
-    console.log('[Tokens] Fetching pools...');
-    const poolsRes = await fetch(`${API}/api/pools?pageSize=200`);
-    const poolsData = await poolsRes.json();
-    
-    // Create token1Id -> pool info mapping
-    const poolMap = {};
-    if (poolsData.data) {
-      for (const pool of poolsData.data) {
-        poolMap[pool.token1Id] = {
-          poolId: pool._id,
-          tvl: pool.tvl  // Already in USD!
-        };
+      try {
+        console.log('[Tokens] Loading...');
+        
+        // Fetch tokens
+        const tokensRes = await fetch(`${API}/api/tokens?pageSize=100&sort=-volume24h`);
+        const tokensData = await tokensRes.json();
+        
+        if (!tokensData.data) {
+          throw new Error('No token data received');
+        }
+        
+        // Fetch pools to get poolId for each token
+        console.log('[Tokens] Fetching pools...');
+        const poolsRes = await fetch(`${API}/api/pools?pageSize=200`);
+        const poolsData = await poolsRes.json();
+        
+        // Create token1Id -> poolId mapping
+        const poolMap = {};
+        if (poolsData.data) {
+          for (const pool of poolsData.data) {
+            // token0 is always BTC (0:0), token1 is the Rune
+            poolMap[pool.token1Id] = pool._id;
+          }
+          console.log('[Tokens] Mapped', Object.keys(poolMap).length, 'pools');
+        }
+        
+        // Filter and enrich tokens with poolId
+        S.tokens = tokensData.data
+          .filter(t => t.hasPool && !t.isTest)
+          .map(t => {
+            // Match pool by tokenId
+            const poolId = poolMap[t.tokenId];
+            return { ...t, poolId };
+          });
+        
+        console.log('[Tokens] Loaded', S.tokens.length, 'tokens');
+        
+        renderTable();
+        // renderTicker(); // Disabled - ticker removed
+        
+        if (S.tokens.length > 0) {
+          selectToken(S.tokens[0]);
+          S.to = S.tokens[0];
+          updateToDisplay();
+        }
+      } catch (e) {
+        console.error('[Tokens] Load error:', e);
+        const tbody = document.getElementById('tokenTbody');
+        if (tbody) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--red)">Error loading. Ensure backend runs on localhost:3000</td></tr>';
+        }
       }
-      console.log('[Tokens] Mapped', Object.keys(poolMap).length, 'pools');
     }
-    
-    // Enrich tokens with pool data
-    S.tokens = tokensData.data
-      .filter(t => t.hasPool && !t.isTest)
-      .map(t => {
-        const poolInfo = poolMap[t.tokenId];
-        return { 
-          ...t, 
-          poolId: poolInfo?.poolId || null,
-          poolTVL: poolInfo?.tvl || null
-        };
-      });
-    
-    console.log('[Tokens] Loaded', S.tokens.length, 'tokens');
-    console.log('[Tokens] Sample token:', S.tokens[0]?.symbol, 'poolId:', S.tokens[0]?.poolId);
-    
-    renderTable();
-    
-    if (S.tokens.length > 0) {
-      selectToken(S.tokens[0]);
-      S.to = S.tokens[0];
-      updateToDisplay();
-    }
-  } catch (e) {
-    console.error('[Tokens] Load error:', e);
-    const tbody = document.getElementById('tokenTbody');
-    if (tbody) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--red)">Error loading</td></tr>';
-    }
-  }
-}
 
     // RENDER TABLE
     function renderTable() {
@@ -3643,52 +3640,66 @@ To fund your trading wallet:
     };
 
     async function populateMMTokens() {
-  const select = document.getElementById('mmTokenSelect');
-  if (!select) return;
-  
-  const validTokens = S.tokens.filter(t => t.poolId);
-  
-  if (validTokens.length === 0) {
-    select.innerHTML = '<option>No pools available</option>';
-    return;
-  }
-  
-  select.innerHTML = '<option value="">-- Choose Token --</option>';
-  
-  validTokens.slice(0, 20).forEach(t => {
-    const opt = document.createElement('option');
-    opt.value = t.tokenId;
-    opt.textContent = `${t.displayTicker || t.symbol} ($${fmtCompact(t.marketCap || 0)})`;
-    opt.dataset.token = JSON.stringify(t);
-    select.appendChild(opt);
-  });
+      const select = document.getElementById('mmTokenSelect');
+      if (!select) return;
+      
+      // Filter tokens that have poolId
+      const validTokens = S.tokens.filter(t => t.poolId);
+      
+      if (validTokens.length === 0) {
+        select.innerHTML = '<option>No pools available</option>';
+        return;
+      }
+      
+      // Clear existing options
+      select.innerHTML = '<option value="">-- Choose Token --</option>';
+      
+      validTokens.slice(0, 20).forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.tokenId;
+        opt.textContent = `${t.displayTicker || t.symbol} ($${fmtCompact(t.marketCap || 0)})`;
+        opt.dataset.token = JSON.stringify(t);
+        select.appendChild(opt);
+      });
 
-  select.onchange = async (e) => {
-    if (!e.target.value) {
-      document.getElementById('mmTokenInfo').style.display = 'none';
-      mmState.selectedToken = null;
-      return;
+      // Remove old listener and add new one (use onchange to avoid duplicates)
+      select.onchange = async (e) => {
+        if (!e.target.value) {
+          document.getElementById('mmTokenInfo').style.display = 'none';
+          mmState.selectedToken = null;
+          return;
+        }
+        
+        const token = JSON.parse(e.target.selectedOptions[0].dataset.token);
+        mmState.selectedToken = token;
+        
+        console.log('[MM] Selected token:', token.symbol, 'poolId:', token.poolId);
+        
+        // Fetch pool to get REAL TVL
+        try {
+          const poolRes = await fetch(`/api/pools`);
+          const poolData = await poolRes.json();
+          const pool = poolData.data.find(p => p._id === token.poolId);
+          
+          if (pool && pool.tvl) {
+            // TVL is in BTC, convert to USD
+            const tvlUSD = pool.tvl * btcPriceUSD;
+            document.getElementById('mmPoolTVL').textContent = '$' + fmtCompact(tvlUSD);
+            console.log('[MM] Pool TVL:', pool.tvl.toFixed(4), 'BTC = $' + tvlUSD.toFixed(0));
+          } else {
+            document.getElementById('mmPoolTVL').textContent = '$' + fmtCompact(token.marketCap || 0);
+            console.log('[MM] Pool not found, using market cap fallback');
+          }
+        } catch (error) {
+          console.error('[MM] Failed to fetch pool TVL:', error);
+          document.getElementById('mmPoolTVL').textContent = '$' + fmtCompact(token.marketCap || 0);
+        }
+        
+        document.getElementById('mmTokenMcap').textContent = '$' + fmtCompact(token.marketCap || 0);
+        document.getElementById('mmTokenVol').textContent = '$' + fmtCompact(token.volume24h || 0);
+        document.getElementById('mmTokenInfo').style.display = 'block';
+      };
     }
-    
-    const token = JSON.parse(e.target.selectedOptions[0].dataset.token);
-    mmState.selectedToken = token;
-    
-    console.log('[MM] Selected:', token.symbol, 'poolId:', token.poolId);
-    
-    // poolTVL is already in USD from our enriched token data!
-    if (token.poolTVL) {
-      document.getElementById('mmPoolTVL').textContent = '$' + fmtCompact(token.poolTVL);
-      console.log('[MM] Pool TVL: $' + token.poolTVL.toFixed(0));
-    } else {
-      document.getElementById('mmPoolTVL').textContent = '$' + fmtCompact(token.marketCap || 0);
-      console.log('[MM] No pool TVL, using market cap');
-    }
-    
-    document.getElementById('mmTokenMcap').textContent = '$' + fmtCompact(token.marketCap || 0);
-    document.getElementById('mmTokenVol').textContent = '$' + fmtCompact(token.volume24h || 0);
-    document.getElementById('mmTokenInfo').style.display = 'block';
-  };
-}
 
     function setMMAmount(amt) {
       document.getElementById('mmDepositAmount').value = amt;
