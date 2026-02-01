@@ -1944,7 +1944,7 @@
       <a href="#" data-page="market-maker">Market Maker</a>
     </nav>
     
-    <button class="connect-btn" id="connectBtn" onclick="doConnect()">Connect Wallet</button>
+    <button class="connect-btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
   </header>
 
   <!-- TRADE PAGE -->
@@ -2729,7 +2729,9 @@
           priceFormatter: (price) => {
             if (price >= 1000000) return '$' + (price / 1000000).toFixed(1) + 'M';
             if (price >= 1000) return '$' + (price / 1000).toFixed(0) + 'k';
-            return '$' + price.toFixed(0);
+            if (price >= 1) return '$' + price.toFixed(2);
+            if (price >= 0.0001) return '$' + price.toFixed(6);
+            return '$' + price.toExponential(2);
           },
         },
         rightPriceScale: { 
@@ -2845,7 +2847,7 @@ async function fetchRealChartData(token, timeframeMinutes) {
     const token0Decimal = pool.token0Decimal || 8; // BTC
     const token1Decimal = token.decimals || pool.token1Decimal || 18; // Rune
     
-    console.log('[Chart] Pool decimals:', token0Decimal, token1Decimal);
+    console.log('[Chart] Pool decimals - BTC:', token0Decimal, 'Rune:', token1Decimal);
     
     // Fetch swap histories
     const pageSize = timeframeMinutes <= 15 ? 500 : 1000;
@@ -2860,48 +2862,33 @@ async function fetchRealChartData(token, timeframeMinutes) {
     const swaps = data.data;
     console.log('[Chart] Fetched', swaps.length, 'swaps');
     
-    // Calculate prices - need to handle BOTH swap directions
+    // BTC price in USD (hardcoded for now, should be fetched from API)
+    const BTC_USD = 101000;
+    
+    // Calculate USD price per token from each swap
     const pricesWithTime = [];
     
     for (const swap of swaps) {
-      const amount0 = parseFloat(swap.token0Amount);
-      const amount1 = parseFloat(swap.token1Amount);
+      const amount0 = parseFloat(swap.token0Amount); // BTC in smallest unit
+      const amount1 = parseFloat(swap.token1Amount); // Rune in smallest unit
       
       if (!amount0 || !amount1 || amount0 <= 0 || amount1 <= 0) continue;
       
-      // Adjust for decimals
-      const adj0 = amount0 / Math.pow(10, token0Decimal);
-      const adj1 = amount1 / Math.pow(10, token1Decimal);
+      // Adjust for decimals to get actual amounts
+      const btcAmount = amount0 / Math.pow(10, token0Decimal);
+      const runeAmount = amount1 / Math.pow(10, token1Decimal);
       
-      // Calculate price ratio - this gives us price in BTC per Rune
-      // But swaps can go either direction, so we need to detect which way
-      // If amount0 (BTC) is tiny compared to amount1 (Rune), it's likely Rune→BTC swap
-      // If amount1 is tiny, it's likely BTC→Rune swap
+      // Calculate price: BTC per Rune
+      const btcPerRune = btcAmount / runeAmount;
       
-      let priceBTC;
-      if (adj0 < 0.0001) {
-        // Likely Rune→BTC (selling Rune for BTC)
-        // price = BTC received / Rune sold
-        priceBTC = adj0 / adj1;
-      } else if (adj1 < 1) {
-        // Likely BTC→Rune (buying Rune with BTC)
-        // price = BTC spent / Rune received  
-        priceBTC = adj0 / adj1;
-      } else {
-        // Normal case
-        priceBTC = adj0 / adj1;
-      }
+      // Convert to USD per Rune
+      const usdPerRune = btcPerRune * BTC_USD;
       
-      // Convert to market cap scale (multiply by total supply proxy)
-      // Use a consistent multiplier based on current market cap
-      const basePrice = token.marketCap || 1000000;
-      const scaleFactor = basePrice / (token.priceInSats || 1);
-      const scaledPrice = priceBTC * scaleFactor * 1e8; // Convert to sats then scale
-      
-      if (scaledPrice > 0 && !isNaN(scaledPrice) && isFinite(scaledPrice)) {
+      // Sanity check: price should be reasonable for a Rune token
+      if (usdPerRune > 0 && usdPerRune < 1000000 && !isNaN(usdPerRune) && isFinite(usdPerRune)) {
         pricesWithTime.push({
           time: swap.btcBlockTime,
-          price: scaledPrice
+          price: usdPerRune
         });
       }
     }
@@ -2912,9 +2899,10 @@ async function fetchRealChartData(token, timeframeMinutes) {
     }
     
     console.log('[Chart] Calculated', pricesWithTime.length, 'valid prices');
-    console.log('[Chart] Price range:', Math.min(...pricesWithTime.map(p => p.price)), 'to', Math.max(...pricesWithTime.map(p => p.price)));
+    console.log('[Chart] Price range: $' + Math.min(...pricesWithTime.map(p => p.price)).toFixed(6), 
+                'to $' + Math.max(...pricesWithTime.map(p => p.price)).toFixed(6));
     
-    // Group by time interval
+    // Group by time interval to create candles
     const intervalSeconds = timeframeMinutes * 60;
     const candleMap = {};
     
@@ -2939,18 +2927,11 @@ async function fetchRealChartData(token, timeframeMinutes) {
       }
     }
     
-    // Convert to array
+    // Convert to array and sort
     const candles = Object.values(candleMap)
-      .map(c => ({
-        time: c.time,
-        open: Math.round(c.open),
-        high: Math.round(c.high),
-        low: Math.round(c.low),
-        close: Math.round(c.close)
-      }))
       .sort((a, b) => a.time - b.time);
     
-    // Fill gaps
+    // Fill gaps between candles (max 10 intervals)
     const filledCandles = [];
     for (let i = 0; i < candles.length; i++) {
       if (i > 0) {
@@ -2974,7 +2955,7 @@ async function fetchRealChartData(token, timeframeMinutes) {
       filledCandles.push(candles[i]);
     }
     
-    console.log('[Chart] Generated', filledCandles.length, 'candles (filled gaps)');
+    console.log('[Chart] Generated', filledCandles.length, 'candles');
     return filledCandles;
     
   } catch (error) {
