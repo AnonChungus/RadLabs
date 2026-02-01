@@ -568,10 +568,12 @@
       display: flex;
       gap: 0.75rem;
       align-items: center;
+      overflow: hidden;
     }
     
     .input-field {
       flex: 1;
+      min-width: 0;
       background: transparent;
       border: none;
       font-family: 'JetBrains Mono', monospace;
@@ -595,6 +597,12 @@
       cursor: pointer;
       flex-shrink: 0;
       white-space: nowrap;
+      max-width: 120px;
+    }
+    
+    .token-select span {
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     
     .token-select .mini-img {
@@ -1292,10 +1300,10 @@
         </div>
         
         <div class="chart-container">
-          <video id="bgVideo" class="chart-video-bg" autoplay loop playsinline>
+          <video id="bgVideo" class="chart-video-bg" autoplay muted loop playsinline>
             <source src="assets/powell.mp4" type="video/mp4">
           </video>
-          <button class="mute-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
+          <button class="mute-btn" id="muteBtn" onclick="toggleMute()">🔇</button>
           <div id="tvChart"></div>
         </div>
         
