@@ -2841,15 +2841,27 @@
           const lineData = data.map(d => ({ time: d.time, value: d.close }));
           S.lineSeries.setData(lineData);
           
-          // Auto-scale to fit the data range
-          S.chart.timeScale().fitContent();
-          
-          // Set price scale to fit the market cap range
+          // Get price range for Y-axis scaling
           const prices = data.map(d => [d.high, d.low]).flat();
           const minPrice = Math.min(...prices);
           const maxPrice = Math.max(...prices);
-          const margin = (maxPrice - minPrice) * 0.1; // 10% margin
+          const priceRange = maxPrice - minPrice;
           
+          console.log('[Chart] Price range: $' + fmtCompact(minPrice), 'to $' + fmtCompact(maxPrice));
+          
+          // Set Y-axis to visible range with 20% margin
+          S.chart.priceScale('right').applyOptions({
+            autoScale: true,
+            scaleMargins: {
+              top: 0.2,    // 20% margin on top
+              bottom: 0.2  // 20% margin on bottom
+            }
+          });
+          
+          // Auto-fit time scale
+          S.chart.timeScale().fitContent();
+          
+          // Apply custom price formatter
           S.candleSeries.applyOptions({
             priceFormat: {
               type: 'custom',
@@ -2962,6 +2974,12 @@ async function fetchRealChartData(token, timeframeMinutes) {
     const ratios = [];
     
     for (const swap of allSwaps) {
+      // CRITICAL: Skip swaps without valid timestamp
+      if (!swap.btcBlockTime || swap.btcBlockTime <= 0) {
+        console.warn('[Chart] Skipping swap without valid btcBlockTime:', swap._id);
+        continue;
+      }
+      
       const amount0 = parseFloat(swap.token0Amount); // BTC in smallest unit
       const amount1 = parseFloat(swap.token1Amount); // Rune in smallest unit
       
@@ -2974,7 +2992,8 @@ async function fetchRealChartData(token, timeframeMinutes) {
       // Calculate price ratio: BTC per Rune (just the ratio, no USD conversion)
       const priceRatio = btcAmount / runeAmount;
       
-      if (priceRatio > 0 && !isNaN(priceRatio) && isFinite(priceRatio)) {
+      // Sanity check on ratio (avoid extreme outliers)
+      if (priceRatio > 0 && priceRatio < 1e10 && !isNaN(priceRatio) && isFinite(priceRatio)) {
         ratios.push({
           time: swap.btcBlockTime,
           ratio: priceRatio
@@ -2987,26 +3006,41 @@ async function fetchRealChartData(token, timeframeMinutes) {
       return null;
     }
     
-    // Get the latest price ratio (most recent swap)
-    const latestRatio = ratios[ratios.length - 1].ratio;
-    console.log('[Chart] Latest price ratio:', latestRatio);
+    // Use MEDIAN price ratio instead of latest (more stable, avoids outliers)
+    const sortedRatios = [...ratios].sort((a, b) => a.ratio - b.ratio);
+    const medianRatio = sortedRatios[Math.floor(sortedRatios.length / 2)].ratio;
+    console.log('[Chart] Median price ratio:', medianRatio, '(from', ratios.length, 'swaps)');
     
-    // Scale all ratios so that latest ratio = current market cap
+    // Scale all ratios so that median ratio = current market cap
     // This makes the chart Y-axis show market cap values that change with price
     const pricesWithTime = [];
     
     for (const { time, ratio } of ratios) {
-      const scaledPrice = (ratio / latestRatio) * currentMarketCap;
-      pricesWithTime.push({ time, price: scaledPrice });
+      const scaledPrice = (ratio / medianRatio) * currentMarketCap;
+      
+      // Additional sanity check on scaled price
+      if (scaledPrice > 0 && scaledPrice < currentMarketCap * 100 && isFinite(scaledPrice)) {
+        pricesWithTime.push({ time, price: scaledPrice });
+      }
     }
     
-    console.log('[Chart] Calculated', pricesWithTime.length, 'market cap values');
-    console.log('[Chart] Market cap range: $' + fmtCompact(Math.min(...pricesWithTime.map(p => p.price))), 
-                'to $' + fmtCompact(Math.max(...pricesWithTime.map(p => p.price))));
+    console.log('[Chart] Calculated', pricesWithTime.length, 'market cap values (filtered from', ratios.length, 'ratios)');
+    
+    if (pricesWithTime.length === 0) {
+      console.error('[Chart] No valid scaled prices after filtering!');
+      return null;
+    }
+    
+    const minMcap = Math.min(...pricesWithTime.map(p => p.price));
+    const maxMcap = Math.max(...pricesWithTime.map(p => p.price));
+    console.log('[Chart] Market cap range: $' + fmtCompact(minMcap), 'to $' + fmtCompact(maxMcap));
     
     // Group by time interval to create candles
     const intervalSeconds = timeframeMinutes * 60;
     const candleMap = {};
+    
+    console.log('[Chart] Bucketing into', timeframeMinutes, 'minute candles (', intervalSeconds, 'seconds per bucket)');
+    console.log('[Chart] Sample times:', pricesWithTime.slice(0, 5).map(p => new Date(p.time * 1000).toLocaleString()));
     
     for (const { time, price } of pricesWithTime) {
       const bucketTime = Math.floor(time / intervalSeconds) * intervalSeconds;
