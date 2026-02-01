@@ -142,14 +142,33 @@ class RadFiAPI {
     return data.data?.find(p => p._id === poolId);
   }
 
-  // Get token price from pool
-  async getTokenPrice(poolId) {
+  // Get token price from pool or token API
+  async getTokenPrice(poolId, tokenId = null) {
+    // Try to get from pool reserves first
     const pool = await this.getPool(poolId);
-    if (!pool) return null;
+    if (pool) {
+      const btcReserve = parseFloat(pool.token0Reserve || 0);
+      const tokenReserve = parseFloat(pool.token1Reserve || 0);
+      
+      if (btcReserve > 0 && tokenReserve > 0) {
+        return btcReserve / tokenReserve;
+      }
+    }
     
-    const btcReserve = parseFloat(pool.token0Reserve || 0);
-    const tokenReserve = parseFloat(pool.token1Reserve || 1);
-    return btcReserve / tokenReserve;
+    // Get the target token ID
+    const targetTokenId = tokenId || (pool ? pool.token1Id : null);
+    if (!targetTokenId || targetTokenId === '0:0') {
+      return null; // Can't get price for BTC itself
+    }
+    
+    // Get price from tokens list (more reliable than details endpoint)
+    const tokensData = await this.fetch('/api/tokens?pageSize=100');
+    const token = tokensData.data?.find(t => t.tokenId === targetTokenId);
+    if (token && token.price) {
+      return token.price;
+    }
+    
+    return null;
   }
 
   // Get user's positions (NFTs)

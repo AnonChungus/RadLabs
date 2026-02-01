@@ -730,15 +730,17 @@ app.post('/api/volume-bot/test', async (req, res) => {
         tests.errors.push(`No pool found for ${ticker}`);
       }
       
-      // Test 2: Fetch token price
+      // Test 2: Fetch token price (uses improved method with fallback)
       if (pool) {
-        const btcReserve = parseFloat(pool.token0Reserve || 0);
-        const tokenReserve = parseFloat(pool.token1Reserve || 1);
+        const price = await api.getTokenPrice(pool._id, tokenConfig.tokenId);
         tests.tokenPrice = {
-          price: btcReserve / tokenReserve,
-          btcReserve,
-          tokenReserve
+          price: price,
+          method: price ? 'token-api' : 'failed'
         };
+        
+        if (!price) {
+          tests.errors.push('Failed to get token price');
+        }
       }
       
     } catch (error) {
