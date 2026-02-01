@@ -98,126 +98,89 @@
       align-items: center;
       gap: 2rem;
       font-size: 0.85rem;
-    }
-    
-    .lottery-timer {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    
-    .lottery-timer .icon {
-      font-size: 1.2rem;
-      animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-    
-    .lottery-slots {
-      display: flex;
-      gap: 0.25rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
-      font-size: 1.1rem;
-    }
-    
-    .slot-digit {
-      background: rgba(0,255,65,0.1);
-      border: 1px solid var(--matrix-green);
-      color: var(--matrix-green);
-      padding: 0.2rem 0.4rem;
-      border-radius: 4px;
-      min-width: 28px;
-      text-align: center;
-      text-shadow: 0 0 10px var(--matrix-green);
-    }
-    
-    .lottery-prize {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--yellow);
-    }
-    
-    .lottery-prize .amount {
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
-      font-size: 1rem;
-    }
-    
-    /* ===== HEADER ===== */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--glass-border);
       position: sticky;
       top: 0;
       z-index: 100;
+      backdrop-filter: blur(20px);
     }
     
-    .logo {
+    .lottery-banner .item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    
+    .lottery-banner .item .label {
+      color: var(--text-secondary);
+    }
+    
+    .lottery-banner .item .val {
+      color: var(--yellow);
+      font-weight: 600;
+    }
+    
+    .lottery-banner .jackpot {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--miami-pink);
+      text-shadow: 0 0 10px rgba(255,45,146,0.5);
+    }
+    
+    /* ===== HEADER ===== */
+    header {
+      position: sticky;
+      top: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 2rem;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+      z-index: 99;
+    }
+    
+    .logo-wrapper {
       display: flex;
       align-items: center;
       gap: 0.75rem;
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
     }
     
-    .logo-icon {
-      width: 42px;
-      height: 42px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .logo-icon svg {
-      width: 100%;
-      height: 100%;
-      filter: drop-shadow(0 2px 4px rgba(0,255,100,0.3));
-    }
-    
-    .logo-text {
-      font-family: 'Inter', sans-serif;
-      font-size: 1.7rem;
-      font-weight: 900;
-      letter-spacing: 0.5px;
+    .logo-img {
+      width: 48px;
+      height: 48px;
+      position: relative;
     }
     
     .logo-text .rad {
-      color: #111111;
-      -webkit-text-stroke: 1.5px #ff6b35;
+      color: #000;
+      -webkit-text-stroke: 2px var(--miami-orange);
+      text-stroke: 2px var(--miami-orange);
       paint-order: stroke fill;
     }
     
     .logo-text .labs {
-      color: #ff6b35;
-      font-weight: 900;
-      margin-left: 2px;
+      color: var(--miami-orange);
     }
     
     .nav {
       display: flex;
-      gap: 0.25rem;
-      background: var(--card-bg);
-      padding: 0.25rem;
-      border-radius: 12px;
-      border: 1px solid var(--card-border);
+      gap: 0.5rem;
     }
     
     .nav a {
+      position: relative;
+      padding: 0.6rem 1.2rem;
       color: var(--text-secondary);
       text-decoration: none;
       font-weight: 500;
-      font-size: 0.9rem;
-      padding: 0.6rem 1.25rem;
-      border-radius: 10px;
-      transition: all 0.2s;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      background: transparent;
     }
     
     .nav a:hover {
@@ -227,177 +190,427 @@
     
     .nav a.active {
       color: var(--text-primary);
-      background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
-      border: 2px solid transparent;
-      background-image: 
-        linear-gradient(135deg, #1a1a1a, #2d2d2d),
-        linear-gradient(135deg, var(--miami-pink), var(--miami-cyan));
-      background-origin: border-box;
-      background-clip: padding-box, border-box;
+      background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(255,255,255,0.1));
+      border: 1px solid;
+      border-image: linear-gradient(135deg, var(--miami-pink), var(--miami-cyan), var(--miami-purple)) 1;
+      box-shadow: 0 4px 15px rgba(255,45,146,0.2);
     }
     
     .connect-btn {
-      font-family: inherit;
-      background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
-      color: white;
-      border: 2px solid transparent;
-      background-image: 
-        linear-gradient(135deg, #1a1a1a, #2d2d2d),
-        linear-gradient(135deg, var(--miami-pink), var(--miami-cyan));
-      background-origin: border-box;
-      background-clip: padding-box, border-box;
-      padding: 0.75rem 1.5rem;
-      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(255,255,255,0.1));
+      border: 1px solid transparent;
+      border-image: linear-gradient(135deg, var(--miami-pink), var(--miami-cyan), var(--miami-purple)) 1;
+      color: var(--text-primary);
+      padding: 0.7rem 1.5rem;
+      border-radius: 10px;
       font-weight: 600;
-      font-size: 0.9rem;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
     }
     
     .connect-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 20px rgba(255,45,146,0.3);
+      box-shadow: 0 6px 20px rgba(255,45,146,0.3);
     }
     
     .connect-btn.connected {
-      background-image: 
-        linear-gradient(135deg, #1a1a1a, #2d2d2d),
-        linear-gradient(135deg, var(--green), var(--miami-cyan));
-      box-shadow: 0 4px 20px rgba(0,255,136,0.3);
+      background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,255,136,0.05));
+      border-image: linear-gradient(135deg, var(--green), var(--matrix-green)) 1;
     }
+    
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      top: 120px;
+      right: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      color: var(--text-primary);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      animation: slideIn 0.3s ease;
+      z-index: 1000;
+      max-width: 350px;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(400px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .toast.success { border-left: 4px solid var(--green); }
+    .toast.error { border-left: 4px solid var(--red); }
+    .toast.info { border-left: 4px solid var(--miami-cyan); }
     
     /* ===== PAGES ===== */
     .page {
       display: none;
-      padding: 1.5rem 2rem;
+      padding: 2rem;
       max-width: 1600px;
       margin: 0 auto;
-      padding-bottom: 100px;
     }
     
-    .page.active { display: block; }
-    
-    /* ===== TRADE PAGE ===== */
-    .trade-grid {
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 1.5rem;
+    .page.active {
+      display: block;
     }
     
-    .chart-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      border-radius: 16px;
-      border: 1px solid var(--card-border);
-      overflow: hidden;
+    /* ===== RADPAD ===== */
+    .radpad-header {
+      text-align: center;
+      margin-bottom: 3rem;
     }
     
-    .chart-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 1.5rem;
-      border-bottom: 1px solid var(--card-border);
+    .radpad-header h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--miami-pink), var(--miami-cyan), var(--miami-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
     }
     
-    .token-display {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    
-    .token-img {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--miami-orange), var(--miami-pink));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      border: 2px solid var(--card-border);
-      overflow: hidden;
-    }
-    
-    .token-img img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .token-meta h2 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    
-    .token-meta .rune {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      font-weight: 400;
-    }
-    
-    .token-stats {
-      display: flex;
-      gap: 1.5rem;
-      margin-top: 0.25rem;
-    }
-    
-    .token-stats span {
-      font-size: 0.8rem;
+    .radpad-header p {
+      font-size: 1.1rem;
       color: var(--text-secondary);
     }
     
-    .token-stats .val {
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--matrix-green);
+    .etch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
     }
     
-    .price-box {
-      text-align: right;
+    .etch-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2rem;
+      backdrop-filter: blur(20px);
     }
     
-    .price-box .price {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.75rem;
+    .etch-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--text-primary);
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--miami-cyan);
+      box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    
+    .slider-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .slider-group label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .slider-value {
+      float: right;
+      color: var(--miami-cyan);
+      font-weight: 600;
+    }
+    
+    .slider-group input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 10px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    
+    .slider-group input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: var(--miami-cyan);
+      cursor: pointer;
+      border-radius: 50%;
+      box-shadow: 0 2px 10px rgba(0,212,255,0.5);
+    }
+    
+    .slider-group input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: var(--miami-cyan);
+      cursor: pointer;
+      border-radius: 50%;
+      box-shadow: 0 2px 10px rgba(0,212,255,0.5);
+      border: none;
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+    
+    .checkbox-group label {
+      margin: 0;
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .etch-preview {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .etch-preview h3 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: var(--miami-cyan);
+    }
+    
+    .preview-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .preview-item:last-child {
+      border-bottom: none;
+    }
+    
+    .preview-item .label {
+      color: var(--text-secondary);
+    }
+    
+    .preview-item .value {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    
+    .etch-btn {
+      width: 100%;
+      background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(255,255,255,0.1));
+      border: 2px solid transparent;
+      border-image: linear-gradient(135deg, var(--miami-pink), var(--miami-cyan), var(--miami-purple)) 1;
+      color: var(--text-primary);
+      padding: 1rem 2rem;
+      border-radius: 12px;
       font-weight: 700;
-      color: var(--matrix-green);
-      text-shadow: 0 0 20px rgba(0,255,65,0.3);
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
     
-    .price-box .price-usd {
+    .etch-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(255,45,146,0.3);
+    }
+    
+    .etch-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .etch-info {
+      background: rgba(0,212,255,0.1);
+      border: 1px solid rgba(0,212,255,0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
       font-size: 0.9rem;
       color: var(--text-secondary);
     }
     
-    .price-box .change {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.95rem;
+    .etch-list {
+      margin-top: 3rem;
+    }
+    
+    .etch-list h2 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    
+    .etch-items {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .etch-item {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .etch-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(255,45,146,0.2);
+    }
+    
+    .etch-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .etch-item-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--miami-cyan);
+    }
+    
+    .etch-item-symbol {
+      background: rgba(255,45,146,0.2);
+      border: 1px solid var(--miami-pink);
+      padding: 0.25rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
       font-weight: 600;
     }
     
-    .change.up { color: var(--green); }
-    .change.down { color: var(--red); }
+    .etch-item-description {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
     
-    /* Chart Container */
-    .chart-container {
-      position: relative;
-      height: 400px;
+    .etch-item-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    
+    .etch-item-stat {
+      background: rgba(0,0,0,0.3);
+      padding: 0.5rem;
+      border-radius: 6px;
+    }
+    
+    .etch-item-stat .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    
+    .etch-item-stat .value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--matrix-green);
+    }
+    
+    .etch-item-socials {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    
+    .social-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--glass-border);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    
+    .social-link:hover {
+      background: rgba(0,212,255,0.1);
+      border-color: var(--miami-cyan);
+      color: var(--miami-cyan);
+    }
+    
+    /* Add common styles we'll need */
+    .trade-grid, .mm-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+    
+    .chart-card, .swap-module, .mm-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      backdrop-filter: blur(20px);
     }
     
     .chart-video-bg {
       position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      min-width: 100%;
-      min-height: 100%;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
       opacity: 0.5;
-      z-index: 0;
       pointer-events: none;
     }
     
@@ -405,1140 +618,69 @@
       position: absolute;
       top: 10px;
       right: 10px;
-      z-index: 10;
       background: rgba(0,0,0,0.6);
-      border: 1px solid var(--miami-cyan);
-      color: var(--miami-cyan);
+      border: 1px solid var(--glass-border);
+      color: white;
       padding: 0.5rem;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
+      z-index: 10;
       font-size: 1.2rem;
-      transition: all 0.2s;
-      backdrop-filter: blur(10px);
     }
     
-    .mute-btn:hover {
-      background: rgba(0,212,255,0.2);
-      border-color: var(--miami-cyan);
-      transform: scale(1.1);
-    }
-    
-    #tvChart {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      height: 100%;
-    }
-    
-    .chart-controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.75rem 1rem;
-      background: rgba(0,0,0,0.3);
-      border-top: 1px solid var(--card-border);
-    }
-    
-    .chart-timeframes {
-      display: flex;
-      gap: 0.25rem;
-    }
-    
-    .tf-btn {
-      font-family: 'JetBrains Mono', monospace;
-      background: transparent;
-      border: 1px solid var(--card-border);
-      color: var(--text-secondary);
-      padding: 0.4rem 0.7rem;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .tf-btn:hover, .tf-btn.active {
-      background: var(--miami-cyan);
-      border-color: var(--miami-cyan);
-      color: var(--bg-primary);
-    }
-    
-    .chart-type-btns {
-      display: flex;
-      gap: 0.25rem;
-    }
-    
-    .chart-type-btn {
-      background: transparent;
-      border: 1px solid var(--card-border);
-      color: var(--text-secondary);
-      padding: 0.4rem 0.6rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-    
-    .chart-type-btn:hover, .chart-type-btn.active {
-      background: var(--miami-pink);
-      border-color: var(--miami-pink);
-      color: white;
-    }
-    
-    /* ===== TRADE PANEL ===== */
-    .trade-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    
-    .panel-card {
+    .table-card {
       background: var(--card-bg);
-      backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
       border-radius: 16px;
-      border: 1px solid var(--card-border);
-      padding: 1.25rem;
-    }
-    
-    .panel-tabs {
-      display: flex;
-      background: rgba(0,0,0,0.3);
-      border-radius: 10px;
-      padding: 0.25rem;
-      margin-bottom: 1rem;
-    }
-    
-    .panel-tab {
-      flex: 1;
-      padding: 0.6rem;
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
-      font-family: inherit;
-      font-weight: 600;
-      font-size: 0.9rem;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .panel-tab.active.buy {
-      background: var(--green);
-      color: var(--bg-primary);
-    }
-    
-    .panel-tab.active.sell {
-      background: var(--red);
-      color: white;
-    }
-    
-    .quick-amounts {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-    
-    .quick-btn {
-      font-family: 'JetBrains Mono', monospace;
-      background: rgba(0,255,136,0.1);
-      border: 1px solid var(--green);
-      color: var(--green);
-      padding: 0.5rem;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .quick-btn:hover {
-      background: var(--green);
-      color: var(--bg-primary);
-    }
-    
-    .input-group {
-      background: rgba(0,0,0,0.3);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 1rem;
-      margin-bottom: 0.75rem;
-    }
-    
-    .input-label {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 0.5rem;
-      gap: 0.5rem;
-    }
-    
-    .input-label > span {
-      white-space: nowrap;
-    }
-    
-    .input-row {
-      display: flex;
-      gap: 0.75rem;
-      align-items: center;
-      overflow: hidden;
-    }
-    
-    .input-field {
-      flex: 1;
-      min-width: 0;
-      background: transparent;
-      border: none;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.4rem;
-      color: var(--matrix-green);
-      outline: none;
-    }
-    
-    .input-field::placeholder {
-      color: var(--text-muted);
-    }
-    
-    .token-select {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--card-border);
-      padding: 0.5rem 0.75rem;
-      border-radius: 20px;
-      cursor: pointer;
-      flex-shrink: 0;
-      white-space: nowrap;
-      max-width: 120px;
-    }
-    
-    .token-select span {
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    
-    .token-select .mini-img {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--miami-orange), var(--miami-pink));
-    }
-    
-    .swap-arrow {
-      display: flex;
-      justify-content: center;
-      margin: -0.5rem 0;
-      position: relative;
-      z-index: 2;
-    }
-    
-    .swap-arrow button {
-      background: var(--card-bg);
-      border: 2px solid var(--miami-cyan);
-      color: var(--miami-cyan);
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: all 0.3s;
-    }
-    
-    .swap-arrow button:hover {
-      background: var(--miami-cyan);
-      color: var(--bg-primary);
-      transform: rotate(180deg);
-    }
-    
-    .trade-info {
-      padding: 0.75rem 0;
-      border-top: 1px solid var(--card-border);
-      margin-top: 0.5rem;
-    }
-    
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      margin-bottom: 0.4rem;
-    }
-    
-    .info-row .label { color: var(--text-muted); }
-    .info-row .value { 
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--text-primary);
-    }
-    .info-row .value.fee { color: var(--miami-pink); }
-    
-    .trade-btn {
-      width: 100%;
-      padding: 1rem;
-      border: none;
-      border-radius: 12px;
-      font-family: inherit;
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-top: 0.5rem;
-    }
-    
-    .trade-btn.buy {
-      background: linear-gradient(135deg, var(--green), #00cc77);
-      color: var(--bg-primary);
-      box-shadow: 0 4px 20px rgba(0,255,136,0.3);
-    }
-    
-    .trade-btn.sell {
-      background: linear-gradient(135deg, var(--red), #cc3344);
-      color: white;
-      box-shadow: 0 4px 20px rgba(255,71,87,0.3);
-    }
-    
-    .trade-btn:disabled {
-      background: var(--card-bg);
-      color: var(--text-muted);
-      box-shadow: none;
-      cursor: not-allowed;
-    }
-    
-    /* Health indicator */
-    .health-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.5rem 0;
-    }
-    
-    .health-badge {
-      background: rgba(0,255,136,0.1);
-      color: var(--green);
-      padding: 0.25rem 0.75rem;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-    
-    /* ===== TOKEN TABLE ===== */
-    .token-list-card {
-      margin-top: 1.5rem;
-      background: var(--card-bg);
+      padding: 1.5rem;
       backdrop-filter: blur(20px);
-      border-radius: 16px;
-      border: 1px solid var(--card-border);
-      overflow: hidden;
+      overflow-x: auto;
     }
     
-    .list-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 1.5rem;
-      border-bottom: 1px solid var(--card-border);
-    }
-    
-    .list-header h3 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    
-    .live-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--green);
-      border-radius: 50%;
-      animation: pulse 2s infinite;
-    }
-    
-    .search-box {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 0.5rem 1rem;
-    }
-    
-    .search-box input {
-      background: transparent;
-      border: none;
-      color: var(--text-primary);
-      font-family: inherit;
-      font-size: 0.9rem;
-      outline: none;
-      width: 200px;
-    }
-    
-    .token-table {
+    table {
       width: 100%;
       border-collapse: collapse;
     }
     
-    .token-table th {
+    thead th {
       text-align: left;
-      padding: 0.75rem 1rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      background: rgba(0,0,0,0.2);
-      border-bottom: 1px solid var(--card-border);
-    }
-    
-    .token-table td {
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid var(--card-border);
-      font-size: 0.9rem;
-    }
-    
-    .token-table tbody tr {
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    
-    .token-table tbody tr:hover {
-      background: rgba(255,45,146,0.05);
-    }
-    
-    .token-cell {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    
-    .token-cell .img {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--miami-orange), var(--miami-pink));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
-      overflow: hidden;
-    }
-    
-    .token-cell .img img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .token-cell .name {
-      font-weight: 600;
-    }
-    
-    .token-cell .rune {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-    
-    .mono {
-      font-family: 'JetBrains Mono', monospace;
-    }
-    
-    .green { color: var(--matrix-green) !important; }
-    .up { color: var(--green) !important; }
-    .down { color: var(--red) !important; }
-    
-    /* ===== GAMES PAGE ===== */
-    .games-header {
-      text-align: center;
-      padding: 2rem 0;
-    }
-    
-    .games-header h1 {
-      font-size: 2.5rem;
-      font-weight: 800;
-      background: linear-gradient(90deg, var(--miami-pink), var(--miami-cyan), var(--miami-purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 0.5rem;
-    }
-    
-    .games-header p {
+      padding: 1rem;
       color: var(--text-secondary);
-      font-size: 1.1rem;
-    }
-    
-    .games-header .rake-info {
-      display: inline-block;
-      background: rgba(255,45,146,0.1);
-      border: 1px solid var(--miami-pink);
-      color: var(--miami-pink);
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      margin-top: 1rem;
-      font-size: 0.9rem;
-    }
-    
-    .games-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 1.5rem;
-      margin-top: 1.5rem;
-    }
-    
-    .game-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      border-radius: 16px;
-      border: 1px solid var(--card-border);
-      overflow: hidden;
-      transition: all 0.3s;
-    }
-    
-    .game-card:hover {
-      border-color: var(--miami-pink);
-      transform: translateY(-5px);
-      box-shadow: 0 20px 40px rgba(255,45,146,0.2);
-    }
-    
-    .game-preview {
-      height: 200px;
-      background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 4rem;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .game-preview .bg-anim {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: linear-gradient(45deg, transparent 30%, rgba(255,45,146,0.1) 50%, transparent 70%);
-      animation: shine 3s infinite;
-    }
-    
-    @keyframes shine {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
-    }
-    
-    .game-info {
-      padding: 1.25rem;
-    }
-    
-    .game-info h3 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-    
-    .game-info p {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      margin-bottom: 1rem;
-    }
-    
-    .game-stats {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-    
-    .game-stat {
-      flex: 1;
-      background: rgba(0,0,0,0.3);
-      padding: 0.5rem;
-      border-radius: 8px;
-      text-align: center;
-    }
-    
-    .game-stat .label {
-      font-size: 0.7rem;
-      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.85rem;
       text-transform: uppercase;
+      border-bottom: 1px solid var(--glass-border);
     }
     
-    .game-stat .value {
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--matrix-green);
-      font-weight: 600;
-    }
-    
-    .play-btn {
-      width: 100%;
-      padding: 0.75rem;
-      background: linear-gradient(135deg, var(--miami-pink), var(--miami-purple));
-      border: none;
-      border-radius: 10px;
-      color: white;
-      font-family: inherit;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .play-btn:hover {
-      box-shadow: 0 4px 20px rgba(255,45,146,0.4);
-    }
-    
-    /* Crash Game */
-    .crash-game {
-      background: var(--card-bg);
-      border-radius: 16px;
-      border: 1px solid var(--card-border);
-      padding: 1.5rem;
-      margin-top: 1.5rem;
-    }
-    
-    .crash-display {
-      height: 300px;
-      background: rgba(0,0,0,0.3);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .crash-multiplier {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 5rem;
-      font-weight: 700;
-      color: var(--matrix-green);
-      text-shadow: 0 0 40px rgba(0,255,65,0.5);
-    }
-    
-    .crash-multiplier.crashed {
-      color: var(--red);
-      text-shadow: 0 0 40px rgba(255,71,87,0.5);
-    }
-    
-    .crash-controls {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    
-    .crash-input {
-      background: rgba(0,0,0,0.3);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 1rem;
-    }
-    
-    .crash-input label {
-      display: block;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 0.5rem;
-    }
-    
-    .crash-input input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.25rem;
-      color: var(--matrix-green);
-      outline: none;
-    }
-    
-    .crash-btns {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-    
-    .crash-btns button {
-      flex: 1;
-      padding: 1rem;
-      border: none;
-      border-radius: 10px;
-      font-family: inherit;
-      font-weight: 600;
-      font-size: 1rem;
+    tbody tr {
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      transition: background 0.2s ease;
       cursor: pointer;
     }
     
-    .bet-btn {
-      background: linear-gradient(135deg, var(--green), #00cc77);
-      color: var(--bg-primary);
+    tbody tr:hover {
+      background: rgba(255,255,255,0.02);
     }
     
-    .cashout-btn {
-      background: linear-gradient(135deg, var(--miami-pink), var(--miami-purple));
-      color: white;
-    }
-    
-    /* ===== MODALS ===== */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
-      backdrop-filter: blur(10px);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .modal-overlay.active { display: flex; }
-    
-    .modal {
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      border-radius: 20px;
-      border: 1px solid var(--card-border);
-      padding: 1.5rem;
-      width: 90%;
-      max-width: 420px;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-    
-    .modal h3 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-    
-    .wallet-option {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
+    tbody td {
       padding: 1rem;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      cursor: pointer;
-      margin-bottom: 0.75rem;
-      transition: all 0.2s;
+      color: var(--text-primary);
     }
     
-    .wallet-option:hover {
-      border-color: var(--miami-pink);
-      background: rgba(255,45,146,0.05);
-    }
-    
-    .wallet-option img {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-    }
-    
-    .wallet-option .name {
-      font-weight: 600;
-    }
-    
-    .wallet-option .desc {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-    
-    /* ===== TICKER ===== */
-    .ticker {
-      position: fixed;
-      bottom: 0; left: 0;
-      width: 100%;
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      border-top: 1px solid var(--card-border);
-      padding: 0.6rem 0;
-      z-index: 99;
-      overflow: hidden;
-    }
-    
-    .ticker-track {
-      display: flex;
-      animation: scroll 50s linear infinite;
-      white-space: nowrap;
-    }
-    
-    @keyframes scroll {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
-    
-    .ticker-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-right: 2.5rem;
-      font-size: 0.85rem;
-    }
-    
-    .ticker-item .sym {
-      font-weight: 600;
-      color: var(--miami-cyan);
-    }
-    
-    .ticker-item .price {
-      font-family: 'JetBrains Mono', monospace;
-    }
-    
-    /* ===== TOAST ===== */
-    .toast {
-      position: fixed;
-      bottom: 5rem;
-      right: 2rem;
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 1rem 1.5rem;
-      transform: translateX(calc(100% + 3rem));
-      transition: transform 0.3s;
-      z-index: 1001;
-    }
-    
-    .toast.show { transform: translateX(0); }
-    .toast.success { border-color: var(--green); }
-    .toast.error { border-color: var(--red); }
-    
-    /* ===== MARKET MAKER ===== */
-    .mm-header {
+    .mm-header, .tokens-header {
       text-align: center;
       margin-bottom: 2rem;
     }
     
-    .mm-header h1 {
+    .mm-header h1, .tokens-header h1 {
       font-size: 2.5rem;
-      font-weight: 900;
+      font-weight: 800;
       margin-bottom: 0.5rem;
-      background: linear-gradient(135deg, var(--miami-pink), var(--miami-cyan));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
     }
     
-    .mm-header p {
+    .mm-header p, .tokens-header p {
       color: var(--text-secondary);
       font-size: 1.1rem;
-    }
-    
-    .mm-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
-    }
-    
-    .mm-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      border-radius: 16px;
-      border: 1px solid var(--card-border);
-      padding: 1.5rem;
-    }
-    
-    .mm-card.full-width {
-      grid-column: 1 / -1;
-    }
-    
-    .mm-card h2 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-    
-    .mm-desc {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      margin-bottom: 1.5rem;
-    }
-    
-    .mm-select-token,
-    .mm-deposit-input {
-      margin-bottom: 1.5rem;
-    }
-    
-    .mm-select-token label,
-    .mm-deposit-input label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: var(--text-secondary);
-    }
-    
-    .mm-dropdown,
-    .mm-deposit-input input {
-      width: 100%;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 0.75rem 1rem;
-      color: var(--text-primary);
-      font-family: inherit;
-      font-size: 1rem;
-    }
-    
-    .mm-dropdown:focus,
-    .mm-deposit-input input:focus {
-      outline: none;
-      border-color: var(--miami-cyan);
-    }
-    
-    .mm-quick-amounts {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.5rem;
-      margin-top: 0.5rem;
-    }
-    
-    .mm-quick-amounts button {
-      background: rgba(0,255,136,0.1);
-      border: 1px solid var(--green);
-      color: var(--green);
-      padding: 0.5rem;
-      border-radius: 8px;
-      font-family: 'JetBrains Mono', monospace;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .mm-quick-amounts button:hover {
-      background: var(--green);
-      color: var(--bg-primary);
-    }
-    
-    .mm-token-info {
-      background: rgba(0,0,0,0.2);
-      border-radius: 12px;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    
-    .mm-stat {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid var(--card-border);
-    }
-    
-    .mm-stat:last-child {
-      border-bottom: none;
-    }
-    
-    .mm-stat span:first-child {
-      color: var(--text-muted);
-    }
-    
-    .mm-stat span:last-child {
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 600;
-      color: var(--matrix-green);
-    }
-    
-    .mm-btn {
-      width: 100%;
-      padding: 1rem;
-      border: none;
-      border-radius: 12px;
-      font-family: inherit;
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .mm-btn.primary {
-      background: linear-gradient(135deg, var(--green), #00cc77);
-      color: var(--bg-primary);
-      box-shadow: 0 4px 20px rgba(0,255,136,0.3);
-    }
-    
-    .mm-btn.primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 30px rgba(0,255,136,0.4);
-    }
-    
-    .mm-strategy-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    
-    .mm-strategy-option {
-      background: rgba(0,0,0,0.2);
-      border: 2px solid var(--card-border);
-      border-radius: 12px;
-      padding: 1rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .mm-strategy-option:hover {
-      border-color: var(--miami-cyan);
-      background: rgba(0,212,255,0.05);
-    }
-    
-    .mm-strategy-option.active {
-      border-color: var(--matrix-green);
-      background: rgba(0,255,136,0.1);
-    }
-    
-    .mm-strategy-header {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 0.75rem;
-    }
-    
-    .mm-strategy-icon {
-      font-size: 2rem;
-    }
-    
-    .mm-strategy-header h3 {
-      font-size: 1.1rem;
-      margin-bottom: 0.25rem;
-    }
-    
-    .mm-strategy-header p {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-    
-    .mm-strategy-stats {
-      display: flex;
-      gap: 1rem;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-    
-    .mm-strategy-params {
-      margin-top: 1.5rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--card-border);
-    }
-    
-    .mm-strategy-params h4 {
-      margin-bottom: 1rem;
-    }
-    
-    .mm-param {
-      margin-bottom: 1rem;
-    }
-    
-    .mm-param label {
-      display: block;
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      margin-bottom: 0.5rem;
-    }
-    
-    .mm-param input {
-      width: 100%;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      padding: 0.5rem;
-      color: var(--text-primary);
-      font-family: 'JetBrains Mono', monospace;
-    }
-    
-    .mm-empty-state {
-      text-align: center;
-      padding: 3rem 1rem;
-    }
-    
-    .mm-empty-state p {
-      color: var(--text-secondary);
-      margin: 0.5rem 0;
-    }
-    
-    .mm-positions table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    
-    .mm-positions th,
-    .mm-positions td {
-      padding: 0.75rem;
-      text-align: left;
-      border-bottom: 1px solid var(--card-border);
-    }
-    
-    .mm-positions th {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-    
-    .mm-strategy-details h4 {
-      font-size: 1rem;
-      margin: 1rem 0 0.5rem;
-      color: var(--text-primary);
-    }
-    
-    .mm-strategy-details ul li strong {
-      color: var(--text-primary);
-    }
-    
-    /* Toggle Switch */
-    .toggle-switch {
-      position: relative;
-      display: inline-block;
-      width: 50px;
-      height: 26px;
-    }
-    
-    .toggle-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    
-    .toggle-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(255,255,255,0.1);
-      transition: 0.3s;
-      border-radius: 26px;
-      border: 1px solid var(--card-border);
-    }
-    
-    .toggle-slider:before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: var(--text-muted);
-      transition: 0.3s;
-      border-radius: 50%;
-    }
-    
-    .toggle-switch input:checked + .toggle-slider {
-      background: linear-gradient(135deg, var(--green), #00cc77);
-      border-color: var(--green);
-    }
-    
-    .toggle-switch input:checked + .toggle-slider:before {
-      transform: translateX(24px);
-      background-color: white;
-    }
-    
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 1024px) {
-      .trade-grid { grid-template-columns: 1fr; }
-      .trade-panel { order: -1; }
-    }
-    
-    @media (max-width: 768px) {
-      .header { flex-wrap: wrap; gap: 1rem; }
-      .nav { display: none; }
-      .lottery-banner { flex-wrap: wrap; gap: 1rem; padding: 0.75rem 1rem; }
-      .page { padding: 1rem; }
-      .quick-amounts { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -1548,57 +690,54 @@
   
   <!-- Lottery Banner -->
   <div class="lottery-banner">
-    <div class="lottery-timer">
-      <span class="icon">🎰</span>
-      <span>NEXT WINNER IN</span>
-      <div class="lottery-slots">
-        <span class="slot-digit" id="hr1">0</span>
-        <span class="slot-digit" id="hr2">0</span>
-        <span>:</span>
-        <span class="slot-digit" id="min1">0</span>
-        <span class="slot-digit" id="min2">0</span>
-        <span>:</span>
-        <span class="slot-digit" id="sec1">0</span>
-        <span class="slot-digit" id="sec2">0</span>
-      </div>
+    <div class="item">
+      <span class="label">Daily Lottery:</span>
+      <span class="jackpot">0.25% of fees</span>
     </div>
-    <div class="lottery-prize">
-      <span>🏆 JACKPOT:</span>
-      <span class="amount" id="jackpot">0.00125 BTC</span>
+    <div class="item">
+      <span class="label">Next Draw:</span>
+      <span class="val" id="nextDraw">12:00 UTC</span>
     </div>
-    <div style="color:var(--text-secondary);font-size:0.8rem">
-      0.25% of fees → Random trader wins!
+    <div class="item">
+      <span class="label">Today's Pot:</span>
+      <span class="val" id="todayPot">Loading...</span>
     </div>
   </div>
-
+  
   <!-- Header -->
-  <header class="header">
-    <div class="logo">
-      <div class="logo-icon">
-        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Flask outline -->
-          <path d="M15 4h10v2h-10zM15 6v10l-7 16c-1 2.5 1 5 4 5h16c3 0 5-2.5 4-5l-7-16V6" 
-                stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          <!-- Green liquid fill -->
-          <path d="M10 28l5-10h10l5 10c1 2-0.5 4-2.5 4h-15c-2 0-3.5-2-2.5-4z" fill="url(#greenLiquid)"/>
-          <!-- Bubbles -->
-          <circle cx="16" cy="30" r="1.5" fill="#7fff7f">
-            <animate attributeName="cy" values="30;26;30" dur="1.5s" repeatCount="indefinite"/>
-          </circle>
-          <circle cx="24" cy="28" r="2" fill="#7fff7f">
-            <animate attributeName="cy" values="28;23;28" dur="2s" repeatCount="indefinite"/>
-          </circle>
-          <circle cx="20" cy="32" r="1.2" fill="#7fff7f">
-            <animate attributeName="cy" values="32;27;32" dur="1.8s" repeatCount="indefinite"/>
-          </circle>
-          <!-- Highlight -->
-          <path d="M12 26l2 6" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+  <header>
+    <div class="logo-wrapper">
+      <div class="logo-img">
+        <svg width="48" height="48" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <linearGradient id="greenLiquid" x1="20" y1="18" x2="20" y2="36" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#00ff66"/>
-              <stop offset="100%" stop-color="#00aa44"/>
+            <linearGradient id="liquidGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#00ff88;stop-opacity:0.9" />
+              <stop offset="100%" style="stop-color:#00cc66;stop-opacity:0.7" />
             </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
           </defs>
+          <ellipse cx="100" cy="155" rx="50" ry="30" fill="url(#liquidGrad)" opacity="0.3"/>
+          <path d="M 70 150 Q 70 80, 100 80 Q 130 80, 130 150 Q 130 170, 100 170 Q 70 170, 70 150 Z" 
+                fill="none" stroke="#00ff88" stroke-width="4" filter="url(#glow)"/>
+          <path d="M 70 150 Q 70 100, 100 100 Q 130 100, 130 150" 
+                fill="url(#liquidGrad)" opacity="0.6"/>
+          <circle cx="90" cy="120" r="3" fill="#ffffff" opacity="0.8">
+            <animate attributeName="cy" values="120;110;120" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="100" cy="130" r="4" fill="#ffffff" opacity="0.9">
+            <animate attributeName="cy" values="130;115;130" dur="2.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="110" cy="125" r="3" fill="#ffffff" opacity="0.7">
+            <animate attributeName="cy" values="125;112;125" dur="2.2s" repeatCount="indefinite"/>
+          </circle>
+          <rect x="95" y="70" width="10" height="15" fill="#00ff88" opacity="0.8"/>
+          <ellipse cx="100" cy="70" rx="6" ry="3" fill="#00ff88"/>
         </svg>
       </div>
       <span class="logo-text"><span class="rad">Rad</span><span class="labs">Labs</span></span>
@@ -1607,262 +746,237 @@
     <nav class="nav">
       <a href="#" class="active" data-page="trade">Trade</a>
       <a href="#" data-page="tokens">Tokens</a>
-      <a href="#" data-page="games">Games</a>
+      <a href="#" data-page="radpad">RadPad</a>
+      <a href="#" data-page="liquidity">Liquidity</a>
       <a href="#" data-page="market-maker">Market Maker</a>
     </nav>
     
-    <button class="connect-btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+    <button class="connect-btn" id="connectBtn" onclick="doConnect()">Connect Wallet</button>
   </header>
 
-  <!-- TRADE PAGE -->
+  <!-- TRADE PAGE (kept minimal for now, will expand later) -->
   <div class="page active" id="page-trade">
-    <div class="trade-grid">
-      <div class="chart-card">
-        <div class="chart-header">
-          <div class="token-display">
-            <div class="token-img" id="chartImg">🍼</div>
-            <div class="token-meta">
-              <h2><span id="chartName">BOTT</span> <span class="rune" id="chartRune">BABY•BOTTLE</span></h2>
-              <div class="token-stats">
-                <span>MCap: <span class="val" id="chartMcap">$2.19M</span></span>
-                <span>Vol: <span class="val" id="chartVol">$7.9K</span></span>
-                <span>Liq: <span class="val" id="chartLiq">$4.3M</span></span>
-              </div>
-            </div>
-          </div>
-          <div class="price-box">
-            <div class="price" id="chartPrice">2.81 sats</div>
-            <div class="price-usd" id="chartUsd">≈ $0.00219</div>
-            <div class="change up" id="chartChange">+5.2%</div>
-          </div>
-        </div>
-        
-        <div class="chart-container">
-          <video id="bgVideo" class="chart-video-bg" autoplay muted loop playsinline>
-            <source src="assets/powell.mp4" type="video/mp4">
-          </video>
-          <button class="mute-btn" id="muteBtn" onclick="toggleMute()">🔇</button>
-          <div id="tvChart"></div>
-        </div>
-        
-        <div class="chart-controls">
-          <div class="chart-timeframes">
-            <button class="tf-btn" data-tf="1">1m</button>
-            <button class="tf-btn" data-tf="5">5m</button>
-            <button class="tf-btn active" data-tf="15">15m</button>
-            <button class="tf-btn" data-tf="60">1H</button>
-            <button class="tf-btn" data-tf="240">4H</button>
-            <button class="tf-btn" data-tf="1440">1D</button>
-          </div>
-          <div class="chart-type-btns">
-            <button class="chart-type-btn" onclick="setChartType('Line')" title="Line">📈</button>
-            <button class="chart-type-btn active" onclick="setChartType('Candle')" title="Candles">🕯️</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="trade-panel">
-        <div class="panel-card">
-          <div class="panel-tabs">
-            <button class="panel-tab active buy" onclick="setTradeMode('buy')">Buy</button>
-            <button class="panel-tab sell" onclick="setTradeMode('sell')">Sell</button>
-          </div>
-          
-          <div class="quick-amounts">
-            <button class="quick-btn" onclick="setAmt(0.0001)">0.0001</button>
-            <button class="quick-btn" onclick="setAmt(0.0005)">0.0005</button>
-            <button class="quick-btn" onclick="setAmt(0.001)">0.001</button>
-            <button class="quick-btn" onclick="setAmt(0.003)">0.003</button>
-          </div>
-          
-          <div class="input-group">
-            <div class="input-label">
-              <span>You Pay</span>
-              <span>Balance: <span id="fromBal">0.00</span></span>
-            </div>
-            <div class="input-row">
-              <input type="number" class="input-field" id="fromAmt" placeholder="0.0" oninput="calcQuote()">
-              <div class="token-select" onclick="openTokenModal('from')">
-                <div class="mini-img" style="background:linear-gradient(135deg,#f7931a,#ff6600)">₿</div>
-                <span id="fromSym">BTC</span>
-                <span>▼</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="swap-arrow">
-            <button onclick="flipTokens()">↓</button>
-          </div>
-          
-          <div class="input-group">
-            <div class="input-label">
-              <span>You Receive</span>
-              <span>Balance: <span id="toBal">0.00</span></span>
-            </div>
-            <div class="input-row">
-              <input type="number" class="input-field" id="toAmt" placeholder="0.0" readonly>
-              <div class="token-select" onclick="openTokenModal('to')">
-                <div class="mini-img" id="toMiniImg">🍼</div>
-                <span id="toSym">BOTT</span>
-                <span>▼</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="health-row">
-            <span style="color:var(--text-muted);font-size:0.85rem">Liquidity Health</span>
-            <span class="health-badge">HIGH</span>
-          </div>
-          
-          <div class="trade-info">
-            <div class="info-row"><span class="label">Rate</span><span class="value" id="rate">1 BTC = 355,618 BOTT</span></div>
-            <div class="info-row"><span class="label">Price Impact</span><span class="value" id="impact">~0.15%</span></div>
-            <div class="info-row"><span class="label">Platform Fee (1%)</span><span class="value fee" id="fee">0.00001 BTC</span></div>
-            <div class="info-row"><span class="label">Network Fee</span><span class="value">~500 sats</span></div>
-          </div>
-          
-          <button class="trade-btn buy" id="tradeBtn" onclick="handleTrade()">Connect Wallet</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="token-list-card">
-      <div class="list-header">
-        <h3><span class="live-dot"></span> RADFI TOKENS (LIVE)</h3>
-        <div class="search-box">
-          <span>🔍</span>
-          <input type="text" placeholder="Search..." oninput="filterTable(this.value)">
-        </div>
-      </div>
-      <table class="token-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Token</th>
-            <th>Price (sats)</th>
-            <th>Price (USD)</th>
-            <th>24h</th>
-            <th>Market Cap</th>
-            <th>Volume 24h</th>
-          </tr>
-        </thead>
-        <tbody id="tokenTbody">
-          <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-muted)">Loading...</td></tr>
-        </tbody>
-      </table>
+    <div style="text-align: center; padding: 4rem 2rem;">
+      <h1 style="font-size: 3rem; margin-bottom: 1rem;">🚧 Trade Module Coming Soon</h1>
+      <p style="color: var(--text-secondary); font-size: 1.2rem;">Building the most advanced Bitcoin Runes trading experience</p>
     </div>
   </div>
 
   <!-- TOKENS PAGE -->
   <div class="page" id="page-tokens">
-    <div style="text-align:center;padding:2rem 0">
-      <h1 style="font-size:2.5rem;font-weight:800;background:linear-gradient(90deg,var(--miami-pink),var(--miami-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent">All RadFi Tokens</h1>
-      <p style="color:var(--text-secondary);margin-top:0.5rem">Live data from RadFi production API</p>
+    <div class="tokens-header">
+      <h1>All Tokens</h1>
+      <p>Explore all Runes tokens on RadFi</p>
     </div>
-    <div class="token-list-card" style="margin-top:0">
-      <div class="list-header">
-        <h3>Complete Token List</h3>
-        <div class="search-box">
-          <span>🔍</span>
-          <input type="text" placeholder="Search..." oninput="filterAllTable(this.value)">
-        </div>
-      </div>
-      <table class="token-table">
+    <div class="table-card">
+      <input type="text" placeholder="Search tokens..." onkeyup="filterTable(this.value)" 
+             style="width: 100%; padding: 0.75rem 1rem; margin-bottom: 1rem; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 8px; color: white;">
+      <table>
         <thead>
-          <tr><th>#</th><th>Token</th><th>Price (sats)</th><th>Price (USD)</th><th>24h</th><th>MCap</th><th>Vol 24h</th><th>All Time Vol</th></tr>
+          <tr>
+            <th>Token</th>
+            <th>Market Cap</th>
+            <th>Volume 24h</th>
+            <th>Liquidity</th>
+            <th>Change</th>
+          </tr>
         </thead>
-        <tbody id="allTokensTbody"></tbody>
+        <tbody id="tokenTbody"></tbody>
       </table>
     </div>
   </div>
 
-  <!-- GAMES PAGE -->
-  <div class="page" id="page-games">
-    <div class="games-header">
-      <h1>🎮 GAMES</h1>
-      <p>Bet BTC. Win Big. Have Fun.</p>
-      <div class="rake-info">2% rake fee → $RAD buybacks 🔥</div>
+  <!-- RADPAD PAGE -->
+  <div class="page" id="page-radpad">
+    <div class="radpad-header">
+      <h1>🚀 RadPad</h1>
+      <p>Launch your Rune on Bitcoin with instant liquidity</p>
     </div>
-
-    <!-- Crash Game -->
-    <div class="crash-game">
-      <h3 style="margin-bottom:1rem;font-size:1.5rem">🚀 Crypto Crash</h3>
-      <div class="crash-display">
-        <div class="crash-multiplier" id="crashMultiplier">1.00x</div>
-      </div>
-      <div class="crash-controls">
-        <div class="crash-input">
-          <label>Bet Amount (BTC)</label>
-          <input type="number" id="crashBet" value="0.0001" step="0.0001">
+    
+    <div class="etch-grid">
+      <!-- Left: Rune Details -->
+      <div class="etch-card">
+        <h2>Rune Details</h2>
+        
+        <div class="form-group">
+          <label>Rune Name *</label>
+          <input type="text" id="runeName" placeholder="UNCOMMON•GOODS" 
+                 onkeyup="updatePreview()">
         </div>
-        <div class="crash-input">
-          <label>Auto Cashout At</label>
-          <input type="number" id="crashAuto" value="2.00" step="0.1">
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Symbol *</label>
+            <input type="text" id="symbol" placeholder="UG" maxlength="4"
+                   onkeyup="updatePreview()">
+          </div>
+          
+          <div class="form-group">
+            <label>Display Ticker</label>
+            <input type="text" id="displayTicker" placeholder="UG"
+                   onkeyup="updatePreview()">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Description *</label>
+          <textarea id="description" placeholder="Describe your Rune project..."
+                    onkeyup="updatePreview()"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label>Inscription Type</label>
+          <input type="text" id="inscriptionType" value="text/plain" readonly>
+        </div>
+        
+        <div class="form-group">
+          <label>Inscription Content</label>
+          <textarea id="inscriptionContent" placeholder="Additional inscription data..."
+                    onkeyup="updatePreview()"></textarea>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Twitter/X</label>
+            <input type="text" id="socialX" placeholder="https://x.com/yourproject"
+                   onkeyup="updatePreview()">
+          </div>
+          
+          <div class="form-group">
+            <label>Telegram</label>
+            <input type="text" id="socialTg" placeholder="https://t.me/yourproject"
+                   onkeyup="updatePreview()">
+          </div>
         </div>
       </div>
-      <div class="crash-btns">
-        <button class="bet-btn" onclick="placeCrashBet()">Place Bet</button>
-        <button class="cashout-btn" onclick="cashoutCrash()" disabled id="cashoutBtn">Cash Out</button>
-      </div>
-      <div style="margin-top:1rem;padding:1rem;background:rgba(0,0,0,0.3);border-radius:10px">
-        <div style="display:flex;justify-content:space-between;font-size:0.9rem;color:var(--text-secondary)">
-          <span>Players this round: <span style="color:var(--matrix-green)">47</span></span>
-          <span>Total pot: <span style="color:var(--yellow)">0.0234 BTC</span></span>
+      
+      <!-- Right: Launch Parameters -->
+      <div class="etch-card">
+        <h2>Launch Parameters</h2>
+        
+        <div class="slider-group">
+          <label>
+            Fee Tier
+            <span class="slider-value" id="feeTierVal">1.0%</span>
+          </label>
+          <input type="range" id="feeTier" min="5000" max="100000" step="5000" value="10000"
+                 oninput="updateSliders(); updatePreview();">
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+            Trading fee percentage for your token's liquidity pool
+          </div>
+        </div>
+        
+        <div class="slider-group">
+          <label>
+            Liquidity Allocation
+            <span class="slider-value" id="lpRateVal">20%</span>
+          </label>
+          <input type="range" id="lpRate" min="0" max="100" step="5" value="20"
+                 oninput="updateSliders(); updatePreview();">
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+            % of raised BTC going to liquidity (rest goes to creator)
+          </div>
+        </div>
+        
+        <div class="slider-group">
+          <label>
+            Diamond Hands Reward
+            <span class="slider-value" id="rewardRateVal">50%</span>
+          </label>
+          <input type="range" id="rewardRate" min="0" max="100" step="5" value="50"
+                 oninput="updateSliders(); updatePreview();">
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+            Long-term holder reward (% of available 66.67% rewards)
+          </div>
+        </div>
+        
+        <div class="checkbox-group">
+          <input type="checkbox" id="blockWithdrawals" onchange="updatePreview()">
+          <label for="blockWithdrawals">
+            Block external withdrawals (only internal RadFi transfers allowed)
+          </label>
+        </div>
+        
+        <div class="etch-preview">
+          <h3>Launch Preview</h3>
+          <div class="preview-item">
+            <span class="label">Rune Name:</span>
+            <span class="value" id="prevName">-</span>
+          </div>
+          <div class="preview-item">
+            <span class="label">Symbol:</span>
+            <span class="value" id="prevSymbol">-</span>
+          </div>
+          <div class="preview-item">
+            <span class="label">Fee Tier:</span>
+            <span class="value" id="prevFee">1.0%</span>
+          </div>
+          <div class="preview-item">
+            <span class="label">LP Allocation:</span>
+            <span class="value" id="prevLP">20%</span>
+          </div>
+          <div class="preview-item">
+            <span class="label">Creator Gets:</span>
+            <span class="value" id="prevCreator">80%</span>
+          </div>
+          <div class="preview-item">
+            <span class="label">Diamond Reward:</span>
+            <span class="value" id="prevReward">33.33%</span>
+          </div>
+          <div class="preview-item">
+            <span class="label">Withdrawals:</span>
+            <span class="value" id="prevWithdraw">Allowed</span>
+          </div>
+        </div>
+        
+        <button class="etch-btn" onclick="launchRune()">
+          Launch Rune
+        </button>
+        
+        <div class="etch-info">
+          ℹ️ Connect your wallet to etch a new Rune. You'll need BTC for the inscription and etching fees.
         </div>
       </div>
     </div>
-
-    <div class="games-grid">
-      <div class="game-card">
-        <div class="game-preview">
-          <div class="bg-anim"></div>
-          <span>🎲</span>
-        </div>
-        <div class="game-info">
-          <h3>Satoshi Dice</h3>
-          <p>Classic provably fair dice. Roll under your target to win!</p>
-          <div class="game-stats">
-            <div class="game-stat"><div class="label">Players</div><div class="value">124</div></div>
-            <div class="game-stat"><div class="label">Wagered</div><div class="value">2.4 BTC</div></div>
-            <div class="game-stat"><div class="label">Max Win</div><div class="value">99x</div></div>
-          </div>
-          <button class="play-btn">Play Now</button>
+    
+    <!-- Recently Launched -->
+    <div class="etch-list">
+      <h2>Recently Launched</h2>
+      <div class="etch-items" id="etchedRunes">
+        <div style="text-align: center; padding: 2rem; grid-column: 1/-1; color: var(--text-secondary);">
+          Loading recently etched Runes...
         </div>
       </div>
+    </div>
+  </div>
 
-      <div class="game-card">
-        <div class="game-preview">
-          <div class="bg-anim"></div>
-          <span>🎰</span>
-        </div>
-        <div class="game-info">
-          <h3>Rune Slots</h3>
-          <p>Match 3 runes to win. Jackpot up to 1000x!</p>
-          <div class="game-stats">
-            <div class="game-stat"><div class="label">Jackpot</div><div class="value">0.5 BTC</div></div>
-            <div class="game-stat"><div class="label">Spins</div><div class="value">5.2K</div></div>
-            <div class="game-stat"><div class="label">RTP</div><div class="value">96%</div></div>
-          </div>
-          <button class="play-btn">Play Now</button>
-        </div>
-      </div>
-
-      <div class="game-card">
-        <div class="game-preview">
-          <div class="bg-anim"></div>
-          <span>⚡</span>
-        </div>
-        <div class="game-info">
-          <h3>Lightning Roulette</h3>
-          <p>European roulette with random multipliers up to 500x!</p>
-          <div class="game-stats">
-            <div class="game-stat"><div class="label">Players</div><div class="value">89</div></div>
-            <div class="game-stat"><div class="label">24h Vol</div><div class="value">1.8 BTC</div></div>
-            <div class="game-stat"><div class="label">Max Multi</div><div class="value">500x</div></div>
-          </div>
-          <button class="play-btn">Play Now</button>
-        </div>
-      </div>
+  <!-- LIQUIDITY PAGE (User LP Positions) -->
+  <div class="page" id="page-liquidity">
+    <div class="mm-header">
+      <h1>💧 Liquidity Positions</h1>
+      <p>Your active liquidity provider positions on RadFi pools</p>
+    </div>
+    
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Pool</th>
+            <th>Your Liquidity</th>
+            <th>Pool Share</th>
+            <th>Fees Earned</th>
+            <th>APY</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="lpPositionsTbody">
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+              Connect wallet to view your liquidity positions
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -1870,743 +984,155 @@
   <div class="page" id="page-market-maker">
     <div class="mm-header">
       <h1>🏦 RadLabs Market Maker</h1>
-      <p>Provide liquidity and earn fees through automated market making on RadFi pools</p>
+      <p>Automated market making strategy • 23-32% APY • 10% performance fee on profits</p>
     </div>
-
+    
     <div class="mm-grid">
-      <!-- Deposit Card -->
       <div class="mm-card">
-        <h2>💰 Deploy Capital</h2>
-        <p class="mm-desc">Choose a token and deposit funds to start market making</p>
-        
-        <div class="mm-select-token">
-          <label>Select Token to Market Make</label>
-          <select id="mmTokenSelect" class="mm-dropdown">
-            <option value="">-- Choose Token --</option>
+        <h2>Deploy Capital</h2>
+        <div class="form-group">
+          <label>Select Pool</label>
+          <select id="mmPool" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 8px; color: white;">
+            <option>Loading pools...</option>
           </select>
         </div>
-
-        <div class="mm-token-info" id="mmTokenInfo" style="display:none">
-          <div class="mm-stat">
-            <span>Current Price:</span>
-            <span id="mmTokenPrice">--</span>
-          </div>
-          <div class="mm-stat">
-            <span>Market Cap:</span>
-            <span id="mmTokenMcap">--</span>
-          </div>
-          <div class="mm-stat">
-            <span>24h Volume:</span>
-            <span id="mmTokenVol">--</span>
-          </div>
-          <div class="mm-stat">
-            <span>RadFi Pool TVL:</span>
-            <span id="mmPoolTVL">--</span>
-          </div>
+        <div class="form-group">
+          <label>Amount (BTC)</label>
+          <input type="number" id="mmAmount" placeholder="0.01" step="0.001" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 8px; color: white;">
         </div>
-
-        <div class="mm-deposit-input">
-          <label>Deposit Amount (BTC)</label>
-          <input type="number" id="mmDepositAmount" placeholder="0.01" min="0.001" step="0.001">
-          <div class="mm-quick-amounts">
-            <button onclick="setMMAmount(0.01)">0.01</button>
-            <button onclick="setMMAmount(0.05)">0.05</button>
-            <button onclick="setMMAmount(0.1)">0.1</button>
-            <button onclick="setMMAmount(0.5)">0.5</button>
-          </div>
+        <button class="etch-btn" onclick="deployMM()">Deploy to Market Maker</button>
+        <div class="etch-info">
+          ℹ️ Platform earns 10% of profitable fees. You keep 90%. No fees on deposits or losses.
         </div>
-
-        <button class="mm-btn primary" onclick="depositToMM()">Deposit & Start MM</button>
       </div>
-
-      <!-- Strategy Card -->
+      
       <div class="mm-card">
-        <h2>📊 RadFi LP Strategy</h2>
-        <p class="mm-desc">Automated liquidity provision with active rebalancing</p>
-
-        <div class="mm-strategy-list">
-          <div class="mm-strategy-option active" onclick="selectMMStrategy('radfi-lp')">
-            <div class="mm-strategy-header">
-              <span class="mm-strategy-icon">💧</span>
-              <div>
-                <h3>RadFi LP Market Making</h3>
-                <p>Provide liquidity and earn fees on all swaps</p>
-              </div>
-            </div>
-            <div class="mm-strategy-stats">
-              <span style="color: var(--green); font-weight: 600;">Estimated APY: 23-32%</span>
-              <span>Risk: Medium</span>
-            </div>
-          </div>
+        <h2>Strategy Performance</h2>
+        <div class="preview-item">
+          <span class="label">Expected APY:</span>
+          <span class="value">23-32%</span>
         </div>
-
-        <div class="mm-strategy-details">
-          <h4>How It Works</h4>
-          <ul style="list-style: none; padding: 0; margin: 1rem 0;">
-            <li style="padding: 0.5rem 0;">✅ <strong>Pool Fees:</strong> Earn fees on every trade through the pool</li>
-            <li style="padding: 0.5rem 0;">✅ <strong>Active Management:</strong> Automated rebalancing to optimize returns</li>
-            <li style="padding: 0.5rem 0;">✅ <strong>RadFi Native:</strong> Low transaction costs enable frequent optimization</li>
-            <li style="padding: 0.5rem 0;">⚠️ <strong>Risk:</strong> Impermanent loss up to -25% on large price movements</li>
-          </ul>
-          <div class="mm-stat" style="background: rgba(0,255,136,0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
-            <span style="font-size: 0.9rem; color: var(--text-secondary);">Based on backtested historical data</span>
-            <span style="font-size: 1.2rem; font-weight: 700; color: var(--green);">Real returns vary by pool</span>
-          </div>
+        <div class="preview-item">
+          <span class="label">Fee Split:</span>
+          <span class="value">90% You / 10% Platform</span>
         </div>
-
-        <div class="mm-toggle" style="margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 8px;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <h4 style="margin: 0;">Auto-Rebalance</h4>
-              <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: var(--text-secondary);">Monitor and rebalance every 5 minutes</p>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="mmAutoRebalance" checked>
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
+        <div class="preview-item">
+          <span class="label">Active Pools:</span>
+          <span class="value" id="mmActivePools">0</span>
         </div>
-      </div>
-
-      <!-- Active Positions Card -->
-      <div class="mm-card full-width">
-        <h2>📈 Your Active Positions</h2>
-        <div class="mm-positions" id="mmPositions">
-          <div class="mm-empty-state">
-            <span style="font-size:3rem">💼</span>
-            <p>No active market making positions</p>
-            <p class="mm-desc">Deploy capital above to get started</p>
-          </div>
+        <div class="preview-item">
+          <span class="label">Total Deployed:</span>
+          <span class="value" id="mmTotalDeployed">0 BTC</span>
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Ticker -->
-  <div class="ticker">
-    <div class="ticker-track" id="ticker"></div>
-  </div>
-
-  <!-- Wallet Modal -->
-  <div class="modal-overlay" id="walletModal">
-    <div class="modal">
-      <h3>Connect Wallet</h3>
-      <div class="wallet-option" onclick="doConnect('unisat')">
-        <img src="https://unisat.io/favicon.ico" alt="Unisat">
-        <div><div class="name">Unisat</div><div class="desc">Bitcoin & Ordinals</div></div>
-      </div>
-      <div class="wallet-option" onclick="doConnect('xverse')">
-        <img src="https://www.xverse.app/favicon.ico" alt="Xverse">
-        <div><div class="name">Xverse</div><div class="desc">Bitcoin & Stacks</div></div>
-      </div>
-      <div class="wallet-option" onclick="doConnect('okx')">
-        <img src="https://www.okx.com/favicon.ico" alt="OKX">
-        <div><div class="name">OKX Wallet</div><div class="desc">Multi-chain</div></div>
-      </div>
+    
+    <div class="table-card" style="margin-top: 2rem;">
+      <h2 style="margin-bottom: 1rem;">Your Positions</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Pool</th>
+            <th>Deposited</th>
+            <th>Current Value</th>
+            <th>Fees Earned</th>
+            <th>IL</th>
+            <th>Total PnL</th>
+            <th>APY</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="mmPositionsTbody">
+          <tr>
+            <td colspan="9" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+              No active positions. Deploy capital to start earning.
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
-
-  <!-- Token Modal -->
-  <div class="modal-overlay" id="tokenModal">
-    <div class="modal">
-      <h3>Select Token</h3>
-      <div class="search-box" style="margin-bottom:1rem">
-        <span>🔍</span>
-        <input type="text" placeholder="Search..." oninput="filterModal(this.value)" style="width:100%">
-      </div>
-      <div id="tokenModalList" style="max-height:400px;overflow-y:auto"></div>
-    </div>
-  </div>
-
-  <div class="toast" id="toast"><span id="toastMsg"></span></div>
 
   <script>
-    // STATE
+    // Global State
     const S = {
+      userAddress: null,
+      tradingAddress: null,
+      publicKey: null,
+      walletType: null,
+      accessToken: null,
+      refreshToken: null,
       tokens: [],
-      userAddress: null,          // User's wallet address (Xverse/Unisat/OKX)
-      tradingAddress: null,       // RadFi trading wallet address (2-of-2 multisig)
-      tradingWalletBalance: 0,    // Trading wallet balance in sats
-      publicKey: null,            // User's public key
-      walletType: null,           // 'unisat' | 'xverse' | 'okx'
-      walletData: null,           // Full wallet object from RadFi
-      hasWalletHistory: false,    // True if wallet was used on RadFi before
-      accessToken: null,          // JWT access token
-      refreshToken: null,         // JWT refresh token
-      mode: 'buy',
-      from: { symbol: 'BTC', tokenId: '0:0', priceInSats: 100000000 },
-      to: null,
-      selected: null,
-      selectTarget: 'to',
-      chart: null,
-      candleSeries: null,
-      lineSeries: null,
-      chartType: 'Candle',
-      timeframe: 15 // minutes per candle
+      pools: [],
+      etchedRunes: [],
+      lpPositions: [],
+      mmPositions: []
     };
-
-    // LOTTERY TIMER
-    function updateLotteryTimer() {
-      const now = new Date();
-      const endOfDay = new Date(now);
-      endOfDay.setHours(23, 59, 59, 999);
-      const diff = endOfDay - now;
-      
-      const hrs = Math.floor(diff / 3600000);
-      const mins = Math.floor((diff % 3600000) / 60000);
-      const secs = Math.floor((diff % 60000) / 1000);
-      
-      document.getElementById('hr1').textContent = Math.floor(hrs / 10);
-      document.getElementById('hr2').textContent = hrs % 10;
-      document.getElementById('min1').textContent = Math.floor(mins / 10);
-      document.getElementById('min2').textContent = mins % 10;
-      document.getElementById('sec1').textContent = Math.floor(secs / 10);
-      document.getElementById('sec2').textContent = secs % 10;
-    }
-    setInterval(updateLotteryTimer, 1000);
-    updateLotteryTimer();
-
-    // CRASH GAME
-    let crashInterval = null;
-    let crashMultiplier = 1.0;
-    let crashBetPlaced = false;
-
-    function placeCrashBet() {
-      if (!S.userAddress) { connectWallet(); return; }
-      if (crashBetPlaced) return;
-      
-      crashBetPlaced = true;
-      crashMultiplier = 1.0;
-      document.getElementById('cashoutBtn').disabled = false;
-      
-      crashInterval = setInterval(() => {
-        crashMultiplier *= 1.01 + Math.random() * 0.02;
-        document.getElementById('crashMultiplier').textContent = crashMultiplier.toFixed(2) + 'x';
-        
-        // Random crash
-        if (Math.random() < 0.01 || crashMultiplier > 10) {
-          clearInterval(crashInterval);
-          document.getElementById('crashMultiplier').classList.add('crashed');
-          document.getElementById('crashMultiplier').textContent = 'CRASHED!';
-          document.getElementById('cashoutBtn').disabled = true;
-          crashBetPlaced = false;
-          
-          setTimeout(() => {
-            document.getElementById('crashMultiplier').classList.remove('crashed');
-            document.getElementById('crashMultiplier').textContent = '1.00x';
-          }, 2000);
-        }
-      }, 100);
-    }
-
-    function cashoutCrash() {
-      if (!crashBetPlaced) return;
-      clearInterval(crashInterval);
-      crashBetPlaced = false;
-      document.getElementById('cashoutBtn').disabled = true;
-      
-      const bet = parseFloat(document.getElementById('crashBet').value);
-      const win = bet * crashMultiplier;
-      toast(`Cashed out at ${crashMultiplier.toFixed(2)}x! Won ${win.toFixed(6)} BTC`, 'success');
-    }
-
-    // API
-    const API = '';
-
-    async function loadTokens() {
-      try {
-        const res = await fetch(`${API}/api/tokens?pageSize=100&sort=-volume24h`);
-        const data = await res.json();
-        if (data.data) {
-          S.tokens = data.data.filter(t => t.hasPool && !t.isTest);
-          renderTable();
-          renderTicker();
-          if (S.tokens.length > 0) {
-            selectToken(S.tokens[0]);
-            S.to = S.tokens[0];
-            updateToDisplay();
-          }
-        }
-      } catch (e) {
-        console.error('Load error:', e);
-        document.getElementById('tokenTbody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--red)">Error loading. Ensure backend runs on localhost:3000</td></tr>';
-      }
-    }
-
-    // RENDER TABLE
-    function renderTable() {
-      const tbody = document.getElementById('tokenTbody');
-      tbody.innerHTML = S.tokens.slice(0, 20).map((t, i) => tokenRow(t, i)).join('');
-    }
-
-    function renderAllTokens() {
-      const tbody = document.getElementById('allTokensTbody');
-      tbody.innerHTML = S.tokens.map((t, i) => tokenRowFull(t, i)).join('');
-    }
-
-    function tokenRow(t, i) {
-      const name = t.displayTicker || t.symbol || '?';
-      const rune = t.spacedRune || '';
-      const sats = t.priceInSats || 0;
-      const usd = t.price || 0;
-      const change = ((t.priceChange24h || 0) - (t.price || 0)) / ((t.price || 1)) * 100;
-      const changeDisplay = usd > 0 ? ((change >= 0 ? '+' : '') + change.toFixed(2) + '%') : '0%';
-      const changeClass = change >= 0 ? 'up' : 'down';
-      const mcap = t.marketCap || 0;
-      const vol = t.volume24h || 0;
-      
-      return `
-        <tr onclick='selectToken(${JSON.stringify(t).replace(/'/g, "\\'")})'>
-          <td>${i + 1}</td>
-          <td>
-            <div class="token-cell">
-              <div class="img">${t.symbol || '?'}</div>
-              <div><div class="name">${name}</div><div class="rune">${rune}</div></div>
-            </div>
-          </td>
-          <td class="mono green">${fmtSats(sats)}</td>
-          <td class="mono">$${fmtNum(usd)}</td>
-          <td class="mono ${changeClass}">${changeDisplay}</td>
-          <td class="mono">$${fmtCompact(mcap)}</td>
-          <td class="mono">$${fmtCompact(vol)}</td>
-        </tr>
-      `;
-    }
-
-    function tokenRowFull(t, i) {
-      const name = t.displayTicker || t.symbol || '?';
-      const rune = t.spacedRune || '';
-      const sats = t.priceInSats || 0;
-      const usd = t.price || 0;
-      const change = ((t.priceChange24h || 0) - (t.price || 0)) / ((t.price || 1)) * 100;
-      const changeDisplay = usd > 0 ? ((change >= 0 ? '+' : '') + change.toFixed(2) + '%') : '0%';
-      const changeClass = change >= 0 ? 'up' : 'down';
-      
-      return `
-        <tr onclick='selectTokenNav(${JSON.stringify(t).replace(/'/g, "\\'")})'>
-          <td>${i + 1}</td>
-          <td><div class="token-cell"><div class="img">${t.symbol || '?'}</div><div><div class="name">${name}</div><div class="rune">${rune}</div></div></div></td>
-          <td class="mono green">${fmtSats(sats)}</td>
-          <td class="mono">$${fmtNum(usd)}</td>
-          <td class="mono ${changeClass}">${changeDisplay}</td>
-          <td class="mono">$${fmtCompact(t.marketCap || 0)}</td>
-          <td class="mono">$${fmtCompact(t.volume24h || 0)}</td>
-          <td class="mono">$${fmtCompact(t.volumeAllTime || 0)}</td>
-        </tr>
-      `;
-    }
-
-    function selectTokenNav(t) {
-      selectToken(t);
-      navigate('trade');
-    }
-
-    function renderTicker() {
-      const items = S.tokens.slice(0, 15).map(t => {
-        const name = t.displayTicker || t.symbol || '?';
-        const change = ((t.priceChange24h || 0) - (t.price || 0)) / ((t.price || 1)) * 100;
-        const changeClass = change >= 0 ? 'up' : 'down';
-        return `
-          <span class="ticker-item">
-            <span class="sym">${name}</span>
-            <span class="price mono">$${fmtCompact(t.marketCap || 0)}</span>
-            <span class="${changeClass}">${change >= 0 ? '+' : ''}${change.toFixed(2)}%</span>
-          </span>
-        `;
-      }).join('');
-      document.getElementById('ticker').innerHTML = items + items;
-    }
-
-    // TOKEN SELECTION
-    function selectToken(t) {
-      S.selected = t;
-      S.to = t;
-      updateToDisplay();
-      
-      const name = t.displayTicker || t.symbol || '?';
-      const mcap = t.marketCap || 0;
-      document.getElementById('chartImg').textContent = t.symbol || '?';
-      document.getElementById('chartName').textContent = name;
-      document.getElementById('chartRune').textContent = t.spacedRune || '';
-      document.getElementById('chartMcap').textContent = '$' + fmtCompact(mcap);
-      document.getElementById('chartVol').textContent = '$' + fmtCompact(t.volume24h || 0);
-      document.getElementById('chartLiq').textContent = '$' + fmtCompact(t.volumeAllTime || 0);
-      // Show market cap as "price" everywhere
-      document.getElementById('chartPrice').textContent = '$' + fmtCompact(mcap);
-      document.getElementById('chartUsd').textContent = 'Market Cap';
-      
-      const change = ((t.priceChange24h || 0) - (t.price || 0)) / ((t.price || 1)) * 100;
-      const changeEl = document.getElementById('chartChange');
-      changeEl.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
-      changeEl.className = `change ${change >= 0 ? 'up' : 'down'}`;
-      
-      updateChart();
-      calcQuote();
-    }
-
-    function updateToDisplay() {
-      if (S.to) {
-        const name = S.to.displayTicker || S.to.symbol || '?';
-        document.getElementById('toSym').textContent = name;
-        document.getElementById('toMiniImg').textContent = S.to.symbol || '?';
-      }
-    }
-
-    // CHART (TradingView Lightweight)
-    function initChart() {
-      const container = document.getElementById('tvChart');
-      S.chart = LightweightCharts.createChart(container, {
-        width: container.clientWidth,
-        height: container.clientHeight,
-        layout: {
-          background: { type: 'solid', color: 'transparent' },
-          textColor: '#888',
-        },
-        grid: {
-          vertLines: { color: 'rgba(0,255,65,0.05)' },
-          horzLines: { color: 'rgba(0,255,65,0.05)' },
-        },
-        crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
-        localization: {
-          priceFormatter: (price) => {
-            if (price >= 1000000) return '$' + (price / 1000000).toFixed(1) + 'M';
-            if (price >= 1000) return '$' + (price / 1000).toFixed(0) + 'k';
-            return '$' + price.toFixed(0);
-          },
-        },
-        rightPriceScale: { 
-          borderColor: 'rgba(255,255,255,0.1)',
-          scaleMargins: { top: 0.1, bottom: 0.1 }
-        },
-        timeScale: { 
-          borderColor: 'rgba(255,255,255,0.1)', 
-          timeVisible: true,
-          rightOffset: 12,
-          barSpacing: 6,
-          minBarSpacing: 3,
-          fixLeftEdge: false,
-          fixRightEdge: false
-        },
-        handleScroll: {
-          mouseWheel: true,
-          pressedMouseMove: true,
-          horzTouchDrag: true,
-          vertTouchDrag: true
-        },
-        handleScale: {
-          axisPressedMouseMove: true,
-          mouseWheel: true,
-          pinch: true
-        }
-      });
-      
-      S.candleSeries = S.chart.addCandlestickSeries({
-        upColor: '#00ff88',
-        downColor: '#ff4757',
-        borderUpColor: '#00ff88',
-        borderDownColor: '#ff4757',
-        wickUpColor: '#00ff88',
-        wickDownColor: '#ff4757',
-      });
-      
-      S.lineSeries = S.chart.addLineSeries({
-        color: '#00ffff',
-        lineWidth: 2,
-      });
-      S.lineSeries.applyOptions({ visible: false });
-      
-      window.addEventListener('resize', () => {
-        S.chart.applyOptions({ width: container.clientWidth });
-      });
-    }
-
-    function updateChart() {
-      if (!S.selected || !S.candleSeries) return;
-      
-      // Use market cap for chart values
-      const mcap = S.selected.marketCap || 1000000;
-      const data = generateCandleData(mcap, S.timeframe);
-      S.candleSeries.setData(data);
-      
-      const lineData = data.map(d => ({ time: d.time, value: d.close }));
-      S.lineSeries.setData(lineData);
-      
-      S.chart.timeScale().fitContent();
-    }
-
-    function generateCandleData(currentMcap, timeframeMinutes) {
-      const now = Math.floor(Date.now() / 1000);
-      const data = [];
-      const candleSeconds = timeframeMinutes * 60;
-      
-      // Calculate candles to show based on timeframe
-      let totalCandles;
-      if (timeframeMinutes <= 5) totalCandles = 300; // 25 hours for 1m/5m
-      else if (timeframeMinutes === 15) totalCandles = 672; // 1 week
-      else if (timeframeMinutes === 60) totalCandles = 720; // 1 month  
-      else if (timeframeMinutes === 240) totalCandles = 540; // 3 months
-      else totalCandles = 365; // 1 year for 1D
-      
-      // Scale volatility to timeframe - smaller timeframes = smaller candles
-      const volatilityScale = Math.sqrt(timeframeMinutes / 15); // 15m baseline
-      
-      // Generate candles with random walk that stays near current price
-      let price = currentMcap;
-      
-      for (let i = totalCandles; i >= 0; i--) {
-        const time = now - i * candleSeconds;
-        
-        // Random walk with mean reversion to current price
-        const distanceFromCurrent = (price - currentMcap) / currentMcap;
-        const meanReversion = -distanceFromCurrent * 0.05; // Pull back toward current
-        
-        // Random drift
-        const drift = (Math.random() - 0.5) * 0.002 * volatilityScale;
-        
-        // Apply movement
-        price = price * (1 + drift + meanReversion);
-        
-        // Now create candle with variance
-        const candleType = Math.random();
-        let bodyPct, wickPct;
-        
-        if (candleType < 0.15) {
-          // Big movers 15%
-          bodyPct = (0.01 + Math.random() * 0.02) * volatilityScale;
-          wickPct = 1.5 + Math.random();
-        } else if (candleType < 0.40) {
-          // Medium 25%
-          bodyPct = (0.003 + Math.random() * 0.007) * volatilityScale;
-          wickPct = 0.8 + Math.random() * 0.7;
-        } else if (candleType < 0.70) {
-          // Small 30%
-          bodyPct = (0.001 + Math.random() * 0.002) * volatilityScale;
-          wickPct = 0.3 + Math.random() * 0.5;
-        } else {
-          // Doji/tiny 30%
-          bodyPct = (0.0002 + Math.random() * 0.0008) * volatilityScale;
-          wickPct = 0.1 + Math.random() * 0.2;
-        }
-        
-        const direction = Math.random() > 0.5 ? 1 : -1;
-        const bodyMove = price * bodyPct * direction;
-        
-        const open = price;
-        const close = price + bodyMove;
-        
-        const bodySize = Math.abs(bodyMove);
-        const wickSize = bodySize * wickPct;
-        
-        const high = Math.max(open, close) + (Math.random() * wickSize);
-        const low = Math.min(open, close) - (Math.random() * wickSize);
-        
-        data.push({ time, open, high, low, close });
-        
-        // Update price for next candle
-        price = close;
-      }
-      
-      // Force last candle to close at current mcap
-      const lastCandle = data[data.length - 1];
-      const prevClose = data[data.length - 2]?.close || currentMcap;
-      
-      lastCandle.open = prevClose;
-      lastCandle.close = currentMcap;
-      lastCandle.high = Math.max(prevClose, currentMcap) * 1.005;
-      lastCandle.low = Math.min(prevClose, currentMcap) * 0.995;
-      
-      return data;
-    }
     
-    // Mute/Unmute video
-    function toggleMute() {
-      const video = document.getElementById('bgVideo');
-      const btn = document.getElementById('muteBtn');
-      video.muted = !video.muted;
-      btn.textContent = video.muted ? '🔇' : '🔊';
-    }
-
-    function setChartType(type) {
-      S.chartType = type;
-      document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
-      
-      if (type === 'Line') {
-        S.candleSeries.applyOptions({ visible: false });
-        S.lineSeries.applyOptions({ visible: true });
-      } else {
-        S.candleSeries.applyOptions({ visible: true });
-        S.lineSeries.applyOptions({ visible: false });
-      }
-    }
-
-    // TRADE
-    function handleTrade() {
-      if (!S.userAddress) {
-        connectWallet();
-        return;
-      }
-      // Execute trade logic here
-      toast('Trade execution coming soon!', 'info');
-    }
+    const mmState = {
+      positions: []
+    };
     
-    function setTradeMode(mode) {
-      S.mode = mode;
-      document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
-      document.querySelector(`.panel-tab.${mode}`).classList.add('active');
-      
-      const btn = document.getElementById('tradeBtn');
-      btn.className = `trade-btn ${mode}`;
-      btn.textContent = S.userAddress ? (mode === 'buy' ? 'Buy' : 'Sell') : 'Connect Wallet';
-    }
-
-    function setAmt(amt) {
-      document.getElementById('fromAmt').value = amt;
-      calcQuote();
-    }
-
-    function calcQuote() {
-      const amt = parseFloat(document.getElementById('fromAmt').value) || 0;
-      if (!amt || !S.to) {
-        document.getElementById('toAmt').value = '';
-        return;
-      }
-      const sats = amt * 100000000;
-      const fee = sats * 0.01;
-      const net = sats - fee;
-      const out = S.to.priceInSats > 0 ? net / S.to.priceInSats : 0;
-      
-      document.getElementById('toAmt').value = out.toFixed(4);
-      
-      const name = S.to.displayTicker || S.to.symbol || '?';
-      document.getElementById('rate').textContent = `1 BTC = ${fmtCompact(100000000 / (S.to.priceInSats || 1))} ${name}`;
-      document.getElementById('fee').textContent = `${(fee / 100000000).toFixed(6)} BTC`;
-      document.getElementById('impact').textContent = `~${(amt * 0.2).toFixed(2)}%`;
-    }
-
-    function flipTokens() {
-      const tmp = S.from;
-      S.from = S.to;
-      S.to = tmp;
-      updateToDisplay();
-      calcQuote();
-    }
-
-    // TOKEN MODAL
-    function openTokenModal(target) {
-      S.selectTarget = target;
-      const list = document.getElementById('tokenModalList');
-      const btc = `<div class="wallet-option" onclick="pickToken({symbol:'BTC',tokenId:'0:0',priceInSats:100000000,displayTicker:'BTC'})">
-        <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#f7931a,#ff6600);display:flex;align-items:center;justify-content:center;font-size:1.5rem">₿</div>
-        <div><div class="name">BTC</div><div class="desc">Bitcoin</div></div>
-      </div>`;
-      const opts = S.tokens.slice(0, 50).map(t => `
-        <div class="wallet-option" onclick='pickToken(${JSON.stringify(t).replace(/'/g, "\\'")})'>
-          <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--miami-orange),var(--miami-pink));display:flex;align-items:center;justify-content:center;font-size:1.5rem">${t.symbol || '?'}</div>
-          <div><div class="name">${t.displayTicker || t.symbol}</div><div class="desc">${t.spacedRune || ''}</div></div>
-        </div>
-      `).join('');
-      list.innerHTML = btc + opts;
-      document.getElementById('tokenModal').classList.add('active');
-    }
-
-    function pickToken(t) {
-      if (S.selectTarget === 'from') {
-        S.from = t;
-      } else {
-        S.to = t;
-        updateToDisplay();
-        selectToken(t);
-      }
-      document.getElementById('tokenModal').classList.remove('active');
-      calcQuote();
-    }
-
-    function filterModal(q) {
-      q = q.toLowerCase();
-      document.querySelectorAll('#tokenModalList .wallet-option').forEach(el => {
-        el.style.display = el.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
-      });
-    }
-
-    // WALLET - RadFi Trading Wallet Flow
-    function connectWallet() {
-      document.getElementById('walletModal').classList.add('active');
-    }
-
-    async function doConnect(type) {
-      document.getElementById('walletModal').classList.remove('active');
-      
+    // Wallet Connection (RadFi Trading Wallet Flow)
+    async function doConnect() {
       try {
-        toast('Connecting wallet...', 'info');
+        let address, publicKey, walletType;
         
-        let userAddress = null;
-        let publicKey = null;
-        
-        // Step 1: Connect to user's wallet and get public key
-        if (type === 'unisat' && window.unisat) {
-          userAddress = (await window.unisat.requestAccounts())[0];
+        // Try Unisat first
+        if (window.unisat) {
+          const accounts = await window.unisat.requestAccounts();
+          address = accounts[0];
           publicKey = await window.unisat.getPublicKey();
-        } else if (type === 'xverse' && window.XverseProviders) {
-          const res = await window.XverseProviders.BitcoinProvider.request('getAccounts', {
+          walletType = 'unisat';
+        }
+        // Try Xverse
+        else if (window.XverseProviders?.BitcoinProvider) {
+          const provider = window.XverseProviders.BitcoinProvider;
+          const response = await provider.request('getAccounts', {
             purposes: ['payment', 'ordinals']
           });
-          if (res.result && res.result.length > 0) {
-            const account = res.result.find(a => a.purpose === 'payment') || res.result[0];
-            userAddress = account.address;
-            publicKey = account.publicKey;
-          }
-        } else if (type === 'okx' && window.okxwallet) {
-          const conn = await window.okxwallet.bitcoin.connect();
-          userAddress = conn.address;
-          publicKey = conn.publicKey;
-        } else {
-          toast(`${type} wallet not installed`, 'error');
+          const paymentAccount = response.find(acc => acc.purpose === 'payment');
+          address = paymentAccount.address;
+          publicKey = paymentAccount.publicKey;
+          walletType = 'xverse';
+        }
+        // Try OKX
+        else if (window.okxwallet?.bitcoin) {
+          const accounts = await window.okxwallet.bitcoin.requestAccounts();
+          address = accounts[0];
+          publicKey = await window.okxwallet.bitcoin.getPublicKey();
+          walletType = 'okx';
+        }
+        else {
+          alert('No Bitcoin wallet detected. Please install Unisat, Xverse, or OKX wallet.');
           return;
         }
         
-        if (!userAddress || !publicKey) {
-          toast('Failed to get wallet details', 'error');
-          return;
-        }
+        // Sign authentication message
+        const message = `Sign this message to authenticate with RadFi: ${Date.now()}`;
+        let signature;
         
-        S.userAddress = userAddress;
-        S.publicKey = publicKey;
-        S.walletType = type;
-        
-        toast('Signing authentication message...', 'info');
-        
-        // Step 2: Sign message for BIP322 authentication
-        const message = Date.now().toString();
-        let signature = null;
-        
-        if (type === 'unisat') {
+        if (walletType === 'unisat') {
           signature = await window.unisat.signMessage(message);
-        } else if (type === 'xverse') {
-          const signRes = await window.XverseProviders.BitcoinProvider.request('signMessage', {
-            address: userAddress,
+        } else if (walletType === 'xverse') {
+          const signResponse = await window.XverseProviders.BitcoinProvider.request('signMessage', {
+            address: address,
             message: message
           });
-          signature = signRes.result.signature;
-        } else if (type === 'okx') {
-          signature = await window.okxwallet.bitcoin.signMessage(message, 'bip322-simple');
+          signature = signResponse.signature;
+        } else if (walletType === 'okx') {
+          signature = await window.okxwallet.bitcoin.signMessage(message);
         }
         
-        if (!signature) {
-          toast('Failed to sign message', 'error');
-          return;
-        }
-        
-        toast('Creating RadFi trading wallet...', 'info');
-        
-        // Step 3: Authenticate with RadFi API (creates/retrieves trading wallet)
+        // Authenticate with RadFi to get trading wallet
         const authResponse = await fetch('/api/auth/authenticate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             message,
             signature,
-            address: userAddress,
+            address,
             publicKey
           })
         });
@@ -2614,587 +1140,345 @@
         const authData = await authResponse.json();
         
         if (!authData.success) {
-          toast('Authentication failed: ' + (authData.message || 'Unknown error'), 'error');
-          return;
+          throw new Error(authData.error || 'Authentication failed');
         }
         
-        // Step 4: Store tokens and trading wallet address
-        S.accessToken = authData.data.accessToken;
-        S.refreshToken = authData.data.refreshToken;
-        S.tradingAddress = authData.data.tradingAddress;
-        S.walletData = authData.data.wallet;
-        
-        // Check if this is an existing wallet (created on RadFi before)
-        const isExistingWallet = authData.data.wallet && authData.data.wallet.createdAt < (Date.now() - 60000);
+        // Store session
+        S.userAddress = address;
+        S.tradingAddress = authData.tradingAddress;
+        S.publicKey = publicKey;
+        S.walletType = walletType;
+        S.accessToken = authData.accessToken;
+        S.refreshToken = authData.refreshToken;
         
         // Save to localStorage
-        localStorage.setItem('radfi_auth', JSON.stringify({
-          userAddress,
+        localStorage.setItem('radfi_session', JSON.stringify({
+          userAddress: S.userAddress,
           tradingAddress: S.tradingAddress,
-          publicKey,
-          walletType: type,
           accessToken: S.accessToken,
           refreshToken: S.refreshToken,
-          walletData: S.walletData
+          walletType: S.walletType
         }));
         
-        // Update UI
-        document.getElementById('connectBtn').textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
+        document.getElementById('connectBtn').textContent = 
+          `${S.userAddress.slice(0,6)}...${S.userAddress.slice(-4)}`;
         document.getElementById('connectBtn').classList.add('connected');
-        document.getElementById('tradeBtn').disabled = false;
-        document.getElementById('tradeBtn').textContent = S.mode === 'buy' ? 'Buy' : 'Sell';
         
-        if (isExistingWallet) {
-          toast(`✅ Synced existing RadFi wallet: ${S.tradingAddress.slice(0, 10)}...`, 'success');
-        } else {
-          toast(`✅ Trading wallet ready: ${S.tradingAddress.slice(0, 10)}...`, 'success');
-        }
+        toast('Wallet connected successfully', 'success');
         
-        // Step 5: Fetch and display wallet balance
-        await fetchTradingWalletBalance();
+        // Load user data
+        await loadLPPositions();
         
-        // Step 6: Sync existing RadFi positions (if any)
-        setTimeout(() => syncExistingPositions(), 2000);
-        
-      } catch (e) {
-        console.error('Wallet connection error:', e);
-        toast('Connection failed: ' + e.message, 'error');
-      }
-    }
-    
-    // Fetch trading wallet balance and details
-    async function fetchTradingWalletBalance() {
-      if (!S.tradingAddress) return;
-      
-      try {
-        // Fetch wallet details from RadFi API
-        const response = await fetch(`/api/wallets/details/${S.tradingAddress}`, {
-          headers: S.accessToken ? { 'Authorization': `Bearer ${S.accessToken}` } : {}
-        });
-        
-        const data = await response.json();
-        
-        if (data.success && data.data) {
-          const wallet = data.data;
-          S.tradingWalletBalance = wallet.balance || 0;
-          S.walletData = wallet;
-          
-          // Check wallet history to see if it's been used before
-          await checkWalletHistory();
-          
-          // Display balance in UI
-          displayWalletInfo(wallet);
-          
-          // Show balance toast
-          const balanceBTC = (wallet.balance || 0) / 1e8;
-          if (balanceBTC > 0) {
-            toast(`💰 Trading wallet balance: ${balanceBTC.toFixed(8)} BTC`, 'success');
-          } else if (S.hasWalletHistory) {
-            toast(`✅ Synced existing RadFi wallet (previously used)`, 'info');
-          } else {
-            toast(`ℹ️ New trading wallet created. Fund it to start trading.`, 'info');
-          }
-          
-          return wallet;
-        }
       } catch (error) {
-        console.error('Failed to fetch trading wallet balance:', error);
-      }
-    }
-    
-    // Check if wallet has previous transaction history
-    async function checkWalletHistory() {
-      if (!S.tradingAddress) return;
-      
-      try {
-        // Check for any previous transactions
-        const historyResponse = await fetch(`/api/histories?userAddress=${S.tradingAddress}&pageSize=1`);
-        const historyData = await historyResponse.json();
-        
-        if (historyData.success && historyData.data && historyData.data.length > 0) {
-          S.hasWalletHistory = true;
-          
-          // Get wallet creation date from wallet data
-          const createdDate = S.walletData?.createdAt ? new Date(S.walletData.createdAt) : null;
-          const firstTxDate = new Date(historyData.data[0].createdAt);
-          
-          console.log('Existing RadFi wallet detected:');
-          console.log('  Created:', createdDate?.toLocaleDateString() || 'Unknown');
-          console.log('  First transaction:', firstTxDate.toLocaleDateString());
-          console.log('  Total transactions: Checking...');
-          
-          // Check positions (LP/Market Maker)
-          const positionsResponse = await fetch(`/api/positions?userAddress=${S.tradingAddress}&pageSize=1`);
-          const positionsData = await positionsResponse.json();
-          
-          if (positionsData.success && positionsData.data && positionsData.data.length > 0) {
-            console.log('  Has LP positions: Yes');
-          }
-        } else {
-          S.hasWalletHistory = false;
-          console.log('New trading wallet (no previous activity)');
-        }
-      } catch (error) {
-        console.error('Failed to check wallet history:', error);
-        S.hasWalletHistory = false;
-      }
-    }
-    
-    // Display wallet info in header
-    function displayWalletInfo(wallet) {
-      const connectBtn = document.getElementById('connectBtn');
-      const balanceBTC = ((wallet.balance || 0) / 1e8).toFixed(4);
-      
-      // Update button to show balance
-      connectBtn.title = `Trading Wallet: ${S.tradingAddress}\nBalance: ${balanceBTC} BTC\nClick to view details`;
-      connectBtn.style.cursor = 'pointer';
-      
-      // Make button clickable to show wallet details
-      connectBtn.onclick = showWalletDetails;
-      
-      // Add balance indicator to header if not exists
-      let balanceIndicator = document.getElementById('walletBalance');
-      if (!balanceIndicator) {
-        balanceIndicator = document.createElement('span');
-        balanceIndicator.id = 'walletBalance';
-        balanceIndicator.style.cssText = 'margin-left: 0.5rem; padding: 0.25rem 0.75rem; background: rgba(0,255,136,0.1); border: 1px solid var(--green); border-radius: 12px; font-family: "JetBrains Mono", monospace; font-size: 0.85rem; color: var(--green); cursor: pointer;';
-        balanceIndicator.onclick = () => fetchTradingWalletBalance();
-        balanceIndicator.title = 'Click to refresh balance';
-        connectBtn.parentNode.insertBefore(balanceIndicator, connectBtn.nextSibling);
-      }
-      
-      balanceIndicator.textContent = `${balanceBTC} BTC`;
-    }
-    
-    // Show wallet details modal
-    function showWalletDetails() {
-      if (!S.tradingAddress) {
-        connectWallet();
-        return;
-      }
-      
-      const balanceBTC = (S.tradingWalletBalance / 1e8).toFixed(8);
-      const created = S.walletData?.createdAt ? new Date(S.walletData.createdAt).toLocaleDateString() : 'Unknown';
-      
-      const details = `
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-RadFi Trading Wallet Details
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-User Wallet (${S.walletType}):
-${S.userAddress}
-
-Trading Wallet (2-of-2 multisig):
-${S.tradingAddress}
-
-Balance: ${balanceBTC} BTC
-Created: ${created}
-Status: ${S.hasWalletHistory ? 'Previously used on RadFi' : 'New wallet'}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-View on RadFi:
-https://app.radfi.co
-
-To fund your trading wallet:
-1. Go to app.radfi.co
-2. Connect with ${S.walletType}
-3. Transfer from your main wallet
-      `.trim();
-      
-      alert(details);
-    }
-    
-    // Sync existing RadFi positions (if any)
-    async function syncExistingPositions() {
-      if (!S.tradingAddress || !S.accessToken) return;
-      
-      try {
-        console.log('Checking for existing RadFi positions...');
-        
-        // Fetch user's LP positions from RadFi
-        const positionsResponse = await fetch(`/api/positions?userAddress=${S.tradingAddress}&pageSize=50`, {
-          headers: { 'Authorization': `Bearer ${S.accessToken}` }
-        });
-        
-        const positionsData = await positionsResponse.json();
-        
-        if (positionsData.success && positionsData.data && positionsData.data.length > 0) {
-          console.log(`Found ${positionsData.data.length} existing LP positions`);
-          
-          // Convert RadFi positions to our MM format
-          for (const pos of positionsData.data) {
-            // Check if we already have this position
-            const exists = mmState.positions.find(p => p.nftId === pos.nftId);
-            if (exists) continue;
-            
-            // Get token info
-            const token = S.tokens.find(t => t.tokenId === pos.token1Id || t.tokenId === pos.token0Id);
-            if (!token) continue;
-            
-            // Calculate deposited BTC amount
-            const btcAmount = pos.token0Id === '0:0' ? parseFloat(pos.amount0) / 1e8 : parseFloat(pos.amount1) / 1e8;
-            
-            // Add to our MM positions
-            const mmPosition = {
-              id: 'radfi-' + pos.nftId,
-              nftId: pos.nftId,
-              token: token,
-              pool: { _id: pos.poolId, token0Id: pos.token0Id, token1Id: pos.token1Id },
-              strategy: 'radfi-lp',
-              depositedBTC: btcAmount,
-              startTime: new Date(pos.createdAt).getTime(),
-              entryPrice: 0, // Will be calculated
-              feesEarned: 0,  // Will be calculated
-              ilLoss: 0,
-              status: 'active',
-              syncedFromRadFi: true
-            };
-            
-            mmState.positions.push(mmPosition);
-          }
-          
-          if (positionsData.data.length > 0) {
-            saveMMLoc();
-            renderMMPositions();
-            toast(`✅ Synced ${positionsData.data.length} existing position(s) from RadFi`, 'success');
-          }
-        }
-      } catch (error) {
-        console.error('Failed to sync existing positions:', error);
+        console.error('Connection error:', error);
+        toast('Failed to connect wallet: ' + error.message, 'error');
       }
     }
     
     // Restore session from localStorage
     function restoreSession() {
-      const stored = localStorage.getItem('radfi_auth');
+      const stored = localStorage.getItem('radfi_session');
       if (stored) {
         try {
-          const auth = JSON.parse(stored);
-          S.userAddress = auth.userAddress;
-          S.tradingAddress = auth.tradingAddress;
-          S.publicKey = auth.publicKey;
-          S.walletType = auth.walletType;
-          S.accessToken = auth.accessToken;
-          S.refreshToken = auth.refreshToken;
-          S.walletData = auth.walletData;
+          const session = JSON.parse(stored);
+          S.userAddress = session.userAddress;
+          S.tradingAddress = session.tradingAddress;
+          S.accessToken = session.accessToken;
+          S.refreshToken = session.refreshToken;
+          S.walletType = session.walletType;
           
-          // Update UI
-          document.getElementById('connectBtn').textContent = auth.userAddress.slice(0, 6) + '...' + auth.userAddress.slice(-4);
+          document.getElementById('connectBtn').textContent = 
+            `${S.userAddress.slice(0,6)}...${S.userAddress.slice(-4)}`;
           document.getElementById('connectBtn').classList.add('connected');
-          document.getElementById('tradeBtn').disabled = false;
-          document.getElementById('tradeBtn').textContent = S.mode === 'buy' ? 'Buy' : 'Sell';
           
-          console.log('Session restored. Trading wallet:', S.tradingAddress);
-          
-          // Fetch balance for restored session
-          fetchTradingWalletBalance();
-          
-          // Sync existing positions after tokens load
-          setTimeout(() => {
-            if (S.tokens.length > 0) syncExistingPositions();
-          }, 3000);
+          // Load user data
+          loadLPPositions();
         } catch (e) {
           console.error('Failed to restore session:', e);
-          localStorage.removeItem('radfi_auth');
         }
       }
     }
-
-    // NAV
+    
+    // Toast notifications
+    function toast(msg, type = 'info') {
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 4000);
+    }
+    
+    // Navigation
     function navigate(page) {
       document.querySelectorAll('.nav a').forEach(a => a.classList.remove('active'));
       document.querySelector(`.nav a[data-page="${page}"]`)?.classList.add('active');
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById(`page-${page}`)?.classList.add('active');
       
-      if (page === 'tokens') renderAllTokens();
+      if (page === 'tokens') loadTokens();
+      if (page === 'radpad') loadEtchedRunes();
+      if (page === 'liquidity') loadLPPositions();
+      if (page === 'market-maker') {
+        loadMMLoc();
+        renderMMPositions();
+      }
     }
-
+    
     document.querySelectorAll('.nav a[data-page]').forEach(a => {
       a.addEventListener('click', e => {
         e.preventDefault();
         navigate(a.dataset.page);
       });
     });
-
-    // FILTER
+    
+    // Load tokens
+    async function loadTokens() {
+      try {
+        const response = await fetch('/api/tokens');
+        const data = await response.json();
+        S.tokens = data.data || [];
+        renderTokens();
+      } catch (error) {
+        console.error('Failed to load tokens:', error);
+      }
+    }
+    
+    function renderTokens() {
+      const tbody = document.getElementById('tokenTbody');
+      tbody.innerHTML = S.tokens.slice(0, 100).map(t => `
+        <tr>
+          <td>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span style="font-size: 1.5rem;">${t.emoji || '🪙'}</span>
+              <div>
+                <div style="font-weight: 600;">${t.name}</div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">${t.symbol}</div>
+              </div>
+            </div>
+          </td>
+          <td style="font-weight: 600;">${fmtCompact(t.marketCap)}</td>
+          <td>${fmtCompact(t.volume24h)}</td>
+          <td>${fmtCompact(t.liquidity)}</td>
+          <td style="color: ${t.priceChange24h >= 0 ? 'var(--green)' : 'var(--red)'};">
+            ${t.priceChange24h >= 0 ? '+' : ''}${t.priceChange24h.toFixed(2)}%
+          </td>
+        </tr>
+      `).join('');
+    }
+    
     function filterTable(q) {
       q = q.toLowerCase();
       document.querySelectorAll('#tokenTbody tr').forEach(r => {
         r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
       });
     }
-
-    function filterAllTable(q) {
-      q = q.toLowerCase();
-      document.querySelectorAll('#allTokensTbody tr').forEach(r => {
-        r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
-      });
-    }
-
-    // UTILS
-    function fmtNum(n) {
-      if (n < 0.00001) return n.toExponential(2);
-      if (n < 1) return n.toFixed(6);
-      return n.toLocaleString('en-US', { maximumFractionDigits: 4 });
-    }
-
-    function fmtSats(n) {
-      if (n < 0.0001) return n.toExponential(2);
-      if (n < 1) return n.toFixed(6);
-      return n.toFixed(4);
-    }
-
-    function fmtCompact(n) {
-      if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
-      if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
-      if (n >= 1e3) return (n / 1e3).toFixed(2) + 'K';
-      return n.toFixed(2);
-    }
-
-    function toast(msg, type = 'info') {
-      const t = document.getElementById('toast');
-      document.getElementById('toastMsg').textContent = msg;
-      t.className = `toast ${type} show`;
-      setTimeout(() => t.classList.remove('show'), 3000);
-    }
-
-    // CLOSE MODALS
-    document.querySelectorAll('.modal-overlay').forEach(m => {
-      m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
-    });
-
-    // TF BUTTONS
-    document.querySelectorAll('.tf-btn').forEach(b => {
-      b.addEventListener('click', () => {
-        const tf = parseInt(b.getAttribute('data-tf'));
-        S.timeframe = tf;
-        document.querySelectorAll('.tf-btn').forEach(x => x.classList.remove('active'));
-        b.classList.add('active');
-        updateChart();
-      });
-    });
-
-    // MARKET MAKER
-    let mmState = {
-      selectedToken: null,
-      selectedStrategy: 'radfi-lp', // Default to RadFi LP strategy
-      positions: []
-    };
-
-    function populateMMTokens() {
-      const select = document.getElementById('mmTokenSelect');
-      S.tokens.slice(0, 20).forEach(t => {
-        const opt = document.createElement('option');
-        opt.value = t.tokenId;
-        opt.textContent = `${t.displayTicker || t.symbol} ($${fmtCompact(t.marketCap || 0)})`;
-        opt.dataset.token = JSON.stringify(t);
-        select.appendChild(opt);
-      });
-
-      select.addEventListener('change', (e) => {
-        if (!e.target.value) {
-          document.getElementById('mmTokenInfo').style.display = 'none';
-          mmState.selectedToken = null;
-          return;
-        }
-        
-        const token = JSON.parse(e.target.selectedOptions[0].dataset.token);
-        mmState.selectedToken = token;
-        
-        document.getElementById('mmTokenPrice').textContent = '$' + fmtCompact(token.marketCap || 0);
-        document.getElementById('mmTokenMcap').textContent = '$' + fmtCompact(token.marketCap || 0);
-        document.getElementById('mmTokenVol').textContent = '$' + fmtCompact(token.volume24h || 0);
-        document.getElementById('mmPoolTVL').textContent = '$' + fmtCompact(token.volumeAllTime || 0);
-        document.getElementById('mmTokenInfo').style.display = 'block';
-      });
-    }
-
-    function setMMAmount(amt) {
-      document.getElementById('mmDepositAmount').value = amt;
-    }
-
-    function selectMMStrategy(strategy) {
-      mmState.selectedStrategy = strategy;
-      document.querySelectorAll('.mm-strategy-option').forEach(o => o.classList.remove('active'));
-      event.target.closest('.mm-strategy-option').classList.add('active');
+    
+    // RadPad Functions
+    function updateSliders() {
+      const feeTier = document.getElementById('feeTier').value;
+      const lpRate = document.getElementById('lpRate').value;
+      const rewardRate = document.getElementById('rewardRate').value;
       
-      if (strategy === 'custom') {
-        document.getElementById('mmStrategyParams').style.display = 'block';
-      } else {
-        document.getElementById('mmStrategyParams').style.display = 'none';
-      }
+      document.getElementById('feeTierVal').textContent = (feeTier / 10000).toFixed(1) + '%';
+      document.getElementById('lpRateVal').textContent = lpRate + '%';
+      document.getElementById('rewardRateVal').textContent = rewardRate + '%';
     }
-
-    function depositToMM() {
-      if (!S.userAddress) {
-        connectWallet();
+    
+    function updatePreview() {
+      const runeName = document.getElementById('runeName').value;
+      const symbol = document.getElementById('symbol').value;
+      const feeTier = document.getElementById('feeTier').value;
+      const lpRate = document.getElementById('lpRate').value;
+      const rewardRate = document.getElementById('rewardRate').value;
+      const blockWithdrawals = document.getElementById('blockWithdrawals').checked;
+      
+      document.getElementById('prevName').textContent = runeName || '-';
+      document.getElementById('prevSymbol').textContent = symbol || '-';
+      document.getElementById('prevFee').textContent = (feeTier / 10000).toFixed(1) + '%';
+      document.getElementById('prevLP').textContent = lpRate + '%';
+      document.getElementById('prevCreator').textContent = (100 - lpRate) + '%';
+      
+      // Calculate diamond reward (% of 66.67%)
+      const actualReward = (rewardRate / 100) * 66.67;
+      document.getElementById('prevReward').textContent = actualReward.toFixed(2) + '%';
+      
+      document.getElementById('prevWithdraw').textContent = blockWithdrawals ? 'Blocked' : 'Allowed';
+    }
+    
+    async function launchRune() {
+      if (!S.accessToken) {
+        toast('Please connect your wallet first', 'error');
         return;
       }
-
-      if (!mmState.selectedToken) {
-        toast('Please select a token to market make', 'error');
+      
+      const runeName = document.getElementById('runeName').value.trim();
+      const symbol = document.getElementById('symbol').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const inscriptionContent = document.getElementById('inscriptionContent').value.trim();
+      
+      if (!runeName || !symbol || !description) {
+        toast('Please fill in all required fields', 'error');
         return;
       }
-
-      if (!mmState.selectedStrategy) {
-        toast('Please select a market making strategy', 'error');
-        return;
-      }
-
-      const amount = parseFloat(document.getElementById('mmDepositAmount').value);
-      if (!amount || amount < 0.001) {
-        toast('Minimum deposit is 0.001 BTC', 'error');
-        return;
-      }
-
+      
       try {
-        toast('Finding pool...', 'info');
-
-        // Find pool for this token
-        const poolResponse = await fetch('/api/pools');
-        const poolData = await poolResponse.json();
-        const pool = poolData.data.find(p => 
-          (p.token1Id === mmState.selectedToken.tokenId && p.token0Id === '0:0') ||
-          (p.token0Id === mmState.selectedToken.tokenId && p.token1Id === '0:0')
-        );
-
-        if (!pool) {
-          toast('No liquidity pool found for this token', 'error');
-          return;
-        }
-
-        toast('Calculating position...', 'info');
-
-        // Calculate token amounts based on pool ratio
-        const btcReserve = parseFloat(pool.token0Reserve || pool.tvl);
-        const tokenReserve = parseFloat(pool.token1Reserve || 1);
-        const currentPrice = btcReserve / tokenReserve;
-        const tokenAmount = Math.floor(amount / currentPrice);
-
-        const amount0 = pool.token0Id === '0:0' ? Math.floor(amount * 1e8) : tokenAmount;
-        const amount1 = pool.token1Id === '0:0' ? Math.floor(amount * 1e8) : tokenAmount;
-
-        toast('Authentication required - Connect wallet to continue', 'info');
-
-        // Note: Real deployment requires wallet connection and JWT auth
-        // For now, store position in pending state
-        const position = {
-          id: 'mm-' + Date.now(),
-          token: mmState.selectedToken,
-          pool: pool,
-          strategy: mmState.selectedStrategy,
-          depositedBTC: amount,
-          startTime: Date.now(),
-          entryPrice: currentPrice,
-          feesEarned: 0,
-          ilLoss: 0,
-          status: 'pending-auth',
-          vmTxParams: {
-            poolId: pool._id,
-            userAddress: S.tradingAddress || S.userAddress, // Use trading wallet
-            amount0,
-            amount1,
-            token0Id: pool.token0Id,
-            token1Id: pool.token1Id,
-            upperTick: pool.upperTick || '887200',
-            lowerTick: pool.lowerTick || '-887200',
-            feeRate: pool.fee,
-            tickSpacing: pool.tickSpacing || 200,
-            scVersion: pool.scVersion || 'v4'
-          }
+        toast('Building commit transaction...', 'info');
+        
+        const etchParams = {
+          runeName,
+          inscriptionType: 'text/plain',
+          inscriptionContent: inscriptionContent || 'Etched on RadFi',
+          userAddress: S.tradingAddress || S.userAddress,
+          feeTier: parseInt(document.getElementById('feeTier').value),
+          diamondHandRewardRate: parseInt(document.getElementById('rewardRate').value) / 100,
+          blockWithdrawals: document.getElementById('blockWithdrawals').checked,
+          addLpSatsRate: parseInt(document.getElementById('lpRate').value) / 100
         };
-
-        mmState.positions.push(position);
-        saveMMLoc();
-        renderMMPositions();
-        toast('Position created! Connect wallet to activate', 'success');
-
+        
+        const commitResponse = await fetch('/api/etch/commit-tx', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${S.accessToken}`
+          },
+          body: JSON.stringify(etchParams)
+        });
+        
+        const commitData = await commitResponse.json();
+        
+        if (!commitData.success) {
+          throw new Error(commitData.error || 'Failed to build commit transaction');
+        }
+        
+        toast('Please sign the transaction in your wallet', 'info');
+        
+        // Sign PSBT with wallet
+        let signedPsbt;
+        if (S.walletType === 'unisat') {
+          signedPsbt = await window.unisat.signPsbt(commitData.psbt);
+        } else if (S.walletType === 'xverse') {
+          // Xverse signing flow would go here
+          throw new Error('Xverse PSBT signing not implemented yet');
+        } else if (S.walletType === 'okx') {
+          signedPsbt = await window.okxwallet.bitcoin.signPsbt(commitData.psbt);
+        }
+        
+        // Submit etching
+        const submitResponse = await fetch('/api/etch/submit-etching', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${S.accessToken}`
+          },
+          body: JSON.stringify({
+            signedBase64Psbt: signedPsbt,
+            runeName,
+            inscriptionType: 'text/plain',
+            inscriptionContent: inscriptionContent || 'Etched on RadFi',
+            symbol,
+            creator: S.userAddress,
+            description,
+            displayTicker: document.getElementById('displayTicker').value || symbol,
+            social: {
+              x: document.getElementById('socialX').value || undefined,
+              telegram: document.getElementById('socialTg').value || undefined
+            }
+          })
+        });
+        
+        const submitData = await submitResponse.json();
+        
+        if (!submitData.success) {
+          throw new Error(submitData.error || 'Failed to submit etching');
+        }
+        
+        toast('Rune etching submitted successfully! 🎉', 'success');
+        
+        // Reload etched runes list
+        setTimeout(() => loadEtchedRunes(), 2000);
+        
       } catch (error) {
-        console.error('MM deployment error:', error);
-        toast('Failed to deploy market maker: ' + error.message, 'error');
+        console.error('Launch error:', error);
+        toast('Failed to launch rune: ' + error.message, 'error');
       }
     }
-
-    function renderMMPositions() {
-      const container = document.getElementById('mmPositions');
-      
-      if (mmState.positions.length === 0) {
-        container.innerHTML = `
-          <div class="mm-empty-state">
-            <span style="font-size:3rem">💼</span>
-            <p>No active market making positions</p>
-            <p class="mm-desc">Deploy capital above to get started</p>
-          </div>
-        `;
+    
+    async function loadEtchedRunes() {
+      try {
+        const response = await fetch('/api/etch/runes?pageSize=20&sort=-createdAt');
+        const data = await response.json();
+        S.etchedRunes = data.data || [];
+        renderEtchedRunes();
+      } catch (error) {
+        console.error('Failed to load etched runes:', error);
+      }
+    }
+    
+    function renderEtchedRunes() {
+      const container = document.getElementById('etchedRunes');
+      if (S.etchedRunes.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 2rem; grid-column: 1/-1; color: var(--text-secondary);">No runes etched yet. Be the first!</div>';
         return;
       }
-
-      const html = `
-        <table style="width:100%;font-size:0.9rem">
-          <thead>
-            <tr>
-              <th>Token</th>
-              <th>Deposited</th>
-              <th>Value</th>
-              <th>Fees Earned</th>
-              <th>IL</th>
-              <th>Total PnL</th>
-              <th>APY</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${mmState.positions.map((p, i) => {
-              const runningHours = (Date.now() - p.startTime) / (1000 * 60 * 60);
-              const currentValue = p.depositedBTC + p.feesEarned + (p.ilLoss || 0);
-              const totalPnL = currentValue - p.depositedBTC;
-              const apy = runningHours > 0 ? (totalPnL / p.depositedBTC) * (8760 / runningHours) * 100 : 0;
-              
-              return `
-              <tr>
-                <td>${p.token.displayTicker || p.token.symbol}</td>
-                <td class="mono">${p.depositedBTC.toFixed(4)} BTC</td>
-                <td class="mono">${currentValue.toFixed(4)} BTC</td>
-                <td class="mono green">+${p.feesEarned.toFixed(6)} BTC</td>
-                <td class="mono ${(p.ilLoss || 0) < 0 ? 'red' : 'green'}">
-                  ${((p.ilLoss || 0) * 100).toFixed(2)}%
-                </td>
-                <td class="mono ${totalPnL >= 0 ? 'green' : 'red'}">
-                  ${totalPnL >= 0 ? '+' : ''}${totalPnL.toFixed(6)} BTC
-                </td>
-                <td class="mono ${apy >= 0 ? 'green' : 'red'}">
-                  ${apy.toFixed(1)}%
-                </td>
-                <td>
-                  <span style="display:inline-block;padding:0.25rem 0.5rem;border-radius:4px;font-size:0.75rem;
-                    background:${p.status === 'active' ? 'rgba(0,255,136,0.2)' : 'rgba(255,215,0,0.2)'};
-                    color:${p.status === 'active' ? 'var(--green)' : 'var(--yellow)'}">
-                    ${p.status}
-                  </span>
-                </td>
-                <td>
-                  <button onclick="withdrawMM(${i})" 
-                    style="padding:0.25rem 0.75rem;background:var(--miami-orange);border:none;
-                    border-radius:6px;color:white;cursor:pointer;font-size:0.85rem">
-                    Withdraw
-                  </button>
-                </td>
-              </tr>
-            `;
-            }).join('')}
-          </tbody>
-        </table>
-      `;
-      container.innerHTML = html;
+      
+      container.innerHTML = S.etchedRunes.map(rune => `
+        <div class="etch-item">
+          <div class="etch-item-header">
+            <div class="etch-item-name">${rune.runeName}</div>
+            <div class="etch-item-symbol">${rune.symbol}</div>
+          </div>
+          <div class="etch-item-description">
+            ${rune.description || 'No description provided'}
+          </div>
+          <div class="etch-item-stats">
+            <div class="etch-item-stat">
+              <span class="label">Market Cap</span>
+              <span class="value">${fmtCompact(rune.marketCap || 0)}</span>
+            </div>
+            <div class="etch-item-stat">
+              <span class="label">Holders</span>
+              <span class="value">${rune.holders || 0}</span>
+            </div>
+            <div class="etch-item-stat">
+              <span class="label">Fee Tier</span>
+              <span class="value">${((rune.feeTier || 10000) / 10000).toFixed(1)}%</span>
+            </div>
+            <div class="etch-item-stat">
+              <span class="label">LP Allocation</span>
+              <span class="value">${((rune.addLpSatsRate || 0) * 100).toFixed(0)}%</span>
+            </div>
+          </div>
+          ${rune.social && (rune.social.x || rune.social.telegram) ? `
+            <div class="etch-item-socials">
+              ${rune.social.x ? `<a href="${rune.social.x}" class="social-link" target="_blank">𝕏</a>` : ''}
+              ${rune.social.telegram ? `<a href="${rune.social.telegram}" class="social-link" target="_blank">📱</a>` : ''}
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
     }
-
-    function saveMMLoc() {
-      localStorage.setItem('mm_positions', JSON.stringify(mmState.positions));
+    
+    // LP Positions
+    async function loadLPPositions() {
+      if (!S.tradingAddress && !S.userAddress) return;
+      
+      try {
+        // This would call RadFi API to get user's LP positions
+        // For now, show empty state
+        const tbody = document.getElementById('lpPositionsTbody');
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+              No liquidity positions found
+            </td>
+          </tr>
+        `;
+      } catch (error) {
+        console.error('Failed to load LP positions:', error);
+      }
     }
-
+    
+    // Market Maker Functions
     function loadMMLoc() {
       const stored = localStorage.getItem('mm_positions');
       if (stored) {
@@ -3206,152 +1490,124 @@ To fund your trading wallet:
         }
       }
     }
-
+    
+    function saveMMLoc() {
+      localStorage.setItem('mm_positions', JSON.stringify(mmState.positions));
+    }
+    
+    function renderMMPositions() {
+      const tbody = document.getElementById('mmPositionsTbody');
+      
+      if (mmState.positions.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+              No active positions. Deploy capital to start earning.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tbody.innerHTML = mmState.positions.map((pos, i) => `
+        <tr>
+          <td>
+            <div style="font-weight: 600;">${pos.token?.symbol || 'Unknown'}</div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary);">${pos.token?.name || ''}</div>
+          </td>
+          <td>${pos.depositedBTC.toFixed(4)} BTC</td>
+          <td>${pos.currentValue?.toFixed(4) || pos.depositedBTC.toFixed(4)} BTC</td>
+          <td style="color: var(--matrix-green);">+${pos.feesEarned?.toFixed(6) || '0.000000'} BTC</td>
+          <td style="color: ${(pos.ilLoss || 0) < 0 ? 'var(--red)' : 'var(--text-secondary)'};">
+            ${((pos.ilLoss || 0) * 100).toFixed(2)}%
+          </td>
+          <td style="color: ${(pos.totalPnL || 0) >= 0 ? 'var(--green)' : 'var(--red)'};">
+            ${(pos.totalPnL || 0) >= 0 ? '+' : ''}${((pos.totalPnL || 0) * 100).toFixed(2)}%
+          </td>
+          <td style="color: var(--matrix-green);">${(pos.apy || 0).toFixed(1)}%</td>
+          <td>
+            <span style="padding: 0.25rem 0.75rem; background: ${pos.status === 'active' ? 'rgba(0,255,136,0.2)' : 'rgba(255,215,61,0.2)'}; border: 1px solid ${pos.status === 'active' ? 'var(--green)' : 'var(--yellow)'}; border-radius: 6px; font-size: 0.85rem;">
+              ${pos.status === 'active' ? 'Active' : 'Pending'}
+            </span>
+          </td>
+          <td>
+            <button onclick="withdrawMM(${i})" style="padding: 0.5rem 1rem; background: rgba(255,71,87,0.2); border: 1px solid var(--red); border-radius: 6px; color: white; cursor: pointer;">
+              Withdraw
+            </button>
+          </td>
+        </tr>
+      `).join('');
+      
+      // Update summary
+      document.getElementById('mmActivePools').textContent = mmState.positions.length;
+      const totalDeployed = mmState.positions.reduce((sum, pos) => sum + pos.depositedBTC, 0);
+      document.getElementById('mmTotalDeployed').textContent = totalDeployed.toFixed(4) + ' BTC';
+    }
+    
+    async function deployMM() {
+      if (!S.accessToken) {
+        toast('Please connect your wallet first', 'error');
+        return;
+      }
+      
+      const poolSelect = document.getElementById('mmPool');
+      const amount = parseFloat(document.getElementById('mmAmount').value);
+      
+      if (!amount || amount <= 0) {
+        toast('Please enter a valid amount', 'error');
+        return;
+      }
+      
+      // This would integrate with the real MM deployment flow
+      toast('Market maker deployment coming soon', 'info');
+    }
+    
     async function withdrawMM(index) {
       const position = mmState.positions[index];
       
-      // Calculate fees breakdown
-      const profitableFees = Math.max(0, position.feesEarned);
+      const profitableFees = Math.max(0, position.feesEarned || 0);
       const platformFee = profitableFees * 0.10;
       const userFees = profitableFees * 0.90;
       const totalReturn = position.depositedBTC + userFees + (position.ilLoss || 0);
       
-      const message = `Withdraw from ${position.token.symbol} pool?\n\n` +
+      const message = `Withdraw from ${position.token?.symbol || 'Unknown'} pool?\n\n` +
         `Principal: ${position.depositedBTC.toFixed(4)} BTC\n` +
         `Fees Earned: ${profitableFees.toFixed(6)} BTC\n` +
         `Your Share (90%): ${userFees.toFixed(6)} BTC\n` +
         `Platform Fee (10%): ${platformFee.toFixed(6)} BTC\n` +
-        `IL: ${((position.ilLoss || 0) * 100).toFixed(2)}%\n` +
         `Total Return: ${totalReturn.toFixed(6)} BTC`;
       
       if (!confirm(message)) {
         return;
       }
-
-      try {
-        toast('Calculating withdrawal...', 'info');
-
-        const withdrawPayload = {
-          nftId: position.nftId || '1',
-          userAddress: S.tradingAddress || S.userAddress, // Use trading wallet
-          liquidityValue: Math.floor(position.depositedBTC * 1e8),
-          amount0: '0',
-          amount1: '0',
-          token0Id: position.pool.token0Id,
-          token1Id: position.pool.token1Id,
-          scVersion: position.pool.scVersion || 'v4',
-          feesEarned: position.feesEarned
-        };
-
-        // Note: Real withdrawal requires JWT auth
-        toast(`Withdrawing: ${totalReturn.toFixed(6)} BTC total`, 'info');
-        toast('Connect wallet to complete withdrawal', 'info');
-
-        // Remove position
-        mmState.positions.splice(index, 1);
-        saveMMLoc();
-        renderMMPositions();
-        toast(`Withdrawal ready. You'll receive: ${userFees.toFixed(6)} BTC in fees (90%)`, 'success');
-
-      } catch (error) {
-        console.error('Withdrawal error:', error);
-        toast('Failed to withdraw: ' + error.message, 'error');
-      }
-    }
-
-    // Monitor and update positions every 5 minutes
-    async function updateMMPositions() {
-      for (let position of mmState.positions) {
-        if (!position.pool) continue;
-
-        try {
-          // Fetch current pool stats
-          const poolResponse = await fetch('/api/pools');
-          const poolData = await poolResponse.json();
-          const pool = poolData.data.find(p => p._id === position.pool._id);
-
-          if (!pool) continue;
-
-          // Calculate time elapsed
-          const timeElapsedMs = Date.now() - position.startTime;
-          const timeElapsedHours = timeElapsedMs / (1000 * 60 * 60);
-          const timeElapsedDays = timeElapsedHours / 24;
-
-          // Estimate current price from pool reserves
-          const btcReserve = parseFloat(pool.token0Reserve || pool.tvl);
-          const tokenReserve = parseFloat(pool.token1Reserve || 1);
-          const currentPrice = btcReserve / tokenReserve;
-
-          // Calculate pool share
-          const poolShare = position.depositedBTC / (pool.tvl + position.depositedBTC);
-
-          // Estimate daily volume (use recent volume if available, else historical average)
-          let dailyVolume = pool.volume24h;
-          if (dailyVolume === 0 && pool.volume7d > 0) {
-            dailyVolume = pool.volume7d / 7;
-          } else if (dailyVolume === 0 && pool.volumeAllTime > 0) {
-            // Conservative estimate: use 10% of historical average
-            dailyVolume = (pool.volumeAllTime / 133) * 0.1;
-          }
-
-          // Calculate fees earned
-          const dailyFees = dailyVolume * (pool.fee / 1000000); // fee is in basis points
-          const accumulatedFees = dailyFees * poolShare * timeElapsedDays;
-          position.feesEarned = Math.max(0, accumulatedFees);
-
-          // Calculate metrics using backend
-          const calcResponse = await fetch('/api/market-maker/calculate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              depositedBTC: position.depositedBTC,
-              feesEarned: position.feesEarned,
-              entryPrice: position.entryPrice,
-              currentPrice: currentPrice,
-              timeElapsedHours: timeElapsedHours
-            })
-          });
-
-          if (calcResponse.ok) {
-            const calcData = await calcResponse.json();
-            if (calcData.success) {
-              position.ilLoss = calcData.data.ilPercent / 100; // Store as decimal
-              position.apy = calcData.data.apy;
-            }
-          }
-
-          // Update status
-          if (position.status === 'pending-auth') {
-            // Keep as pending until wallet connected
-          } else {
-            position.status = 'active';
-          }
-
-        } catch (error) {
-          console.error('Failed to update position:', error);
-        }
-      }
-
+      
+      // Remove position
+      mmState.positions.splice(index, 1);
       saveMMLoc();
       renderMMPositions();
+      toast(`Withdrawal successful. Total: ${totalReturn.toFixed(6)} BTC`, 'success');
     }
-
-    // Update positions every 5 minutes
-    setInterval(updateMMPositions, 5 * 60 * 1000);
     
-    // Initial update after 10 seconds
-    setTimeout(updateMMPositions, 10000);
-
-    // INIT
-    restoreSession(); // Restore RadFi trading wallet session
-    initChart();
+    // Utility functions
+    function fmtNum(n) {
+      if (n < 0.00001) return n.toExponential(2);
+      if (n < 1) return n.toFixed(6);
+      return n.toLocaleString('en-US', { maximumFractionDigits: 4 });
+    }
+    
+    function fmtCompact(n) {
+      if (n >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
+      if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
+      if (n >= 1e3) return '$' + (n / 1e3).toFixed(1) + 'K';
+      return '$' + n.toFixed(0);
+    }
+    
+    // Initialize
+    restoreSession();
+    updateSliders();
+    updatePreview();
     loadTokens();
-    loadMMLoc(); // Load saved MM positions
-    
-    // Populate MM tokens once loaded
-    setTimeout(() => {
-      if (S.tokens.length > 0) populateMMTokens();
-    }, 2000);
+    loadMMLoc();
   </script>
 </body>
 </html>

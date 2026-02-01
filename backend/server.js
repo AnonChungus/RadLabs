@@ -421,6 +421,143 @@ app.get('/api/setting', async (req, res) => {
   }
 });
 
+// ============ ETCH / RADPAD ============
+
+// Authentication endpoint for RadFi trading wallet
+app.post('/api/auth/authenticate', async (req, res) => {
+  try {
+    const { message, signature, address, publicKey } = req.body;
+    
+    const data = await fetchRadFi('/api/auth/authenticate', {
+      method: 'POST',
+      body: JSON.stringify({ message, signature, address, publicKey })
+    });
+    
+    res.json({
+      success: true,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+      tradingAddress: data.tradingAddress
+    });
+  } catch (error) {
+    console.error('[Etch] Authentication error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get etch address and fee
+app.post('/api/etch/get-etch-address', async (req, res) => {
+  try {
+    const data = await fetchRadFi('/api/etch/get-etch-address', {
+      method: 'POST',
+      body: JSON.stringify(req.body)
+    });
+    
+    res.json(data);
+  } catch (error) {
+    console.error('[Etch] Get address error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get etched runes list
+app.get('/api/etch/runes', async (req, res) => {
+  try {
+    const query = new URLSearchParams(req.query).toString();
+    const data = await fetchRadFi(`/api/etch/runes?${query}`);
+    
+    res.json(data);
+  } catch (error) {
+    console.error('[Etch] Get runes error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get specific etched rune details
+app.get('/api/etch/runes/details', async (req, res) => {
+  try {
+    const query = new URLSearchParams(req.query).toString();
+    const data = await fetchRadFi(`/api/etch/runes/details?${query}`);
+    
+    res.json(data);
+  } catch (error) {
+    console.error('[Etch] Get rune details error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Build commit transaction (requires auth)
+app.post('/api/etch/commit-tx', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ success: false, error: 'Authorization required' });
+    }
+    
+    const data = await fetchRadFi('/api/etch/commit-tx', {
+      method: 'POST',
+      headers: {
+        'Authorization': authHeader
+      },
+      body: JSON.stringify(req.body)
+    });
+    
+    res.json({ success: true, ...data });
+  } catch (error) {
+    console.error('[Etch] Build commit tx error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Submit etching (requires auth)
+app.post('/api/etch/submit-etching', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ success: false, error: 'Authorization required' });
+    }
+    
+    const data = await fetchRadFi('/api/etch/submit-etching', {
+      method: 'POST',
+      headers: {
+        'Authorization': authHeader
+      },
+      body: JSON.stringify(req.body)
+    });
+    
+    res.json({ success: true, ...data });
+  } catch (error) {
+    console.error('[Etch] Submit etching error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get top holders
+app.get('/api/etch/top-holders', async (req, res) => {
+  try {
+    const query = new URLSearchParams(req.query).toString();
+    const data = await fetchRadFi(`/api/etch/top-holders?${query}`);
+    
+    res.json(data);
+  } catch (error) {
+    console.error('[Etch] Get top holders error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get rewards amount
+app.get('/api/etch/rewards-amount', async (req, res) => {
+  try {
+    const query = new URLSearchParams(req.query).toString();
+    const data = await fetchRadFi(`/api/etch/rewards-amount?${query}`);
+    
+    res.json(data);
+  } catch (error) {
+    console.error('[Etch] Get rewards error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // ============ SERVE FRONTEND ============
 
 app.get('*', (req, res) => {
