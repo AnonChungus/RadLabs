@@ -257,15 +257,153 @@ app.post('/api/transactions/sign', async (req, res) => {
   }
 });
 
+// ============ MARKET MAKER ENDPOINTS ============
+
+// Deploy market maker (provide liquidity)
+app.post('/api/market-maker/deploy', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+
+    const { poolId, userAddress, amount0, amount1, token0Id, token1Id, upperTick, lowerTick, feeRate, tickSpacing, scVersion } = req.body;
+
+    // Create VM transaction for provide-liquidity
+    const vmTxPayload = {
+      type: 'provide-liquidity',
+      params: {
+        userAddress,
+        token0Id,
+        token1Id,
+        amount0: amount0.toString(),
+        amount1: amount1.toString(),
+        upperTick,
+        lowerTick,
+        feeRate,
+        tickSpacing,
+        scVersion: scVersion || 'v4'
+      }
+    };
+
+    const data = await fetchRadFi('/api/vm-transactions', {
+      method: 'POST',
+      headers: { Authorization: authHeader },
+      body: JSON.stringify(vmTxPayload)
+    });
+
+    res.json(data);
+  } catch (error) {
+    console.error('MM deploy error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Withdraw market maker (remove liquidity)
+app.post('/api/market-maker/withdraw', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+
+    const { nftId, userAddress, liquidityValue, amount0, amount1, token0Id, token1Id, scVersion, feesEarned } = req.body;
+
+    // Calculate 10% platform fee on profitable fees only
+    const profitableFees = Math.max(0, parseFloat(feesEarned || 0));
+    const platformFee = profitableFees * 0.10;
+    const userFees = profitableFees * 0.90;
+
+    // Create VM transaction for withdraw-liquidity
+    const vmTxPayload = {
+      type: 'withdraw-liquidity',
+      params: {
+        userAddress,
+        liquidityValue: liquidityValue.toString(),
+        nftId: nftId.toString(),
+        amount0: amount0.toString(),
+        amount1: amount1.toString(),
+        token0Id,
+        token1Id,
+        scVersion: scVersion || 'v4'
+      }
+    };
+
+    const data = await fetchRadFi('/api/vm-transactions', {
+      method: 'POST',
+      headers: { Authorization: authHeader },
+      body: JSON.stringify(vmTxPayload)
+    });
+
+    // Add fee information to response
+    data.feeCalculation = {
+      totalFeesEarned: profitableFees,
+      platformFee: platformFee,
+      platformFeePercent: 10,
+      userFees: userFees,
+      userFeesPercent: 90,
+      feeWallet: FEE_WALLET
+    };
+
+    res.json(data);
+  } catch (error) {
+    console.error('MM withdraw error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Calculate position metrics
+app.post('/api/market-maker/calculate', async (req, res) => {
+  try {
+    const { depositedBTC, feesEarned, entryPrice, currentPrice, timeElapsedHours } = req.body;
+
+    // Calculate impermanent loss
+    const priceRatio = currentPrice / entryPrice;
+    const ilFactor = 2 * Math.sqrt(priceRatio) / (1 + priceRatio) - 1;
+    const ilLoss = ilFactor * depositedBTC;
+
+    // Calculate current value
+    const currentValue = depositedBTC + feesEarned + ilLoss;
+    const totalPnL = currentValue - depositedBTC;
+
+    // Calculate APY
+    const apy = timeElapsedHours > 0 ? (totalPnL / depositedBTC) * (8760 / timeElapsedHours) * 100 : 0;
+
+    // Apply 10% platform fee to profitable fees
+    const profitableFees = Math.max(0, feesEarned);
+    const platformFee = profitableFees * 0.10;
+    const userFees = profitableFees * 0.90;
+
+    res.json({
+      success: true,
+      data: {
+        depositedBTC,
+        feesEarned,
+        userFees, // 90% of fees
+        platformFee, // 10% of fees
+        ilLoss,
+        ilPercent: ilFactor * 100,
+        currentValue,
+        totalPnL,
+        apy,
+        priceChange: ((currentPrice - entryPrice) / entryPrice) * 100
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // ============ PLATFORM INFO ============
 
 app.get('/api/platform', (req, res) => {
   res.json({
     success: true,
     data: {
-      name: 'RadFi Swap',
+      name: 'RadLabs',
       version: '2.0.0',
-      fee: { percent: PLATFORM_FEE_PERCENT, wallet: FEE_WALLET },
+      swapFee: { percent: PLATFORM_FEE_PERCENT, wallet: FEE_WALLET },
+      marketMakerFee: { percent: 10, description: '10% of profitable fees', wallet: FEE_WALLET },
       api: RADFI_API_BASE,
       production: true
     }
