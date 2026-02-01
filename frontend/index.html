@@ -1591,7 +1591,8 @@
       chart: null,
       candleSeries: null,
       lineSeries: null,
-      chartType: 'Candle'
+      chartType: 'Candle',
+      timeframe: 15 // minutes per candle
     };
 
     // LOTTERY TIMER
@@ -1823,8 +1824,30 @@
             return '$' + price.toFixed(0);
           },
         },
-        rightPriceScale: { borderColor: 'rgba(255,255,255,0.1)' },
-        timeScale: { borderColor: 'rgba(255,255,255,0.1)', timeVisible: true },
+        rightPriceScale: { 
+          borderColor: 'rgba(255,255,255,0.1)',
+          scaleMargins: { top: 0.1, bottom: 0.1 }
+        },
+        timeScale: { 
+          borderColor: 'rgba(255,255,255,0.1)', 
+          timeVisible: true,
+          rightOffset: 12,
+          barSpacing: 6,
+          minBarSpacing: 3,
+          fixLeftEdge: false,
+          fixRightEdge: false
+        },
+        handleScroll: {
+          mouseWheel: true,
+          pressedMouseMove: true,
+          horzTouchDrag: true,
+          vertTouchDrag: true
+        },
+        handleScale: {
+          axisPressedMouseMove: true,
+          mouseWheel: true,
+          pinch: true
+        }
       });
       
       S.candleSeries = S.chart.addCandlestickSeries({
@@ -1852,7 +1875,7 @@
       
       // Use market cap for chart values
       const mcap = S.selected.marketCap || 1000000;
-      const data = generateCandleData(mcap);
+      const data = generateCandleData(mcap, S.timeframe);
       S.candleSeries.setData(data);
       
       const lineData = data.map(d => ({ time: d.time, value: d.close }));
@@ -1861,21 +1884,27 @@
       S.chart.timeScale().fitContent();
     }
 
-    function generateCandleData(currentMcap) {
+    function generateCandleData(currentMcap, timeframeMinutes) {
       const now = Math.floor(Date.now() / 1000);
       const data = [];
-      const daysAgo = 90;
-      const candles = daysAgo * 96; // 15-min candles per day
+      const candleSeconds = timeframeMinutes * 60;
       
-      // Generate realistic price action that fluctuates around current market cap
-      // Similar to RadFi - normal trading activity, not massive drops or pumps
+      // Calculate number of candles based on timeframe
+      let daysToShow;
+      if (timeframeMinutes <= 5) daysToShow = 7; // 1 week for 1m/5m
+      else if (timeframeMinutes <= 60) daysToShow = 30; // 1 month for 15m/1h
+      else if (timeframeMinutes <= 240) daysToShow = 90; // 3 months for 4h
+      else daysToShow = 365; // 1 year for 1D
       
-      for (let i = candles; i >= 0; i--) {
-        const time = now - i * 900; // 15 min candles
-        const daysFromNow = i / 96;
+      const candlesPerDay = (24 * 60) / timeframeMinutes;
+      const totalCandles = Math.floor(daysToShow * candlesPerDay);
+      
+      // Generate realistic price action with VARIED candle sizes
+      for (let i = totalCandles; i >= 0; i--) {
+        const time = now - i * candleSeconds;
+        const daysFromNow = i / candlesPerDay;
         
         // Create a base price that oscillates around currentMcap
-        // Add some longer-term trends (monthly cycles) but keep close to current
         const monthCycle = Math.sin((daysFromNow / 30) * Math.PI * 2);
         const weekCycle = Math.sin((daysFromNow / 7) * Math.PI * 2);
         
@@ -1883,14 +1912,39 @@
         const baseVariation = (monthCycle * 0.10) + (weekCycle * 0.05);
         const baseMcap = currentMcap * (1 + baseVariation);
         
-        // Individual candle volatility (2-4% per 15min candle)
-        const volatility = baseMcap * (0.02 + Math.random() * 0.02);
-        const change = (Math.random() - 0.5) * volatility;
+        // REALISTIC CANDLE SIZES - vary greatly like real trading
+        // Some candles are big movers, some are tiny, some are dojis
+        const candleType = Math.random();
+        let volatility, wickSize;
         
+        if (candleType < 0.1) {
+          // 10% - Big movers (breakouts/dumps)
+          volatility = baseMcap * (0.05 + Math.random() * 0.10); // 5-15% moves
+          wickSize = 0.4 + Math.random() * 0.6; // Long wicks
+        } else if (candleType < 0.3) {
+          // 20% - Medium moves (trending)
+          volatility = baseMcap * (0.02 + Math.random() * 0.04); // 2-6% moves
+          wickSize = 0.2 + Math.random() * 0.3;
+        } else if (candleType < 0.6) {
+          // 30% - Small moves (consolidation)
+          volatility = baseMcap * (0.005 + Math.random() * 0.015); // 0.5-2% moves
+          wickSize = 0.1 + Math.random() * 0.2;
+        } else {
+          // 40% - Tiny moves / Dojis (low volume)
+          volatility = baseMcap * (0.001 + Math.random() * 0.004); // 0.1-0.5% moves
+          wickSize = 0.05 + Math.random() * 0.1; // Minimal wicks
+        }
+        
+        const change = (Math.random() - 0.5) * volatility;
         const open = baseMcap;
         const close = baseMcap + change;
-        const high = Math.max(open, close) * (1 + Math.random() * 0.015);
-        const low = Math.min(open, close) * (1 - Math.random() * 0.015);
+        
+        // Varied wick sizes - some candles have huge wicks, some tiny
+        const bodySize = Math.abs(close - open);
+        const wickRange = bodySize * wickSize + (volatility * 0.1);
+        
+        const high = Math.max(open, close) + (Math.random() * wickRange);
+        const low = Math.min(open, close) - (Math.random() * wickRange);
         
         data.push({ time, open, high, low, close });
       }
@@ -1898,8 +1952,8 @@
       // Ensure the last candle closes exactly at current market cap
       const lastCandle = data[data.length - 1];
       lastCandle.close = currentMcap;
-      lastCandle.high = Math.max(lastCandle.open, currentMcap) * 1.01;
-      lastCandle.low = Math.min(lastCandle.open, currentMcap) * 0.99;
+      lastCandle.high = Math.max(lastCandle.open, currentMcap, lastCandle.high);
+      lastCandle.low = Math.min(lastCandle.open, currentMcap, lastCandle.low);
       
       return data;
     }
@@ -2115,6 +2169,8 @@
     // TF BUTTONS
     document.querySelectorAll('.tf-btn').forEach(b => {
       b.addEventListener('click', () => {
+        const tf = parseInt(b.getAttribute('data-tf'));
+        S.timeframe = tf;
         document.querySelectorAll('.tf-btn').forEach(x => x.classList.remove('active'));
         b.classList.add('active');
         updateChart();
