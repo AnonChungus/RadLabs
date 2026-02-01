@@ -259,6 +259,36 @@
       box-shadow: 0 4px 20px rgba(255,45,146,0.3);
     }
     
+    /* Balance Display */
+    .balance-display {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+    }
+    
+    .balance-item {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    
+    .balance-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+    }
+    
+    .balance-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    
     .connect-btn.connected {
       background-image: 
         linear-gradient(135deg, #1a1a1a, #2d2d2d),
@@ -1944,6 +1974,21 @@
       <a href="#" data-page="market-maker">Market Maker</a>
     </nav>
     
+    <div class="balance-display" id="balanceDisplay" style="display: none;">
+      <div class="balance-item">
+        <span class="balance-label">BTC Wallet</span>
+        <span class="balance-value" id="btcBalance">0.0000 BTC</span>
+      </div>
+      <div class="balance-item">
+        <span class="balance-label">RadFi Trading</span>
+        <span class="balance-value" id="tradingBalance">-- BTC</span>
+      </div>
+      <div class="balance-item">
+        <span class="balance-label">Positions</span>
+        <span class="balance-value" id="positionCount">0</span>
+      </div>
+    </div>
+    
     <button class="connect-btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
   </header>
 
@@ -2312,7 +2357,7 @@
           <label>Deposit Amount (BTC)</label>
           <input type="number" id="mmDepositAmount" placeholder="0.01" min="0.001" step="0.001" oninput="updateMMUSD()">
           <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem;">
-            ≈ $<span id="mmDepositUSD">0</span> USD
+            ≈ $<span id="mmDepositUSD">0</span> USD  ·  <span style="color: var(--miami-orange);">Min: 0.001 BTC</span>
           </div>
           <div class="mm-quick-amounts">
             <button onclick="setMMAmount(0.01)">0.01</button>
@@ -2824,7 +2869,7 @@
     }
     
     // Fetch REAL chart data from RadFi histories API
-    // FIXED fetchRealChartData - properly calculates price from swaps
+    // Chart displays MARKET CAP on Y-axis (scaled by price movement)
 async function fetchRealChartData(token, timeframeMinutes) {
   if (!token || !token.poolId) {
     console.log('[Chart] Token has no poolId:', token?.symbol);
@@ -2862,11 +2907,12 @@ async function fetchRealChartData(token, timeframeMinutes) {
     const swaps = data.data;
     console.log('[Chart] Fetched', swaps.length, 'swaps');
     
-    // BTC price in USD (hardcoded for now, should be fetched from API)
-    const BTC_USD = 101000;
+    // Get current market cap from token data
+    const currentMarketCap = token.marketCap || 337000; // Fallback to $337k
+    console.log('[Chart] Current market cap: $' + fmtCompact(currentMarketCap));
     
-    // Calculate USD price per token from each swap
-    const pricesWithTime = [];
+    // Calculate price RATIOS from each swap (just the relative price, no USD yet)
+    const ratios = [];
     
     for (const swap of swaps) {
       const amount0 = parseFloat(swap.token0Amount); // BTC in smallest unit
@@ -2878,29 +2924,38 @@ async function fetchRealChartData(token, timeframeMinutes) {
       const btcAmount = amount0 / Math.pow(10, token0Decimal);
       const runeAmount = amount1 / Math.pow(10, token1Decimal);
       
-      // Calculate price: BTC per Rune
-      const btcPerRune = btcAmount / runeAmount;
+      // Calculate price ratio: BTC per Rune (just the ratio, no USD conversion)
+      const priceRatio = btcAmount / runeAmount;
       
-      // Convert to USD per Rune
-      const usdPerRune = btcPerRune * BTC_USD;
-      
-      // Sanity check: price should be reasonable for a Rune token
-      if (usdPerRune > 0 && usdPerRune < 1000000 && !isNaN(usdPerRune) && isFinite(usdPerRune)) {
-        pricesWithTime.push({
+      if (priceRatio > 0 && !isNaN(priceRatio) && isFinite(priceRatio)) {
+        ratios.push({
           time: swap.btcBlockTime,
-          price: usdPerRune
+          ratio: priceRatio
         });
       }
     }
     
-    if (pricesWithTime.length === 0) {
-      console.log('[Chart] No valid prices calculated');
+    if (ratios.length === 0) {
+      console.log('[Chart] No valid price ratios calculated');
       return null;
     }
     
-    console.log('[Chart] Calculated', pricesWithTime.length, 'valid prices');
-    console.log('[Chart] Price range: $' + Math.min(...pricesWithTime.map(p => p.price)).toFixed(6), 
-                'to $' + Math.max(...pricesWithTime.map(p => p.price)).toFixed(6));
+    // Get the latest price ratio (most recent swap)
+    const latestRatio = ratios[ratios.length - 1].ratio;
+    console.log('[Chart] Latest price ratio:', latestRatio);
+    
+    // Scale all ratios so that latest ratio = current market cap
+    // This makes the chart Y-axis show market cap values that change with price
+    const pricesWithTime = [];
+    
+    for (const { time, ratio } of ratios) {
+      const scaledPrice = (ratio / latestRatio) * currentMarketCap;
+      pricesWithTime.push({ time, price: scaledPrice });
+    }
+    
+    console.log('[Chart] Calculated', pricesWithTime.length, 'market cap values');
+    console.log('[Chart] Market cap range: $' + fmtCompact(Math.min(...pricesWithTime.map(p => p.price))), 
+                'to $' + fmtCompact(Math.max(...pricesWithTime.map(p => p.price))));
     
     // Group by time interval to create candles
     const intervalSeconds = timeframeMinutes * 60;
