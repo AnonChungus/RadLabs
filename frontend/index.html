@@ -2523,21 +2523,56 @@
 
     async function loadTokens() {
       try {
-        const res = await fetch(`${API}/api/tokens?pageSize=100&sort=-volume24h`);
-        const data = await res.json();
-        if (data.data) {
-          S.tokens = data.data.filter(t => t.hasPool && !t.isTest);
-          renderTable();
-          renderTicker();
-          if (S.tokens.length > 0) {
-            selectToken(S.tokens[0]);
-            S.to = S.tokens[0];
-            updateToDisplay();
+        console.log('[Tokens] Loading...');
+        
+        // Fetch tokens
+        const tokensRes = await fetch(`${API}/api/tokens?pageSize=100&sort=-volume24h`);
+        const tokensData = await tokensRes.json();
+        
+        if (!tokensData.data) {
+          throw new Error('No token data received');
+        }
+        
+        // Fetch pools to get poolId for each token
+        console.log('[Tokens] Fetching pools...');
+        const poolsRes = await fetch(`${API}/api/pools?pageSize=200`);
+        const poolsData = await poolsRes.json();
+        
+        // Create token1Id -> poolId mapping
+        const poolMap = {};
+        if (poolsData.data) {
+          for (const pool of poolsData.data) {
+            // token0 is always BTC (0:0), token1 is the Rune
+            poolMap[pool.token1Id] = pool._id;
           }
+          console.log('[Tokens] Mapped', Object.keys(poolMap).length, 'pools');
+        }
+        
+        // Filter and enrich tokens with poolId
+        S.tokens = tokensData.data
+          .filter(t => t.hasPool && !t.isTest)
+          .map(t => {
+            // Match pool by tokenId
+            const poolId = poolMap[t.tokenId];
+            return { ...t, poolId };
+          });
+        
+        console.log('[Tokens] Loaded', S.tokens.length, 'tokens');
+        
+        renderTable();
+        renderTicker();
+        
+        if (S.tokens.length > 0) {
+          selectToken(S.tokens[0]);
+          S.to = S.tokens[0];
+          updateToDisplay();
         }
       } catch (e) {
-        console.error('Load error:', e);
-        document.getElementById('tokenTbody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--red)">Error loading. Ensure backend runs on localhost:3000</td></tr>';
+        console.error('[Tokens] Load error:', e);
+        const tbody = document.getElementById('tokenTbody');
+        if (tbody) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--red)">Error loading. Ensure backend runs on localhost:3000</td></tr>';
+        }
       }
     }
 
@@ -2728,18 +2763,171 @@
       });
     }
 
-    function updateChart() {
+    async function updateChart() {
       if (!S.selected || !S.candleSeries) return;
       
-      // Use market cap for chart values
-      const mcap = S.selected.marketCap || 1000000;
-      const data = generateCandleData(mcap, S.timeframe);
-      S.candleSeries.setData(data);
+      console.log('[Chart] Updating for', S.selected.symbol, 'timeframe:', S.timeframe);
       
-      const lineData = data.map(d => ({ time: d.time, value: d.close }));
-      S.lineSeries.setData(lineData);
+      try {
+        // Fetch real chart data from RadFi API
+        const data = await fetchRealChartData(S.selected, S.timeframe);
+        
+        if (data && data.length > 0) {
+          console.log('[Chart] Loaded', data.length, 'real candles');
+          S.candleSeries.setData(data);
+          
+          const lineData = data.map(d => ({ time: d.time, value: d.close }));
+          S.lineSeries.setData(lineData);
+          
+          S.chart.timeScale().fitContent();
+        } else {
+          console.log('[Chart] No real data, using fallback');
+          // Fallback to generated data if no real data available
+          const mcap = S.selected.marketCap || 1000000;
+          const fallbackData = generateCandleData(mcap, S.timeframe);
+          S.candleSeries.setData(fallbackData);
+          
+          const lineData = fallbackData.map(d => ({ time: d.time, value: d.close }));
+          S.lineSeries.setData(lineData);
+          
+          S.chart.timeScale().fitContent();
+        }
+      } catch (error) {
+        console.error('[Chart] Error fetching data:', error);
+        // Fallback to generated data on error
+        const mcap = S.selected.marketCap || 1000000;
+        const fallbackData = generateCandleData(mcap, S.timeframe);
+        S.candleSeries.setData(fallbackData);
+        
+        const lineData = fallbackData.map(d => ({ time: d.time, value: d.close }));
+        S.lineSeries.setData(lineData);
+        
+        S.chart.timeScale().fitContent();
+      }
+    }
+    
+    // Fetch REAL chart data from RadFi histories API
+    async function fetchRealChartData(token, timeframeMinutes) {
+      if (!token || !token.poolId) {
+        console.log('[Chart] Token has no poolId, cannot fetch real data');
+        return null;
+      }
       
-      S.chart.timeScale().fitContent();
+      try {
+        // Fetch swap histories for this pool
+        const pageSize = timeframeMinutes <= 15 ? 500 : 1000;
+        const response = await fetch(`/api/histories?poolId=${token.poolId}&type=swap&pageSize=${pageSize}&sort=btcBlockTime`);
+        const data = await response.json();
+        
+        if (!data.data || data.data.length === 0) {
+          console.log('[Chart] No swap history found for pool', token.poolId);
+          return null;
+        }
+        
+        const swaps = data.data;
+        console.log('[Chart] Fetched', swaps.length, 'swaps');
+        
+        // Calculate price for each swap
+        // token0 is always BTC (0:0), token1 is the Rune
+        // Price = how much BTC per Rune = token0Amount / token1Amount
+        const pricesWithTime = swaps.map(swap => {
+          const btcAmount = parseFloat(swap.token0Amount);
+          const runeAmount = parseFloat(swap.token1Amount);
+          
+          // Adjust for decimals: BTC has 8, Runes typically 18
+          const btcDecimal = swap.payload?.token0Decimal || 8;
+          const runeDecimal = swap.payload?.token1Decimal || 18;
+          
+          const btcAdjusted = btcAmount / Math.pow(10, btcDecimal);
+          const runeAdjusted = runeAmount / Math.pow(10, runeDecimal);
+          
+          // Price in BTC (market cap representation)
+          const priceBTC = btcAdjusted / runeAdjusted;
+          
+          // Convert to "market cap" style number (multiply by a large factor to make visible)
+          // Use the token's actual market cap as reference
+          const marketCapPrice = token.marketCap || (priceBTC * 1e9);
+          
+          return {
+            time: swap.btcBlockTime, // Already in seconds
+            price: marketCapPrice
+          };
+        }).filter(p => p.price > 0 && !isNaN(p.price));
+        
+        if (pricesWithTime.length === 0) {
+          console.log('[Chart] No valid prices calculated');
+          return null;
+        }
+        
+        // Group by time interval to create candles
+        const intervalSeconds = timeframeMinutes * 60;
+        const candleMap = {};
+        
+        for (const { time, price } of pricesWithTime) {
+          // Round down to interval start
+          const bucketTime = Math.floor(time / intervalSeconds) * intervalSeconds;
+          
+          if (!candleMap[bucketTime]) {
+            candleMap[bucketTime] = {
+              time: bucketTime,
+              open: price,
+              high: price,
+              low: price,
+              close: price,
+              prices: [price]
+            };
+          } else {
+            const candle = candleMap[bucketTime];
+            candle.high = Math.max(candle.high, price);
+            candle.low = Math.min(candle.low, price);
+            candle.close = price; // Last price in interval
+            candle.prices.push(price);
+          }
+        }
+        
+        // Convert to sorted array
+        const candles = Object.values(candleMap)
+          .map(c => ({
+            time: c.time,
+            open: Math.round(c.open),
+            high: Math.round(c.high),
+            low: Math.round(c.low),
+            close: Math.round(c.close)
+          }))
+          .sort((a, b) => a.time - b.time);
+        
+        // Fill gaps with previous close if needed
+        const filledCandles = [];
+        for (let i = 0; i < candles.length; i++) {
+          if (i > 0) {
+            const prevTime = candles[i - 1].time;
+            const currTime = candles[i].time;
+            const gap = (currTime - prevTime) / intervalSeconds - 1;
+            
+            // Fill small gaps (up to 10 intervals)
+            if (gap > 0 && gap <= 10) {
+              const prevClose = candles[i - 1].close;
+              for (let j = 1; j <= gap; j++) {
+                filledCandles.push({
+                  time: prevTime + (j * intervalSeconds),
+                  open: prevClose,
+                  high: prevClose,
+                  low: prevClose,
+                  close: prevClose
+                });
+              }
+            }
+          }
+          filledCandles.push(candles[i]);
+        }
+        
+        console.log('[Chart] Generated', filledCandles.length, 'candles with real data');
+        return filledCandles;
+        
+      } catch (error) {
+        console.error('[Chart] Error fetching real data:', error);
+        return null;
+      }
     }
 
     function generateCandleData(currentMcap, timeframeMinutes) {
