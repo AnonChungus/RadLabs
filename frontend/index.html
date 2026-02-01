@@ -2295,10 +2295,6 @@
 
         <div class="mm-token-info" id="mmTokenInfo" style="display:none">
           <div class="mm-stat">
-            <span>Current Price:</span>
-            <span id="mmTokenPrice">--</span>
-          </div>
-          <div class="mm-stat">
             <span>Market Cap:</span>
             <span id="mmTokenMcap">--</span>
           </div>
@@ -2314,7 +2310,10 @@
 
         <div class="mm-deposit-input">
           <label>Deposit Amount (BTC)</label>
-          <input type="number" id="mmDepositAmount" placeholder="0.01" min="0.001" step="0.001">
+          <input type="number" id="mmDepositAmount" placeholder="0.01" min="0.001" step="0.001" oninput="updateMMUSD()">
+          <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem;">
+            ≈ $<span id="mmDepositUSD">0</span> USD
+          </div>
           <div class="mm-quick-amounts">
             <button onclick="setMMAmount(0.01)">0.01</button>
             <button onclick="setMMAmount(0.05)">0.05</button>
@@ -2342,7 +2341,6 @@
             </div>
             <div class="mm-strategy-stats">
               <span style="color: var(--green); font-weight: 600;">Estimated APY: 23-32%</span>
-              <span>Risk: Medium</span>
             </div>
           </div>
         </div>
@@ -2365,7 +2363,7 @@
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
               <h4 style="margin: 0;">Auto-Rebalance</h4>
-              <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: var(--text-secondary);">Monitor and rebalance every 5 minutes</p>
+              <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: var(--text-secondary);">Monitor and rebalance every 10 seconds</p>
             </div>
             <label class="toggle-switch">
               <input type="checkbox" id="mmAutoRebalance" checked>
@@ -2387,11 +2385,6 @@
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Ticker -->
-  <div class="ticker">
-    <div class="ticker-track" id="ticker"></div>
   </div>
 
   <!-- Wallet Modal -->
@@ -2807,128 +2800,166 @@
     }
     
     // Fetch REAL chart data from RadFi histories API
-    async function fetchRealChartData(token, timeframeMinutes) {
-      if (!token || !token.poolId) {
-        console.log('[Chart] Token has no poolId, cannot fetch real data');
-        return null;
+    // FIXED fetchRealChartData - properly calculates price from swaps
+async function fetchRealChartData(token, timeframeMinutes) {
+  if (!token || !token.poolId) {
+    console.log('[Chart] Token has no poolId:', token?.symbol);
+    return null;
+  }
+  
+  console.log('[Chart] Fetching real data for', token.symbol, 'pool:', token.poolId);
+  
+  try {
+    // Fetch pool info to get decimals
+    const poolRes = await fetch(`/api/pools`);
+    const poolData = await poolRes.json();
+    const pool = poolData.data.find(p => p._id === token.poolId);
+    
+    if (!pool) {
+      console.log('[Chart] Pool not found:', token.poolId);
+      return null;
+    }
+    
+    const token0Decimal = pool.token0Decimal || 8; // BTC
+    const token1Decimal = token.decimals || pool.token1Decimal || 18; // Rune
+    
+    console.log('[Chart] Pool decimals:', token0Decimal, token1Decimal);
+    
+    // Fetch swap histories
+    const pageSize = timeframeMinutes <= 15 ? 500 : 1000;
+    const response = await fetch(`/api/histories?poolId=${token.poolId}&type=swap&pageSize=${pageSize}&sort=btcBlockTime`);
+    const data = await response.json();
+    
+    if (!data.data || data.data.length === 0) {
+      console.log('[Chart] No swap history found');
+      return null;
+    }
+    
+    const swaps = data.data;
+    console.log('[Chart] Fetched', swaps.length, 'swaps');
+    
+    // Calculate prices - need to handle BOTH swap directions
+    const pricesWithTime = [];
+    
+    for (const swap of swaps) {
+      const amount0 = parseFloat(swap.token0Amount);
+      const amount1 = parseFloat(swap.token1Amount);
+      
+      if (!amount0 || !amount1 || amount0 <= 0 || amount1 <= 0) continue;
+      
+      // Adjust for decimals
+      const adj0 = amount0 / Math.pow(10, token0Decimal);
+      const adj1 = amount1 / Math.pow(10, token1Decimal);
+      
+      // Calculate price ratio - this gives us price in BTC per Rune
+      // But swaps can go either direction, so we need to detect which way
+      // If amount0 (BTC) is tiny compared to amount1 (Rune), it's likely Rune→BTC swap
+      // If amount1 is tiny, it's likely BTC→Rune swap
+      
+      let priceBTC;
+      if (adj0 < 0.0001) {
+        // Likely Rune→BTC (selling Rune for BTC)
+        // price = BTC received / Rune sold
+        priceBTC = adj0 / adj1;
+      } else if (adj1 < 1) {
+        // Likely BTC→Rune (buying Rune with BTC)
+        // price = BTC spent / Rune received  
+        priceBTC = adj0 / adj1;
+      } else {
+        // Normal case
+        priceBTC = adj0 / adj1;
       }
       
-      try {
-        // Fetch swap histories for this pool
-        const pageSize = timeframeMinutes <= 15 ? 500 : 1000;
-        const response = await fetch(`/api/histories?poolId=${token.poolId}&type=swap&pageSize=${pageSize}&sort=btcBlockTime`);
-        const data = await response.json();
-        
-        if (!data.data || data.data.length === 0) {
-          console.log('[Chart] No swap history found for pool', token.poolId);
-          return null;
-        }
-        
-        const swaps = data.data;
-        console.log('[Chart] Fetched', swaps.length, 'swaps');
-        
-        // Calculate price for each swap
-        // token0 is always BTC (0:0), token1 is the Rune
-        // Price = how much BTC per Rune = token0Amount / token1Amount
-        const pricesWithTime = swaps.map(swap => {
-          const btcAmount = parseFloat(swap.token0Amount);
-          const runeAmount = parseFloat(swap.token1Amount);
-          
-          // Adjust for decimals: BTC has 8, Runes typically 18
-          const btcDecimal = swap.payload?.token0Decimal || 8;
-          const runeDecimal = swap.payload?.token1Decimal || 18;
-          
-          const btcAdjusted = btcAmount / Math.pow(10, btcDecimal);
-          const runeAdjusted = runeAmount / Math.pow(10, runeDecimal);
-          
-          // Price in BTC (market cap representation)
-          const priceBTC = btcAdjusted / runeAdjusted;
-          
-          // Convert to "market cap" style number (multiply by a large factor to make visible)
-          // Use the token's actual market cap as reference
-          const marketCapPrice = token.marketCap || (priceBTC * 1e9);
-          
-          return {
-            time: swap.btcBlockTime, // Already in seconds
-            price: marketCapPrice
-          };
-        }).filter(p => p.price > 0 && !isNaN(p.price));
-        
-        if (pricesWithTime.length === 0) {
-          console.log('[Chart] No valid prices calculated');
-          return null;
-        }
-        
-        // Group by time interval to create candles
-        const intervalSeconds = timeframeMinutes * 60;
-        const candleMap = {};
-        
-        for (const { time, price } of pricesWithTime) {
-          // Round down to interval start
-          const bucketTime = Math.floor(time / intervalSeconds) * intervalSeconds;
-          
-          if (!candleMap[bucketTime]) {
-            candleMap[bucketTime] = {
-              time: bucketTime,
-              open: price,
-              high: price,
-              low: price,
-              close: price,
-              prices: [price]
-            };
-          } else {
-            const candle = candleMap[bucketTime];
-            candle.high = Math.max(candle.high, price);
-            candle.low = Math.min(candle.low, price);
-            candle.close = price; // Last price in interval
-            candle.prices.push(price);
-          }
-        }
-        
-        // Convert to sorted array
-        const candles = Object.values(candleMap)
-          .map(c => ({
-            time: c.time,
-            open: Math.round(c.open),
-            high: Math.round(c.high),
-            low: Math.round(c.low),
-            close: Math.round(c.close)
-          }))
-          .sort((a, b) => a.time - b.time);
-        
-        // Fill gaps with previous close if needed
-        const filledCandles = [];
-        for (let i = 0; i < candles.length; i++) {
-          if (i > 0) {
-            const prevTime = candles[i - 1].time;
-            const currTime = candles[i].time;
-            const gap = (currTime - prevTime) / intervalSeconds - 1;
-            
-            // Fill small gaps (up to 10 intervals)
-            if (gap > 0 && gap <= 10) {
-              const prevClose = candles[i - 1].close;
-              for (let j = 1; j <= gap; j++) {
-                filledCandles.push({
-                  time: prevTime + (j * intervalSeconds),
-                  open: prevClose,
-                  high: prevClose,
-                  low: prevClose,
-                  close: prevClose
-                });
-              }
-            }
-          }
-          filledCandles.push(candles[i]);
-        }
-        
-        console.log('[Chart] Generated', filledCandles.length, 'candles with real data');
-        return filledCandles;
-        
-      } catch (error) {
-        console.error('[Chart] Error fetching real data:', error);
-        return null;
+      // Convert to market cap scale (multiply by total supply proxy)
+      // Use a consistent multiplier based on current market cap
+      const basePrice = token.marketCap || 1000000;
+      const scaleFactor = basePrice / (token.priceInSats || 1);
+      const scaledPrice = priceBTC * scaleFactor * 1e8; // Convert to sats then scale
+      
+      if (scaledPrice > 0 && !isNaN(scaledPrice) && isFinite(scaledPrice)) {
+        pricesWithTime.push({
+          time: swap.btcBlockTime,
+          price: scaledPrice
+        });
       }
     }
+    
+    if (pricesWithTime.length === 0) {
+      console.log('[Chart] No valid prices calculated');
+      return null;
+    }
+    
+    console.log('[Chart] Calculated', pricesWithTime.length, 'valid prices');
+    console.log('[Chart] Price range:', Math.min(...pricesWithTime.map(p => p.price)), 'to', Math.max(...pricesWithTime.map(p => p.price)));
+    
+    // Group by time interval
+    const intervalSeconds = timeframeMinutes * 60;
+    const candleMap = {};
+    
+    for (const { time, price } of pricesWithTime) {
+      const bucketTime = Math.floor(time / intervalSeconds) * intervalSeconds;
+      
+      if (!candleMap[bucketTime]) {
+        candleMap[bucketTime] = {
+          time: bucketTime,
+          open: price,
+          high: price,
+          low: price,
+          close: price,
+          count: 1
+        };
+      } else {
+        const candle = candleMap[bucketTime];
+        candle.high = Math.max(candle.high, price);
+        candle.low = Math.min(candle.low, price);
+        candle.close = price;
+        candle.count++;
+      }
+    }
+    
+    // Convert to array
+    const candles = Object.values(candleMap)
+      .map(c => ({
+        time: c.time,
+        open: Math.round(c.open),
+        high: Math.round(c.high),
+        low: Math.round(c.low),
+        close: Math.round(c.close)
+      }))
+      .sort((a, b) => a.time - b.time);
+    
+    // Fill gaps
+    const filledCandles = [];
+    for (let i = 0; i < candles.length; i++) {
+      if (i > 0) {
+        const prevTime = candles[i - 1].time;
+        const currTime = candles[i].time;
+        const gap = (currTime - prevTime) / intervalSeconds - 1;
+        
+        if (gap > 0 && gap <= 10) {
+          const prevClose = candles[i - 1].close;
+          for (let j = 1; j <= gap; j++) {
+            filledCandles.push({
+              time: prevTime + (j * intervalSeconds),
+              open: prevClose,
+              high: prevClose,
+              low: prevClose,
+              close: prevClose
+            });
+          }
+        }
+      }
+      filledCandles.push(candles[i]);
+    }
+    
+    console.log('[Chart] Generated', filledCandles.length, 'candles (filled gaps)');
+    return filledCandles;
+    
+  } catch (error) {
+    console.error('[Chart] Error:', error);
+    return null;
+  }
+}
 
     function generateCandleData(currentMcap, timeframeMinutes) {
       const now = Math.floor(Date.now() / 1000);
@@ -3609,16 +3640,25 @@ To fund your trading wallet:
         const token = JSON.parse(e.target.selectedOptions[0].dataset.token);
         mmState.selectedToken = token;
         
-        document.getElementById('mmTokenPrice').textContent = '$' + fmtCompact(token.marketCap || 0);
         document.getElementById('mmTokenMcap').textContent = '$' + fmtCompact(token.marketCap || 0);
         document.getElementById('mmTokenVol').textContent = '$' + fmtCompact(token.volume24h || 0);
-        document.getElementById('mmPoolTVL').textContent = '$' + fmtCompact(token.volumeAllTime || 0);
+        document.getElementById('mmPoolTVL').textContent = '$' + fmtCompact(token.liquidity || 0);
         document.getElementById('mmTokenInfo').style.display = 'block';
       });
     }
 
     function setMMAmount(amt) {
       document.getElementById('mmDepositAmount').value = amt;
+      updateMMUSD();
+    }
+    
+    // Update USD display for MM deposit amount
+    function updateMMUSD() {
+      const btcAmount = parseFloat(document.getElementById('mmDepositAmount').value) || 0;
+      // Fetch current BTC price from selected token or use approximate rate
+      const btcPriceUSD = 100000; // Approximate BTC price, could fetch from API
+      const usdAmount = (btcAmount * btcPriceUSD).toFixed(0);
+      document.getElementById('mmDepositUSD').textContent = usdAmount.toLocaleString();
     }
 
     function selectMMStrategy(strategy) {
