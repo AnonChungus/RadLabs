@@ -3633,7 +3633,7 @@ To fund your trading wallet:
       }
     }
 
-    function depositToMM() {
+    async function depositToMM() {
       if (!S.userAddress) {
         connectWallet();
         return;
