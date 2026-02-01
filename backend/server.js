@@ -104,6 +104,22 @@ app.get('/api/histories', async (req, res) => {
 
 // ============ WALLET ENDPOINTS ============
 
+app.get('/api/wallets', async (req, res) => {
+  try {
+    // Forward Authorization header if present
+    const authHeader = req.headers.authorization;
+    const headers = authHeader ? { 'Authorization': authHeader } : {};
+    
+    const queryString = new URLSearchParams(req.query).toString();
+    const endpoint = queryString ? `/api/wallets?${queryString}` : '/api/wallets';
+    
+    const data = await fetchRadFi(endpoint, { headers });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 app.get('/api/wallets/details/:userAddress', async (req, res) => {
   try {
     const data = await fetchRadFi(`/api/wallets/details/${req.params.userAddress}`);

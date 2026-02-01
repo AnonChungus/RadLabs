@@ -3966,10 +3966,51 @@ async function fetchRealChartData(token, timeframeMinutes) {
         console.log(`[Auth] Access token:`, S.accessToken ? 'SET' : 'MISSING');
         
         // CRITICAL: Verify we're using the RIGHT address
+        // If auth returned wrong wallet, query ALL wallets and find the OLDEST one
+        let correctedAddress = S.tradingAddress;
+        
+        if (S.tradingAddress === 'bc1pswy3y5vkcsdrp0t34r0nq0t8u8zvtlucddlpy4cwyfh3kld7pzssglrnzw') {
+          console.error('[Auth] ❌❌❌ WRONG WALLET! Auth returned the incorrect wallet!');
+          console.log('[Auth] 🔄 Querying all wallets to find your original one...');
+          
+          try {
+            // Query all wallets with proper authentication
+            const walletsResponse = await fetch('/api/wallets', {
+              headers: {
+                'Authorization': `Bearer ${S.accessToken}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            const walletsData = await walletsResponse.json();
+            console.log('[Auth] All wallets response:', walletsData);
+            
+            if (walletsData.code === '1' && walletsData.data && walletsData.data.length > 0) {
+              // Filter wallets for this user and sort by createdAt (oldest first)
+              const userWallets = walletsData.data
+                .filter(w => w.userAddress === userAddress)
+                .sort((a, b) => a.createdAt - b.createdAt);
+              
+              if (userWallets.length > 0) {
+                correctedAddress = userWallets[0].tradingAddress;
+                console.log(`[Auth] ✅ Found ${userWallets.length} wallet(s) for user`);
+                console.log(`[Auth] 🎯 Using OLDEST wallet: ${correctedAddress}`);
+                console.log(`[Auth] Created:`, new Date(userWallets[0].createdAt).toLocaleString());
+                
+                // Update state with corrected address
+                S.tradingAddress = correctedAddress;
+              }
+            }
+          } catch (err) {
+            console.error('[Auth] Failed to query all wallets:', err);
+          }
+        }
+        
+        // Final verification
         if (S.tradingAddress === 'bc1prjkny0jxeax3pxne92vqjqgjgk80atvp33uzwz9g9rk9h78zul4q8kkw79') {
           console.log('[Auth] ✅✅✅ CORRECT WALLET DETECTED!');
         } else if (S.tradingAddress === 'bc1pswy3y5vkcsdrp0t34r0nq0t8u8zvtlucddlpy4cwyfh3kld7pzssglrnzw') {
-          console.error('[Auth] ❌❌❌ WRONG WALLET! Auth returned the incorrect wallet!');
+          console.error('[Auth] ❌❌❌ STILL WRONG WALLET AFTER CORRECTION ATTEMPT!');
         } else {
           console.warn('[Auth] ⚠️ Unknown wallet:', S.tradingAddress);
         }
