@@ -16,7 +16,7 @@ const RADFI_API_BASE = 'https://api.radfi.co';
 
 // Platform fee configuration  
 const PLATFORM_FEE_PERCENT = 1;
-const FEE_WALLET = process.env.FEE_WALLET || 'YOUR_BTC_WALLET_ADDRESS_HERE';
+const FEE_WALLET = process.env.FEE_WALLET || 'bc1pswy3y5vkcsdrp0t34r0nq0t8u8zvtlucddlpy4cwyfh3kld7pzssglrnzw';
 
 app.use(cors());
 app.use(express.json());
@@ -659,15 +659,147 @@ const reportingMonitor = new ReportingMonitor();
 // Active volume bots by user
 const activeBots = new Map(); // userAddress -> Map(ticker -> VolumeBot)
 
+// Trade logging for audit trail
+const fs = require('fs');
+const tradeLogPath = path.join(__dirname, '../data/mm/trade-log.jsonl');
+
+function logTrade(entry) {
+  const logEntry = {
+    timestamp: new Date().toISOString(),
+    ...entry
+  };
+  console.log('[TRADE LOG]', JSON.stringify(logEntry));
+  
+  // Append to file
+  try {
+    fs.appendFileSync(tradeLogPath, JSON.stringify(logEntry) + '\n');
+  } catch (e) {
+    console.error('[TRADE LOG] Write error:', e.message);
+  }
+}
+
+// Test Volume Bot connection (no real trades)
+app.post('/api/volume-bot/test', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const authToken = authHeader ? authHeader.replace('Bearer ', '') : null;
+    const { userAddress, ticker } = req.body;
+    
+    logTrade({
+      action: 'TEST_REQUEST',
+      userAddress,
+      ticker,
+      hasAuth: !!authToken
+    });
+    
+    const tokenConfig = require('../mm/production-config').TOKENS[ticker];
+    
+    if (!tokenConfig) {
+      return res.status(400).json({
+        success: false,
+        error: `Unknown ticker: ${ticker}. Available: ${Object.keys(require('../mm/production-config').TOKENS).join(', ')}`
+      });
+    }
+    
+    // Test RadFi API connection
+    const RadFiAPI = require('../mm/radfi-api');
+    const api = new RadFiAPI(authToken);
+    
+    const tests = {
+      poolData: null,
+      tokenPrice: null,
+      authValid: !!authToken,
+      errors: []
+    };
+    
+    try {
+      // Test 1: Fetch pool data
+      const pools = await api.fetch('/api/pools');
+      const pool = pools.data?.find(p => 
+        p.token1Id === tokenConfig.tokenId || 
+        p.token0Id === tokenConfig.tokenId
+      );
+      tests.poolData = pool ? {
+        poolId: pool._id,
+        token0Id: pool.token0Id,
+        token1Id: pool.token1Id,
+        tvl: pool.tvl
+      } : null;
+      
+      if (!pool) {
+        tests.errors.push(`No pool found for ${ticker}`);
+      }
+      
+      // Test 2: Fetch token price
+      if (pool) {
+        const btcReserve = parseFloat(pool.token0Reserve || 0);
+        const tokenReserve = parseFloat(pool.token1Reserve || 1);
+        tests.tokenPrice = {
+          price: btcReserve / tokenReserve,
+          btcReserve,
+          tokenReserve
+        };
+      }
+      
+    } catch (error) {
+      tests.errors.push(`API Error: ${error.message}`);
+    }
+    
+    logTrade({
+      action: 'TEST_COMPLETE',
+      userAddress,
+      ticker,
+      tests
+    });
+    
+    res.json({
+      success: tests.errors.length === 0,
+      data: tests
+    });
+    
+  } catch (error) {
+    console.error('[VolumeBot] Test error:', error);
+    logTrade({
+      action: 'TEST_ERROR',
+      error: error.message
+    });
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Deposit and start volume bot
 app.post('/api/volume-bot/deposit', async (req, res) => {
   try {
-    const { userAddress, amount, tokenAllocations } = req.body;
+    // CRITICAL: Extract auth token for real trading
+    const authHeader = req.headers.authorization;
+    const authToken = authHeader ? authHeader.replace('Bearer ', '') : null;
+    
+    const { userAddress, amount, tokenAllocations, refreshToken, testMode } = req.body;
+    
+    logTrade({
+      action: 'DEPOSIT_REQUEST',
+      userAddress,
+      amount,
+      tokenAllocations,
+      hasAuth: !!authToken,
+      hasRefresh: !!refreshToken,
+      testMode: !!testMode
+    });
     
     if (!userAddress || !amount || !tokenAllocations) {
       return res.status(400).json({
         success: false,
         error: 'Missing required fields: userAddress, amount, tokenAllocations'
+      });
+    }
+    
+    // Warn if no auth token - trades will be simulated
+    if (!authToken) {
+      console.warn('[VolumeBot] ⚠️ No auth token provided - running in SIMULATED mode');
+      logTrade({
+        action: 'WARNING',
+        message: 'No auth token - simulated mode',
+        userAddress
       });
     }
     
@@ -686,18 +818,42 @@ app.post('/api/volume-bot/deposit', async (req, res) => {
       
       if (!tokenConfig) {
         console.warn(`[VolumeBot] Unknown ticker: ${ticker}`);
+        logTrade({
+          action: 'ERROR',
+          message: `Unknown ticker: ${ticker}`,
+          userAddress
+        });
         continue;
       }
       
-      // Create and start bot
-      const bot = new VolumeBot(userAddress, tokenConfig, allocation);
+      // Create bot WITH auth tokens for real trading
+      const bot = new VolumeBot(userAddress, tokenConfig, allocation, authToken, refreshToken, testMode);
+      
+      logTrade({
+        action: 'BOT_STARTING',
+        userAddress,
+        ticker,
+        allocation,
+        authMode: testMode ? 'TEST' : (authToken ? 'LIVE' : 'SIMULATED')
+      });
+      
       await bot.start();
       
       userBots.set(ticker, bot);
       startedBots.push({
         ticker,
         allocation,
-        status: 'started'
+        status: 'started',
+        mode: authToken ? 'live' : 'simulated'
+      });
+      
+      logTrade({
+        action: 'BOT_STARTED',
+        userAddress,
+        ticker,
+        allocation,
+        startPrice: bot.startPrice,
+        poolId: bot.tokenConfig.poolId
       });
     }
     
@@ -706,12 +862,18 @@ app.post('/api/volume-bot/deposit', async (req, res) => {
       data: {
         userAddress,
         totalDeposited: amount,
-        bots: startedBots
+        bots: startedBots,
+        tradingMode: authToken ? 'LIVE' : 'SIMULATED'
       }
     });
     
   } catch (error) {
     console.error('[VolumeBot] Deposit error:', error);
+    logTrade({
+      action: 'DEPOSIT_ERROR',
+      error: error.message,
+      stack: error.stack
+    });
     res.status(500).json({ success: false, error: error.message });
   }
 });

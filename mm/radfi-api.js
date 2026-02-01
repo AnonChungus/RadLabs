@@ -3,6 +3,7 @@
  * 
  * Provides authenticated API calls to RadFi for real trading.
  * Uses native fetch (Node 18+)
+ * Includes comprehensive logging and token refresh.
  */
 
 const RADFI_API_BASE = 'https://api.radfi.co';
@@ -16,16 +17,73 @@ const HEADERS = {
 };
 
 class RadFiAPI {
-  constructor(authToken = null) {
+  constructor(authToken = null, refreshToken = null, tracker = null) {
     this.authToken = authToken;
+    this.refreshToken = refreshToken;
+    this.tracker = tracker;
+    this.tokenExpiresAt = authToken ? Date.now() + 9 * 60 * 1000 : 0; // 9 min (safe margin)
   }
 
-  setAuth(token) {
-    this.authToken = token;
+  setAuth(accessToken, refreshToken = null) {
+    this.authToken = accessToken;
+    if (refreshToken) this.refreshToken = refreshToken;
+    this.tokenExpiresAt = Date.now() + 9 * 60 * 1000;
+  }
+
+  setTracker(tracker) {
+    this.tracker = tracker;
+  }
+
+  // Check if token needs refresh
+  isTokenExpired() {
+    return Date.now() > this.tokenExpiresAt;
+  }
+
+  // Refresh the access token
+  async refreshAccessToken() {
+    if (!this.refreshToken) {
+      throw new Error('No refresh token available');
+    }
+
+    const startTime = Date.now();
+    try {
+      const response = await fetch(`${RADFI_API_BASE}/api/auth/refresh-token`, {
+        method: 'POST',
+        headers: HEADERS,
+        body: JSON.stringify({ refreshToken: this.refreshToken })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Refresh failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      this.authToken = data.accessToken;
+      this.tokenExpiresAt = Date.now() + 9 * 60 * 1000;
+
+      if (this.tracker) {
+        await this.tracker.logSuccess('Token refreshed', { 
+          responseTime: Date.now() - startTime 
+        });
+      }
+
+      return data;
+    } catch (error) {
+      if (this.tracker) {
+        await this.tracker.logError('Token refresh', error);
+      }
+      throw error;
+    }
   }
 
   async fetch(endpoint, options = {}) {
+    // Auto-refresh token if expired
+    if (this.authToken && this.isTokenExpired() && this.refreshToken) {
+      await this.refreshAccessToken();
+    }
+
     const url = `${RADFI_API_BASE}${endpoint}`;
+    const startTime = Date.now();
     
     const headers = { ...HEADERS };
     if (this.authToken) {
@@ -35,18 +93,47 @@ class RadFiAPI {
       Object.assign(headers, options.headers);
     }
 
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      body: options.body ? JSON.stringify(options.body) : undefined
-    });
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers,
+        body: options.body ? JSON.stringify(options.body) : undefined
+      });
 
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`RadFi API error ${response.status}: ${text}`);
+      const responseTime = Date.now() - startTime;
+
+      if (!response.ok) {
+        const text = await response.text();
+        const error = new Error(`RadFi API error ${response.status}: ${text}`);
+        
+        if (this.tracker) {
+          await this.tracker.logApiCall(endpoint, options.method || 'GET', response.status, responseTime, {
+            error: text.slice(0, 500)
+          });
+        }
+        
+        throw error;
+      }
+
+      const data = await response.json();
+
+      if (this.tracker) {
+        await this.tracker.logApiCall(endpoint, options.method || 'GET', response.status, responseTime, {
+          success: true,
+          dataKeys: Object.keys(data)
+        });
+      }
+
+      return data;
+    } catch (error) {
+      const responseTime = Date.now() - startTime;
+      
+      if (this.tracker) {
+        await this.tracker.logError(`API ${endpoint}`, error, { responseTime });
+      }
+      
+      throw error;
     }
-
-    return response.json();
   }
 
   // Get pool info

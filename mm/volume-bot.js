@@ -2,7 +2,7 @@
  * RadLabs Volume Bot
  * 
  * Core engine for generating trading volume on low-liquidity Runes tokens.
- * Now with REAL RadFi API integration.
+ * Now with REAL RadFi API integration and comprehensive tracking.
  * 
  * Strategy:
  * - Place liquidity at narrow ranges to capture trades
@@ -13,18 +13,24 @@
 
 const { TOKENS, MM_CONFIG } = require('./production-config');
 const RadFiAPI = require('./radfi-api');
+const TradeTracker = require('./trade-tracker');
 const fs = require('fs').promises;
 const path = require('path');
 
 class VolumeBot {
-  constructor(userAddress, tokenConfig, allocation, authToken = null) {
+  constructor(userAddress, tokenConfig, allocation, authToken = null, refreshToken = null, testMode = false) {
     this.userAddress = userAddress;
     this.tokenConfig = tokenConfig;
     this.allocation = allocation; // BTC amount allocated
     this.authToken = authToken;
+    this.refreshToken = refreshToken;
+    this.testMode = testMode; // If true, log but don't execute real trades
     
-    // RadFi API client
-    this.api = new RadFiAPI(authToken);
+    // Trade tracker for auditing
+    this.tracker = new TradeTracker(userAddress);
+    
+    // RadFi API client with tracker
+    this.api = new RadFiAPI(authToken, refreshToken, this.tracker);
     
     // State
     this.inventory = {
@@ -70,12 +76,30 @@ class VolumeBot {
       return;
     }
     
+    // Initialize tracker
+    await this.tracker.init();
+    
+    await this.tracker.logInfo('Bot starting', {
+      ticker: this.tokenConfig.ticker,
+      allocation: this.allocation,
+      testMode: this.testMode,
+      hasAuth: !!this.authToken
+    });
+    
     console.log(`[VolumeBot] Starting for ${this.tokenConfig.ticker}, allocation: ${this.allocation} BTC`);
+    console.log(`[VolumeBot] Mode: ${this.testMode ? 'TEST (no real trades)' : this.authToken ? 'LIVE' : 'SIMULATED'}`);
+    
     this.running = true;
     
     try {
       // Load pool data
       await this.loadPoolData();
+      
+      await this.tracker.logInfo('Pool loaded', {
+        poolId: this.pool?._id,
+        token0Id: this.pool?.token0Id,
+        token1Id: this.pool?.token1Id
+      });
       
       // Get initial price
       this.currentPrice = await this.api.getTokenPrice(this.tokenConfig.poolId);
@@ -87,19 +111,37 @@ class VolumeBot {
       this.inventory.token = Math.floor(btcForTokens / this.currentPrice);
       this.inventory.btc = this.allocation - btcForTokens;
       
+      await this.tracker.logInfo('Inventory initialized', {
+        btc: this.inventory.btc,
+        token: this.inventory.token,
+        startPrice: this.startPrice,
+        targetTokenRatio
+      });
+      
       console.log(`[VolumeBot] Initial inventory: ${this.inventory.btc.toFixed(8)} BTC, ${this.inventory.token} ${this.tokenConfig.ticker}`);
       console.log(`[VolumeBot] Start price: $${this.currentPrice?.toFixed(8) || 'N/A'}`);
       
-      // Place initial liquidity
-      await this.deployLiquidity();
+      // Place initial liquidity (skip if test mode)
+      if (!this.testMode) {
+        await this.deployLiquidity();
+      } else {
+        await this.tracker.logInfo('Skipping liquidity deployment (test mode)');
+      }
       
       // Start update loop
       this.timer = setInterval(() => this.tick(), MM_CONFIG.updateFrequencyMs || 60000);
+      
+      await this.tracker.logSuccess('Bot started successfully', {
+        ticker: this.tokenConfig.ticker,
+        poolId: this.tokenConfig.poolId,
+        startPrice: this.startPrice
+      });
       
       // Save state
       await this.saveState();
       
     } catch (error) {
+      await this.tracker.logError('Bot start failed', error);
       console.error(`[VolumeBot] Start error:`, error);
       this.running = false;
       throw error;
