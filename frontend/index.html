@@ -186,17 +186,19 @@
       font-family: 'Inter', sans-serif;
       font-size: 1.7rem;
       font-weight: 900;
-      letter-spacing: -0.5px;
+      letter-spacing: 0.5px;
     }
     
     .logo-text .rad {
       color: #111111;
-      -webkit-text-stroke: 1px #ff6b35;
+      -webkit-text-stroke: 1.5px #ff6b35;
+      paint-order: stroke fill;
     }
     
     .logo-text .labs {
       color: #ff6b35;
       font-weight: 900;
+      margin-left: 2px;
     }
     
     .nav {
@@ -387,6 +389,28 @@
       pointer-events: none;
     }
     
+    .mute-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 10;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid var(--miami-cyan);
+      color: var(--miami-cyan);
+      padding: 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.2s;
+      backdrop-filter: blur(10px);
+    }
+    
+    .mute-btn:hover {
+      background: rgba(0,212,255,0.2);
+      border-color: var(--miami-cyan);
+      transform: scale(1.1);
+    }
+    
     #tvChart {
       position: relative;
       z-index: 1;
@@ -529,9 +553,15 @@
     .input-label {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       font-size: 0.8rem;
       color: var(--text-muted);
       margin-bottom: 0.5rem;
+      gap: 0.5rem;
+    }
+    
+    .input-label > span {
+      white-space: nowrap;
     }
     
     .input-row {
@@ -563,6 +593,8 @@
       padding: 0.5rem 0.75rem;
       border-radius: 20px;
       cursor: pointer;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
     
     .token-select .mini-img {
@@ -1260,9 +1292,10 @@
         </div>
         
         <div class="chart-container">
-          <video class="chart-video-bg" autoplay muted loop playsinline>
+          <video id="bgVideo" class="chart-video-bg" autoplay loop playsinline>
             <source src="assets/powell.mp4" type="video/mp4">
           </video>
+          <button class="mute-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
           <div id="tvChart"></div>
         </div>
         
@@ -1800,9 +1833,12 @@
     function generateCandleData(currentPrice) {
       const now = Math.floor(Date.now() / 1000);
       const data = [];
-      let price = currentPrice * (0.7 + Math.random() * 0.3);
+      // Start from 90 days ago to show months of history like RadFi
+      const daysAgo = 90;
+      const candles = daysAgo * 96; // 15-min candles per day
+      let price = currentPrice * (0.3 + Math.random() * 0.4); // Start lower for realistic growth
       
-      for (let i = 100; i >= 0; i--) {
+      for (let i = candles; i >= 0; i--) {
         const time = now - i * 900; // 15 min candles
         const open = price;
         const vol = price * 0.08;
@@ -1810,10 +1846,21 @@
         const high = Math.max(open, close) + Math.random() * vol * 0.5;
         const low = Math.min(open, close) - Math.random() * vol * 0.5;
         data.push({ time, open, high, low, close });
-        price = close;
+        // Gradual uptrend toward current price
+        const progress = 1 - (i / candles);
+        const targetPrice = currentPrice;
+        price = close + (targetPrice - close) * 0.002 * progress;
       }
       data[data.length - 1].close = currentPrice;
       return data;
+    }
+    
+    // Mute/Unmute video
+    function toggleMute() {
+      const video = document.getElementById('bgVideo');
+      const btn = document.getElementById('muteBtn');
+      video.muted = !video.muted;
+      btn.textContent = video.muted ? '🔇' : '🔊';
     }
 
     function setChartType(type) {
