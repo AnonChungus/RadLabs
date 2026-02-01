@@ -1889,71 +1889,81 @@
       const data = [];
       const candleSeconds = timeframeMinutes * 60;
       
-      // Calculate number of candles based on timeframe
-      let daysToShow;
-      if (timeframeMinutes <= 5) daysToShow = 7; // 1 week for 1m/5m
-      else if (timeframeMinutes <= 60) daysToShow = 30; // 1 month for 15m/1h
-      else if (timeframeMinutes <= 240) daysToShow = 90; // 3 months for 4h
-      else daysToShow = 365; // 1 year for 1D
+      // Calculate candles to show based on timeframe
+      let totalCandles;
+      if (timeframeMinutes <= 5) totalCandles = 300; // 25 hours for 1m/5m
+      else if (timeframeMinutes === 15) totalCandles = 672; // 1 week
+      else if (timeframeMinutes === 60) totalCandles = 720; // 1 month  
+      else if (timeframeMinutes === 240) totalCandles = 540; // 3 months
+      else totalCandles = 365; // 1 year for 1D
       
-      const candlesPerDay = (24 * 60) / timeframeMinutes;
-      const totalCandles = Math.floor(daysToShow * candlesPerDay);
+      // Scale volatility to timeframe - smaller timeframes = smaller candles
+      const volatilityScale = Math.sqrt(timeframeMinutes / 15); // 15m baseline
       
-      // Generate realistic price action with VARIED candle sizes
+      // Generate candles with random walk that stays near current price
+      let price = currentMcap;
+      
       for (let i = totalCandles; i >= 0; i--) {
         const time = now - i * candleSeconds;
-        const daysFromNow = i / candlesPerDay;
         
-        // Create a base price that oscillates around currentMcap
-        const monthCycle = Math.sin((daysFromNow / 30) * Math.PI * 2);
-        const weekCycle = Math.sin((daysFromNow / 7) * Math.PI * 2);
+        // Random walk with mean reversion to current price
+        const distanceFromCurrent = (price - currentMcap) / currentMcap;
+        const meanReversion = -distanceFromCurrent * 0.05; // Pull back toward current
         
-        // Base price oscillates +/- 15% around current market cap
-        const baseVariation = (monthCycle * 0.10) + (weekCycle * 0.05);
-        const baseMcap = currentMcap * (1 + baseVariation);
+        // Random drift
+        const drift = (Math.random() - 0.5) * 0.002 * volatilityScale;
         
-        // REALISTIC CANDLE SIZES - vary greatly like real trading
-        // Some candles are big movers, some are tiny, some are dojis
+        // Apply movement
+        price = price * (1 + drift + meanReversion);
+        
+        // Now create candle with variance
         const candleType = Math.random();
-        let volatility, wickSize;
+        let bodyPct, wickPct;
         
-        if (candleType < 0.1) {
-          // 10% - Big movers (breakouts/dumps)
-          volatility = baseMcap * (0.05 + Math.random() * 0.10); // 5-15% moves
-          wickSize = 0.4 + Math.random() * 0.6; // Long wicks
-        } else if (candleType < 0.3) {
-          // 20% - Medium moves (trending)
-          volatility = baseMcap * (0.02 + Math.random() * 0.04); // 2-6% moves
-          wickSize = 0.2 + Math.random() * 0.3;
-        } else if (candleType < 0.6) {
-          // 30% - Small moves (consolidation)
-          volatility = baseMcap * (0.005 + Math.random() * 0.015); // 0.5-2% moves
-          wickSize = 0.1 + Math.random() * 0.2;
+        if (candleType < 0.15) {
+          // Big movers 15%
+          bodyPct = (0.01 + Math.random() * 0.02) * volatilityScale;
+          wickPct = 1.5 + Math.random();
+        } else if (candleType < 0.40) {
+          // Medium 25%
+          bodyPct = (0.003 + Math.random() * 0.007) * volatilityScale;
+          wickPct = 0.8 + Math.random() * 0.7;
+        } else if (candleType < 0.70) {
+          // Small 30%
+          bodyPct = (0.001 + Math.random() * 0.002) * volatilityScale;
+          wickPct = 0.3 + Math.random() * 0.5;
         } else {
-          // 40% - Tiny moves / Dojis (low volume)
-          volatility = baseMcap * (0.001 + Math.random() * 0.004); // 0.1-0.5% moves
-          wickSize = 0.05 + Math.random() * 0.1; // Minimal wicks
+          // Doji/tiny 30%
+          bodyPct = (0.0002 + Math.random() * 0.0008) * volatilityScale;
+          wickPct = 0.1 + Math.random() * 0.2;
         }
         
-        const change = (Math.random() - 0.5) * volatility;
-        const open = baseMcap;
-        const close = baseMcap + change;
+        const direction = Math.random() > 0.5 ? 1 : -1;
+        const bodyMove = price * bodyPct * direction;
         
-        // Varied wick sizes - some candles have huge wicks, some tiny
-        const bodySize = Math.abs(close - open);
-        const wickRange = bodySize * wickSize + (volatility * 0.1);
+        const open = price;
+        const close = price + bodyMove;
         
-        const high = Math.max(open, close) + (Math.random() * wickRange);
-        const low = Math.min(open, close) - (Math.random() * wickRange);
+        const bodySize = Math.abs(bodyMove);
+        const wickSize = bodySize * wickPct;
+        
+        const high = Math.max(open, close) + (Math.random() * wickSize);
+        const low = Math.min(open, close) - (Math.random() * wickSize);
         
         data.push({ time, open, high, low, close });
+        
+        // Update price for next candle
+        price = close;
       }
       
-      // Ensure the last candle closes exactly at current market cap
+      // Force last candle to close at current mcap
       const lastCandle = data[data.length - 1];
+      const prevClose = data[data.length - 2]?.close || currentMcap;
+      
+      lastCandle.open = prevClose;
       lastCandle.close = currentMcap;
-      lastCandle.high = Math.max(lastCandle.open, currentMcap, lastCandle.high);
-      lastCandle.low = Math.min(lastCandle.open, currentMcap, lastCandle.low);
+      lastCandle.high = Math.max(prevClose, currentMcap) * 1.005;
+      lastCandle.low = Math.min(prevClose, currentMcap) * 0.995;
       
       return data;
     }
