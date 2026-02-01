@@ -1485,6 +1485,40 @@
       color: var(--matrix-green);
     }
     
+    /* Volume Bot Dashboard Cards */
+    .mm-stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+    
+    .mm-stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    
+    .mm-stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .mm-stat-value.green { color: var(--green); }
+    .mm-stat-value.red { color: var(--red); }
+    
+    .mm-stat-sub {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+    
+    .mm-stat-sub.green { color: var(--green); }
+    .mm-stat-sub.red { color: var(--red); }
+    
     .mm-btn {
       width: 100%;
       padding: 1rem;
@@ -5072,145 +5106,292 @@ To fund your trading wallet:
       }
 
       try {
-        toast('Finding pool...', 'info');
+        toast('Starting Volume Bot...', 'info');
 
-        // Find pool for this token
-        const poolResponse = await fetch('/api/pools');
-        const poolData = await poolResponse.json();
-        const pool = poolData.data.find(p => 
-          (p.token1Id === mmState.selectedToken.tokenId && p.token0Id === '0:0') ||
-          (p.token0Id === mmState.selectedToken.tokenId && p.token1Id === '0:0')
-        );
+        // Get ticker from selected token
+        const ticker = mmState.selectedToken.symbol || mmState.selectedToken.displayTicker;
+        
+        // Call Volume Bot API to start the bot
+        const response = await fetch('/api/volume-bot/deposit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': S.authToken ? `Bearer ${S.authToken}` : ''
+          },
+          body: JSON.stringify({
+            userAddress: S.tradingAddress || S.userAddress,
+            amount: amount,
+            tokenAllocations: [{
+              ticker: ticker,
+              allocation: amount
+            }]
+          })
+        });
 
-        if (!pool) {
-          toast('No liquidity pool found for this token', 'error');
-          return;
+        const result = await response.json();
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to start volume bot');
         }
 
-        toast('Calculating position...', 'info');
-
-        // Calculate token amounts based on pool ratio
-        const btcReserve = parseFloat(pool.token0Reserve || pool.tvl);
-        const tokenReserve = parseFloat(pool.token1Reserve || 1);
-        const currentPrice = btcReserve / tokenReserve;
-        const tokenAmount = Math.floor(amount / currentPrice);
-
-        const amount0 = pool.token0Id === '0:0' ? Math.floor(amount * 1e8) : tokenAmount;
-        const amount1 = pool.token1Id === '0:0' ? Math.floor(amount * 1e8) : tokenAmount;
-
-        toast('Authentication required - Connect wallet to continue', 'info');
-
-        // Note: Real deployment requires wallet connection and JWT auth
-        // For now, store position in pending state
+        console.log('[VolumeBot] Deposit result:', result);
+        
+        // Store position locally for UI
         const position = {
-          id: 'mm-' + Date.now(),
+          id: 'vb-' + Date.now(),
           token: mmState.selectedToken,
-          pool: pool,
+          ticker: ticker,
           strategy: mmState.selectedStrategy,
           depositedBTC: amount,
           startTime: Date.now(),
-          entryPrice: currentPrice,
-          feesEarned: 0,
-          ilLoss: 0,
-          status: 'pending-auth',
-          vmTxParams: {
-            poolId: pool._id,
-            userAddress: S.tradingAddress || S.userAddress, // Use trading wallet
-            amount0,
-            amount1,
-            token0Id: pool.token0Id,
-            token1Id: pool.token1Id,
-            upperTick: pool.upperTick || '887200',
-            lowerTick: pool.lowerTick || '-887200',
-            feeRate: pool.fee,
-            tickSpacing: pool.tickSpacing || 200,
-            scVersion: pool.scVersion || 'v4'
-          }
+          status: 'active',
+          volumeBotData: result.data
         };
 
         mmState.positions.push(position);
         saveMMLoc();
-        renderMMPositions();
-        toast('Position created! Connect wallet to activate', 'success');
+        
+        // Start polling for metrics
+        startVolumeMetricsPolling();
+        
+        // Refresh positions display
+        await refreshVolumeBotDashboard();
+        
+        toast(`Volume Bot started for ${ticker}!`, 'success');
 
       } catch (error) {
-        console.error('MM deployment error:', error);
-        toast('Failed to deploy market maker: ' + error.message, 'error');
+        console.error('Volume Bot deployment error:', error);
+        toast('Failed to start Volume Bot: ' + error.message, 'error');
       }
     }
 
-    function renderMMPositions() {
+    // Poll Volume Bot metrics from backend
+    let volumeMetricsInterval = null;
+    
+    function startVolumeMetricsPolling() {
+      if (volumeMetricsInterval) return;
+      
+      // Poll every 30 seconds
+      volumeMetricsInterval = setInterval(refreshVolumeBotDashboard, 30000);
+      
+      // Initial fetch
+      refreshVolumeBotDashboard();
+    }
+    
+    function stopVolumeMetricsPolling() {
+      if (volumeMetricsInterval) {
+        clearInterval(volumeMetricsInterval);
+        volumeMetricsInterval = null;
+      }
+    }
+    
+    async function refreshVolumeBotDashboard() {
+      const userAddress = S.tradingAddress || S.userAddress;
+      if (!userAddress) return;
+      
+      try {
+        const response = await fetch(`/api/volume-bot/dashboard/${userAddress}`);
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+          renderVolumeBotDashboard(result.data);
+        }
+      } catch (error) {
+        console.error('[VolumeBot] Dashboard fetch error:', error);
+      }
+    }
+    
+    function renderVolumeBotDashboard(data) {
+      const { performance, alerts, recentTrades } = data;
+      
+      // Update positions display with real data
       const container = document.getElementById('mmPositions');
       
-      if (mmState.positions.length === 0) {
+      if (!performance || performance.totalDeposited === 0) {
         container.innerHTML = `
           <div class="mm-empty-state">
             <span style="font-size:3rem">💼</span>
-            <p>No active market making positions</p>
-            <p class="mm-desc">Deploy capital above to get started</p>
+            <p>No active Volume Bot positions</p>
+            <p class="mm-desc">Deploy capital above to start generating volume</p>
           </div>
         `;
         return;
       }
-
+      
+      // Build dashboard HTML
       const html = `
+        <!-- Summary Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div class="mm-stat-card">
+            <div class="mm-stat-label">Total Deposited</div>
+            <div class="mm-stat-value">${performance.totalDeposited.toFixed(6)} BTC</div>
+            <div class="mm-stat-sub">≈ $${(performance.totalDeposited * btcPriceUSD).toFixed(2)}</div>
+          </div>
+          <div class="mm-stat-card">
+            <div class="mm-stat-label">Current Value</div>
+            <div class="mm-stat-value">${performance.currentValue.toFixed(6)} BTC</div>
+            <div class="mm-stat-sub ${performance.netPnL >= 0 ? 'green' : 'red'}">
+              ${performance.netPnL >= 0 ? '+' : ''}${performance.netPnL.toFixed(6)} BTC (${performance.pnlPercent.toFixed(2)}%)
+            </div>
+          </div>
+          <div class="mm-stat-card">
+            <div class="mm-stat-label">24h Volume Generated</div>
+            <div class="mm-stat-value green">$${performance.volumeGenerated24h.toFixed(2)}</div>
+            <div class="mm-stat-sub">Total: $${performance.volumeGeneratedTotal.toFixed(2)}</div>
+          </div>
+          <div class="mm-stat-card">
+            <div class="mm-stat-label">Estimated APY</div>
+            <div class="mm-stat-value ${performance.estimatedAPY >= 0 ? 'green' : 'red'}">${performance.estimatedAPY.toFixed(1)}%</div>
+            <div class="mm-stat-sub">${performance.trades24h} trades today</div>
+          </div>
+        </div>
+        
+        <!-- Alerts -->
+        ${alerts && alerts.high > 0 ? `
+          <div style="background: rgba(255,71,87,0.1); border: 1px solid var(--red); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+            <strong style="color: var(--red);">⚠️ ${alerts.high} High Priority Alert${alerts.high > 1 ? 's' : ''}</strong>
+            <p style="margin: 0.5rem 0 0; font-size: 0.9rem;">Check risk levels for your positions</p>
+          </div>
+        ` : ''}
+        
+        <!-- Token Allocations Table -->
         <table style="width:100%;font-size:0.9rem">
           <thead>
             <tr>
               <th>Token</th>
-              <th>Deposited</th>
+              <th>Allocated</th>
               <th>Value</th>
-              <th>Fees Earned</th>
-              <th>IL</th>
-              <th>Total PnL</th>
-              <th>APY</th>
+              <th>Volume 24h</th>
+              <th>Token Price Δ</th>
+              <th>PnL</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            ${mmState.positions.map((p, i) => {
-              const runningHours = (Date.now() - p.startTime) / (1000 * 60 * 60);
-              const currentValue = p.depositedBTC + p.feesEarned + (p.ilLoss || 0);
-              const totalPnL = currentValue - p.depositedBTC;
-              const apy = runningHours > 0 ? (totalPnL / p.depositedBTC) * (8760 / runningHours) * 100 : 0;
-              
-              return `
+            ${(performance.tokenAllocations || []).map(t => `
               <tr>
-                <td>${p.token.displayTicker || p.token.symbol}</td>
-                <td class="mono">${p.depositedBTC.toFixed(4)} BTC</td>
-                <td class="mono">${currentValue.toFixed(4)} BTC</td>
-                <td class="mono green">+${p.feesEarned.toFixed(6)} BTC</td>
-                <td class="mono ${(p.ilLoss || 0) < 0 ? 'red' : 'green'}">
-                  ${((p.ilLoss || 0) * 100).toFixed(2)}%
+                <td><strong>${t.ticker}</strong></td>
+                <td class="mono">${t.allocation.toFixed(6)} BTC</td>
+                <td class="mono">${t.currentValue.toFixed(6)} BTC</td>
+                <td class="mono green">$${t.volumeGenerated24h.toFixed(2)}</td>
+                <td class="mono ${t.tokenAppreciationPercent >= 0 ? 'green' : 'red'}">
+                  ${t.tokenAppreciationPercent >= 0 ? '+' : ''}${t.tokenAppreciationPercent.toFixed(2)}%
                 </td>
-                <td class="mono ${totalPnL >= 0 ? 'green' : 'red'}">
-                  ${totalPnL >= 0 ? '+' : ''}${totalPnL.toFixed(6)} BTC
-                </td>
-                <td class="mono ${apy >= 0 ? 'green' : 'red'}">
-                  ${apy.toFixed(1)}%
+                <td class="mono ${t.pnl >= 0 ? 'green' : 'red'}">
+                  ${t.pnl >= 0 ? '+' : ''}${t.pnl.toFixed(6)} BTC
                 </td>
                 <td>
                   <span style="display:inline-block;padding:0.25rem 0.5rem;border-radius:4px;font-size:0.75rem;
-                    background:${p.status === 'active' ? 'rgba(0,255,136,0.2)' : 'rgba(255,215,0,0.2)'};
-                    color:${p.status === 'active' ? 'var(--green)' : 'var(--yellow)'}">
-                    ${p.status}
+                    background:${t.running ? 'rgba(0,255,136,0.2)' : 'rgba(255,215,0,0.2)'};
+                    color:${t.running ? 'var(--green)' : 'var(--yellow)'}">
+                    ${t.running ? 'Running' : 'Paused'}
                   </span>
                 </td>
                 <td>
-                  <button onclick="withdrawMM(${i})" 
+                  <button onclick="toggleVolumeBotPause('${t.ticker}', ${t.running})" 
+                    style="padding:0.25rem 0.75rem;background:${t.running ? 'var(--yellow)' : 'var(--green)'};border:none;
+                    border-radius:6px;color:black;cursor:pointer;font-size:0.8rem;margin-right:0.5rem">
+                    ${t.running ? 'Pause' : 'Resume'}
+                  </button>
+                  <button onclick="withdrawVolumeBot('${t.ticker}')" 
                     style="padding:0.25rem 0.75rem;background:var(--miami-orange);border:none;
-                    border-radius:6px;color:white;cursor:pointer;font-size:0.85rem">
+                    border-radius:6px;color:white;cursor:pointer;font-size:0.8rem">
                     Withdraw
                   </button>
                 </td>
               </tr>
-            `;
-            }).join('')}
+            `).join('')}
           </tbody>
         </table>
+        
+        <!-- Recent Trades -->
+        ${recentTrades && recentTrades.length > 0 ? `
+          <div style="margin-top: 1.5rem;">
+            <h3 style="margin-bottom: 1rem;">Recent Trades</h3>
+            <div style="max-height: 200px; overflow-y: auto;">
+              ${recentTrades.map(t => `
+                <div style="display: flex; justify-content: space-between; padding: 0.5rem; border-bottom: 1px solid var(--glass-border); font-size: 0.85rem;">
+                  <span>${new Date(t.timestamp).toLocaleTimeString()}</span>
+                  <span class="mono">$${t.volumeUSD?.toFixed(2) || t.volume?.toFixed(2) || '0.00'}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
       `;
+      
       container.innerHTML = html;
+    }
+    
+    async function toggleVolumeBotPause(ticker, isRunning) {
+      const userAddress = S.tradingAddress || S.userAddress;
+      const action = isRunning ? 'pause' : 'resume';
+      
+      try {
+        const response = await fetch(`/api/volume-bot/${action}/${userAddress}/${ticker}`, {
+          method: 'POST'
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+          toast(`Volume Bot ${action}d for ${ticker}`, 'success');
+          await refreshVolumeBotDashboard();
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (error) {
+        toast(`Failed to ${action} bot: ${error.message}`, 'error');
+      }
+    }
+    
+    async function withdrawVolumeBot(ticker) {
+      const userAddress = S.tradingAddress || S.userAddress;
+      
+      if (!confirm(`Withdraw all funds from ${ticker} Volume Bot?`)) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/volume-bot/withdraw/${userAddress}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticker })
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+          toast(`Withdrew from ${ticker} Volume Bot`, 'success');
+          
+          // Remove from local state
+          mmState.positions = mmState.positions.filter(p => p.ticker !== ticker);
+          saveMMLoc();
+          
+          await refreshVolumeBotDashboard();
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (error) {
+        toast(`Failed to withdraw: ${error.message}`, 'error');
+      }
+    }
+
+    function renderMMPositions() {
+      // If we have local positions, try to fetch real data from Volume Bot API
+      if (mmState.positions.length > 0) {
+        startVolumeMetricsPolling();
+        return; // Dashboard will be rendered by refreshVolumeBotDashboard
+      }
+      
+      // No positions - show empty state
+      const container = document.getElementById('mmPositions');
+      container.innerHTML = `
+        <div class="mm-empty-state">
+          <span style="font-size:3rem">💼</span>
+          <p>No active Volume Bot positions</p>
+          <p class="mm-desc">Deploy capital above to start generating volume</p>
+        </div>
+      `;
     }
 
     function saveMMLoc() {
