@@ -3041,6 +3041,9 @@
         <button class="deposit-copy-btn" onclick="copyDepositAddress()">
           📋 Copy Address
         </button>
+        <p style="text-align: center; color: var(--text-secondary); margin-top: 1rem; font-size: 0.95rem;">
+          💸 Send BTC to your trading wallet to get started!
+        </p>
       </div>
       
       <div class="deposit-warnings">
@@ -3049,7 +3052,7 @@
           <li><strong>Only send Bitcoin (BTC)</strong> to this address. Do NOT send Runes, tokens, or NFTs directly.</li>
           <li><strong>Minimum amount:</strong> We recommend depositing at least 0.00005 BTC (~$4) to cover trading fees.</li>
           <li><strong>Network fees:</strong> Your wallet provider will charge Bitcoin network fees for the deposit.</li>
-          <li><strong>Confirmation time:</strong> Deposits require 2-3 Bitcoin blocks to confirm (~20-30 minutes).</li>
+          <li><strong>Confirmation time:</strong> Deposits require 3 Bitcoin block confirmations (~30 minutes).</li>
           <li><strong>This is a 2-of-2 multisig wallet</strong> - RadLabs co-signs transactions for security. You always control withdrawals.</li>
         </ul>
       </div>
@@ -3057,9 +3060,6 @@
       <div class="deposit-modal-actions">
         <button class="deposit-modal-btn secondary" onclick="skipDeposit()">
           I'll Deposit Later
-        </button>
-        <button class="deposit-modal-btn primary" onclick="openDepositInstructions()">
-          📤 How to Deposit
         </button>
       </div>
     </div>
@@ -3069,7 +3069,7 @@
   <div class="page" id="page-profile">
     <div class="profile-container">
       <!-- Deposit CTA Banner -->
-      <div class="deposit-cta-banner" id="depositCTABanner">
+      <div class="deposit-cta-banner" id="depositCTABanner" style="display: none;">
         <div class="deposit-cta-content">
           <div class="deposit-cta-icon">💰</div>
           <div class="deposit-cta-text">
@@ -4946,13 +4946,6 @@ To fund your trading wallet:
       toast('You can deposit anytime from your Profile page', 'info');
     }
     
-    function openDepositInstructions() {
-      hideDepositModal();
-      // Navigate to profile page which has deposit instructions
-      navigate('profile');
-      toast('Visit the "Send/Receive" section to deposit funds', 'info');
-    }
-
     // CLOSE MODALS (including deposit modal)
     document.querySelectorAll('.modal-overlay, .deposit-modal-overlay').forEach(m => {
       m.addEventListener('click', e => { 
