@@ -259,34 +259,156 @@
       box-shadow: 0 4px 20px rgba(255,45,146,0.3);
     }
     
-    /* Balance Display */
-    .balance-display {
-      display: flex;
-      gap: 1.5rem;
-      align-items: center;
-      padding: 0.5rem 1rem;
-      background: rgba(0,0,0,0.3);
-      border-radius: 12px;
+    /* Deposit Modal */
+    .deposit-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      z-index: 10000;
+      backdrop-filter: blur(8px);
+    }
+    
+    .deposit-modal-overlay.active { display: flex; justify-content: center; align-items: center; }
+    
+    .deposit-modal {
+      background: var(--card-bg);
       border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 2.5rem;
+      max-width: 550px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
     }
     
-    .balance-item {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
+    .deposit-modal h2 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--miami-pink), var(--miami-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     
-    .balance-label {
-      font-size: 0.75rem;
+    .deposit-modal p {
       color: var(--text-secondary);
-      margin-bottom: 0.25rem;
+      margin-bottom: 2rem;
+      line-height: 1.6;
     }
     
-    .balance-value {
+    .deposit-address-box {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .deposit-address-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+    
+    .deposit-address-value {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+      word-break: break-all;
       color: var(--text-primary);
+      background: rgba(255,255,255,0.05);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    
+    .deposit-copy-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+      border: 1px solid var(--miami-cyan);
+      border-radius: 12px;
+      color: var(--text-primary);
+      cursor: pointer;
       font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .deposit-copy-btn:hover {
+      background: linear-gradient(135deg, #2d2d2d, #3a3a3a);
+      box-shadow: 0 4px 20px rgba(0,212,255,0.3);
+    }
+    
+    .deposit-warnings {
+      background: rgba(255,107,53,0.1);
+      border: 1px solid rgba(255,107,53,0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .deposit-warnings h3 {
+      color: var(--miami-orange);
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .deposit-warnings ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    
+    .deposit-warnings li {
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      padding-left: 1.5rem;
+      position: relative;
+      line-height: 1.5;
+    }
+    
+    .deposit-warnings li:before {
+      content: "⚠️";
+      position: absolute;
+      left: 0;
+    }
+    
+    .deposit-modal-actions {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .deposit-modal-btn {
+      flex: 1;
+      padding: 1rem;
+      border-radius: 12px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .deposit-modal-btn.primary {
+      background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+      border: 1px solid var(--green);
+      color: var(--text-primary);
+    }
+    
+    .deposit-modal-btn.primary:hover {
+      box-shadow: 0 4px 20px rgba(0,255,136,0.3);
+    }
+    
+    .deposit-modal-btn.secondary {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-secondary);
+    }
+    
+    .deposit-modal-btn.secondary:hover {
+      background: rgba(255,255,255,0.08);
     }
     
     .connect-btn.connected {
@@ -2392,21 +2514,6 @@
       <a href="#" data-page="profile">Profile</a>
     </nav>
     
-    <div class="balance-display" id="balanceDisplay" style="display: none;">
-      <div class="balance-item">
-        <span class="balance-label">BTC Wallet</span>
-        <span class="balance-value" id="btcBalance">0.0000 BTC</span>
-      </div>
-      <div class="balance-item">
-        <span class="balance-label">RadFi Trading</span>
-        <span class="balance-value" id="tradingBalance">-- BTC</span>
-      </div>
-      <div class="balance-item">
-        <span class="balance-label">Positions</span>
-        <span class="balance-value" id="positionCount">0</span>
-      </div>
-    </div>
-    
     <button class="connect-btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
   </header>
 
@@ -2881,6 +2988,42 @@
     </div>
   </div>
 
+  <!-- Deposit Modal -->
+  <div class="deposit-modal-overlay" id="depositModal">
+    <div class="deposit-modal">
+      <h2>💰 Fund Your Trading Wallet</h2>
+      <p>Your RadLabs trading wallet has been created! To start trading, you'll need to deposit BTC to this address:</p>
+      
+      <div class="deposit-address-box">
+        <label class="deposit-address-label">Your Trading Wallet Address</label>
+        <div class="deposit-address-value" id="depositAddress">Loading...</div>
+        <button class="deposit-copy-btn" onclick="copyDepositAddress()">
+          📋 Copy Address
+        </button>
+      </div>
+      
+      <div class="deposit-warnings">
+        <h3>⚠️ Important Safety Guidelines</h3>
+        <ul>
+          <li><strong>Only send Bitcoin (BTC)</strong> to this address. Do NOT send Runes, tokens, or NFTs directly.</li>
+          <li><strong>Minimum amount:</strong> We recommend depositing at least 0.001 BTC ($78+) to cover trading fees.</li>
+          <li><strong>Network fees:</strong> Your wallet provider will charge Bitcoin network fees for the deposit.</li>
+          <li><strong>Confirmation time:</strong> Deposits typically confirm within 10-30 minutes depending on network congestion.</li>
+          <li><strong>This is a 2-of-2 multisig wallet</strong> - RadLabs co-signs transactions for security. You always control withdrawals.</li>
+        </ul>
+      </div>
+      
+      <div class="deposit-modal-actions">
+        <button class="deposit-modal-btn secondary" onclick="skipDeposit()">
+          I'll Deposit Later
+        </button>
+        <button class="deposit-modal-btn primary" onclick="openDepositInstructions()">
+          📤 How to Deposit
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- PROFILE PAGE -->
   <div class="page" id="page-profile">
     <div class="profile-container">
@@ -2913,10 +3056,6 @@
               <div class="wallet-row">
                 <span class="wallet-label">RadFi Trading Wallet</span>
                 <span class="wallet-value" id="profileTradingWallet">Not created</span>
-              </div>
-              <div class="wallet-disclosure">
-                <span class="disclosure-icon">ℹ️</span>
-                <span class="disclosure-text">This is your RadFi 2-of-2 multisig trading wallet. Same as RadFi.co</span>
               </div>
               <div class="wallet-row">
                 <span class="wallet-label">Trading Balance</span>
@@ -3984,21 +4123,39 @@ async function fetchRealChartData(token, timeframeMinutes) {
             
             const walletsData = await walletsResponse.json();
             console.log('[Auth] All wallets response:', walletsData);
+            console.log('[Auth] Total wallets returned:', walletsData.data?.length);
             
             if (walletsData.code === '1' && walletsData.data && walletsData.data.length > 0) {
+              // Debug: Log all wallets to see what we're working with
+              console.log('[Auth] === ANALYZING ALL WALLETS ===');
+              walletsData.data.forEach((w, i) => {
+                const matchStatus = w.userAddress === userAddress ? '✅ MATCH' : '❌';
+                console.log(`[Auth] Wallet ${i + 1}: ${matchStatus}`);
+                console.log(`  tradingAddress: ${w.tradingAddress}`);
+                console.log(`  userAddress: ${w.userAddress}`);
+                console.log(`  createdAt: ${new Date(w.createdAt).toLocaleString()} (${w.createdAt})`);
+              });
+              
               // Filter wallets for this user and sort by createdAt (oldest first)
               const userWallets = walletsData.data
                 .filter(w => w.userAddress === userAddress)
                 .sort((a, b) => a.createdAt - b.createdAt);
               
+              console.log(`[Auth] Filtered to ${userWallets.length} wallet(s) for user ${userAddress.slice(0, 10)}...`);
+              
               if (userWallets.length > 0) {
+                console.log('[Auth] === USER WALLETS (sorted oldest → newest) ===');
+                userWallets.forEach((w, i) => {
+                  console.log(`[Auth] ${i + 1}. ${w.tradingAddress} (${new Date(w.createdAt).toLocaleString()})`);
+                });
+                
                 correctedAddress = userWallets[0].tradingAddress;
-                console.log(`[Auth] ✅ Found ${userWallets.length} wallet(s) for user`);
                 console.log(`[Auth] 🎯 Using OLDEST wallet: ${correctedAddress}`);
-                console.log(`[Auth] Created:`, new Date(userWallets[0].createdAt).toLocaleString());
                 
                 // Update state with corrected address
                 S.tradingAddress = correctedAddress;
+              } else {
+                console.error('[Auth] ⚠️ No wallets found for this user! This shouldn\'t happen.');
               }
             }
           } catch (err) {
@@ -4032,20 +4189,16 @@ async function fetchRealChartData(token, timeframeMinutes) {
         document.getElementById('tradeBtn').disabled = false;
         document.getElementById('tradeBtn').textContent = S.mode === 'buy' ? 'Buy' : 'Sell';
         
-        // Show balance display
-        document.getElementById('balanceDisplay').style.display = 'flex';
-        
         if (isExistingWallet) {
-          toast(`✅ Synced your RadFi wallet: ${S.tradingAddress.slice(0, 10)}...`, 'success');
+          toast(`✅ Welcome back! Trading wallet synced.`, 'success');
+          // Existing wallet - fetch balance and positions
+          await fetchTradingWalletBalance();
+          setTimeout(() => syncExistingPositions(), 2000);
         } else {
-          toast(`✅ Trading wallet created: ${S.tradingAddress.slice(0, 10)}...`, 'success');
+          // New wallet created - show deposit prompt
+          toast(`✅ Trading wallet created!`, 'success');
+          setTimeout(() => showDepositModal(), 1000);
         }
-        
-        // Step 6: Fetch and display wallet balance
-        await fetchTradingWalletBalance();
-        
-        // Step 7: Sync existing RadFi positions (if any)
-        setTimeout(() => syncExistingPositions(), 2000);
         
       } catch (e) {
         console.error('Wallet connection error:', e);
@@ -4707,7 +4860,51 @@ To fund your trading wallet:
       setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    // CLOSE MODALS
+    // DEPOSIT MODAL FUNCTIONS
+    function showDepositModal() {
+      if (!S.tradingAddress) {
+        toast('No trading wallet address available', 'error');
+        return;
+      }
+      
+      document.getElementById('depositAddress').textContent = S.tradingAddress;
+      document.getElementById('depositModal').classList.add('active');
+    }
+    
+    function hideDepositModal() {
+      document.getElementById('depositModal').classList.remove('active');
+    }
+    
+    async function copyDepositAddress() {
+      try {
+        await navigator.clipboard.writeText(S.tradingAddress);
+        toast('✅ Address copied to clipboard!', 'success');
+      } catch (err) {
+        console.error('Copy failed:', err);
+        toast('Failed to copy address', 'error');
+      }
+    }
+    
+    function skipDeposit() {
+      hideDepositModal();
+      toast('You can deposit anytime from your Profile page', 'info');
+    }
+    
+    function openDepositInstructions() {
+      hideDepositModal();
+      // Navigate to profile page which has deposit instructions
+      navigate('profile');
+      toast('Visit the "Send/Receive" section to deposit funds', 'info');
+    }
+
+    // CLOSE MODALS (including deposit modal)
+    document.querySelectorAll('.modal-overlay, .deposit-modal-overlay').forEach(m => {
+      m.addEventListener('click', e => { 
+        if (e.target === m) {
+          m.classList.remove('active');
+        }
+      });
+    });
     document.querySelectorAll('.modal-overlay').forEach(m => {
       m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
     });

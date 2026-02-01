@@ -259,34 +259,156 @@
       box-shadow: 0 4px 20px rgba(255,45,146,0.3);
     }
     
-    /* Balance Display */
-    .balance-display {
-      display: flex;
-      gap: 1.5rem;
-      align-items: center;
-      padding: 0.5rem 1rem;
-      background: rgba(0,0,0,0.3);
-      border-radius: 12px;
+    /* Deposit Modal */
+    .deposit-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      z-index: 10000;
+      backdrop-filter: blur(8px);
+    }
+    
+    .deposit-modal-overlay.active { display: flex; justify-content: center; align-items: center; }
+    
+    .deposit-modal {
+      background: var(--card-bg);
       border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 2.5rem;
+      max-width: 550px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
     }
     
-    .balance-item {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
+    .deposit-modal h2 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--miami-pink), var(--miami-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     
-    .balance-label {
-      font-size: 0.75rem;
+    .deposit-modal p {
       color: var(--text-secondary);
-      margin-bottom: 0.25rem;
+      margin-bottom: 2rem;
+      line-height: 1.6;
     }
     
-    .balance-value {
+    .deposit-address-box {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .deposit-address-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+    
+    .deposit-address-value {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+      word-break: break-all;
       color: var(--text-primary);
+      background: rgba(255,255,255,0.05);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    
+    .deposit-copy-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+      border: 1px solid var(--miami-cyan);
+      border-radius: 12px;
+      color: var(--text-primary);
+      cursor: pointer;
       font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .deposit-copy-btn:hover {
+      background: linear-gradient(135deg, #2d2d2d, #3a3a3a);
+      box-shadow: 0 4px 20px rgba(0,212,255,0.3);
+    }
+    
+    .deposit-warnings {
+      background: rgba(255,107,53,0.1);
+      border: 1px solid rgba(255,107,53,0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .deposit-warnings h3 {
+      color: var(--miami-orange);
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .deposit-warnings ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    
+    .deposit-warnings li {
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      padding-left: 1.5rem;
+      position: relative;
+      line-height: 1.5;
+    }
+    
+    .deposit-warnings li:before {
+      content: "⚠️";
+      position: absolute;
+      left: 0;
+    }
+    
+    .deposit-modal-actions {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .deposit-modal-btn {
+      flex: 1;
+      padding: 1rem;
+      border-radius: 12px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .deposit-modal-btn.primary {
+      background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+      border: 1px solid var(--green);
+      color: var(--text-primary);
+    }
+    
+    .deposit-modal-btn.primary:hover {
+      box-shadow: 0 4px 20px rgba(0,255,136,0.3);
+    }
+    
+    .deposit-modal-btn.secondary {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-secondary);
+    }
+    
+    .deposit-modal-btn.secondary:hover {
+      background: rgba(255,255,255,0.08);
     }
     
     .connect-btn.connected {
@@ -1508,6 +1630,423 @@
       color: var(--text-primary);
     }
     
+    /* ===== PROFILE PAGE ===== */
+    .profile-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .profile-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .profile-header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--miami-pink), var(--miami-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .profile-header p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+    
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .profile-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 0;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+    
+    .profile-card:hover {
+      border-color: rgba(255,255,255,0.12);
+      transform: translateY(-2px);
+    }
+    
+    .profile-card.full-width {
+      grid-column: 1 / -1;
+    }
+    
+    .profile-card-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .profile-card-header h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .profile-card-body {
+      padding: 1.5rem;
+    }
+    
+    .wallet-info {
+      margin-bottom: 1rem;
+    }
+    
+    .wallet-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .wallet-row:last-child {
+      border-bottom: none;
+    }
+    
+    .wallet-label {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+    
+    .wallet-value {
+      color: var(--text-primary);
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      word-break: break-all;
+      text-align: right;
+      max-width: 60%;
+    }
+    
+    .wallet-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      margin: 1.5rem 0;
+    }
+    
+    .wallet-disclosure {
+      background: rgba(0,212,255,0.05);
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin: 1rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .disclosure-icon {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    
+    .disclosure-text {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+    
+    .transfer-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .transfer-tab {
+      flex: 1;
+      padding: 0.75rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .transfer-tab:hover {
+      background: rgba(255,255,255,0.08);
+      color: var(--text-primary);
+    }
+    
+    .transfer-tab.active {
+      background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+      border: 2px solid transparent;
+      background-image: 
+        linear-gradient(135deg, #1a1a1a, #2d2d2d),
+        linear-gradient(135deg, var(--miami-pink), var(--miami-cyan));
+      background-origin: border-box;
+      background-clip: padding-box, border-box;
+      color: var(--text-primary);
+    }
+    
+    .transfer-content label {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .address-display {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 0.5rem 0;
+    }
+    
+    .address-display span {
+      flex: 1;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      word-break: break-all;
+      color: var(--text-primary);
+    }
+    
+    .copy-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    
+    .copy-btn:hover {
+      background: rgba(255,255,255,0.15);
+      transform: scale(1.05);
+    }
+    
+    .transfer-note {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 0.75rem;
+      font-style: italic;
+    }
+    
+    .profile-input {
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 0.75rem;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      font-family: 'JetBrains Mono', monospace;
+      transition: all 0.2s;
+    }
+    
+    .profile-input:focus {
+      outline: none;
+      border-color: var(--miami-cyan);
+      box-shadow: 0 0 0 2px rgba(0,212,255,0.1);
+    }
+    
+    .profile-btn {
+      font-family: inherit;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+    
+    .profile-btn.primary {
+      background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+      color: white;
+      background-image: 
+        linear-gradient(135deg, #1a1a1a, #2d2d2d),
+        linear-gradient(135deg, var(--miami-pink), var(--miami-cyan));
+      background-origin: border-box;
+      background-clip: padding-box, border-box;
+    }
+    
+    .profile-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,212,255,0.3);
+    }
+    
+    .profile-btn.secondary {
+      background: rgba(255,255,255,0.05);
+      color: var(--text-primary);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .profile-btn.secondary:hover {
+      background: rgba(255,255,255,0.08);
+    }
+    
+    .holdings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .holdings-empty {
+      text-align: center;
+      color: var(--text-secondary);
+      padding: 2rem;
+      font-style: italic;
+    }
+    
+    .holding-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 10px;
+      transition: all 0.2s;
+    }
+    
+    .holding-item:hover {
+      background: rgba(255,255,255,0.04);
+      border-color: rgba(255,255,255,0.1);
+    }
+    
+    .holding-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .holding-icon {
+      font-size: 2rem;
+    }
+    
+    .holding-details h3 {
+      margin: 0 0 0.25rem 0;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+    }
+    
+    .holding-details p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    
+    .holding-balance {
+      text-align: right;
+    }
+    
+    .holding-amount {
+      font-size: 1.2rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-primary);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    
+    .holding-usd {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    
+    .mm-positions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .mm-position-item {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 1rem;
+      transition: all 0.2s;
+    }
+    
+    .mm-position-item:hover {
+      background: rgba(255,255,255,0.04);
+      border-color: rgba(255,255,255,0.1);
+    }
+    
+    .mm-position-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .mm-position-token {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .mm-position-status {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .mm-position-status.active {
+      background: rgba(0,255,136,0.1);
+      color: var(--green);
+      border: 1px solid var(--green);
+    }
+    
+    .mm-position-status.pending {
+      background: rgba(255,217,61,0.1);
+      color: var(--yellow);
+      border: 1px solid var(--yellow);
+    }
+    
+    .mm-position-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+    
+    .mm-position-stat {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .mm-position-stat-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+    }
+    
+    .mm-position-stat-value {
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-primary);
+    }
+    
+    .mm-position-stat-value.positive {
+      color: var(--green);
+    }
+    
+    .mm-position-stat-value.negative {
+      color: var(--red);
+    }
+    
     /* Toggle Switch */
     .toggle-switch {
       position: relative;
@@ -1972,22 +2511,8 @@
       <a href="#" data-page="tokens">Tokens</a>
       <a href="#" data-page="radpad">RadPad</a>
       <a href="#" data-page="market-maker">Market Maker</a>
+      <a href="#" data-page="profile">Profile</a>
     </nav>
-    
-    <div class="balance-display" id="balanceDisplay" style="display: none;">
-      <div class="balance-item">
-        <span class="balance-label">BTC Wallet</span>
-        <span class="balance-value" id="btcBalance">0.0000 BTC</span>
-      </div>
-      <div class="balance-item">
-        <span class="balance-label">RadFi Trading</span>
-        <span class="balance-value" id="tradingBalance">-- BTC</span>
-      </div>
-      <div class="balance-item">
-        <span class="balance-label">Positions</span>
-        <span class="balance-value" id="positionCount">0</span>
-      </div>
-    </div>
     
     <button class="connect-btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
   </header>
@@ -2460,6 +2985,164 @@
         <input type="text" placeholder="Search..." oninput="filterModal(this.value)" style="width:100%">
       </div>
       <div id="tokenModalList" style="max-height:400px;overflow-y:auto"></div>
+    </div>
+  </div>
+
+  <!-- Deposit Modal -->
+  <div class="deposit-modal-overlay" id="depositModal">
+    <div class="deposit-modal">
+      <h2>💰 Fund Your Trading Wallet</h2>
+      <p>Your RadLabs trading wallet has been created! To start trading, you'll need to deposit BTC to this address:</p>
+      
+      <div class="deposit-address-box">
+        <label class="deposit-address-label">Your Trading Wallet Address</label>
+        <div class="deposit-address-value" id="depositAddress">Loading...</div>
+        <button class="deposit-copy-btn" onclick="copyDepositAddress()">
+          📋 Copy Address
+        </button>
+      </div>
+      
+      <div class="deposit-warnings">
+        <h3>⚠️ Important Safety Guidelines</h3>
+        <ul>
+          <li><strong>Only send Bitcoin (BTC)</strong> to this address. Do NOT send Runes, tokens, or NFTs directly.</li>
+          <li><strong>Minimum amount:</strong> We recommend depositing at least 0.001 BTC ($78+) to cover trading fees.</li>
+          <li><strong>Network fees:</strong> Your wallet provider will charge Bitcoin network fees for the deposit.</li>
+          <li><strong>Confirmation time:</strong> Deposits typically confirm within 10-30 minutes depending on network congestion.</li>
+          <li><strong>This is a 2-of-2 multisig wallet</strong> - RadLabs co-signs transactions for security. You always control withdrawals.</li>
+        </ul>
+      </div>
+      
+      <div class="deposit-modal-actions">
+        <button class="deposit-modal-btn secondary" onclick="skipDeposit()">
+          I'll Deposit Later
+        </button>
+        <button class="deposit-modal-btn primary" onclick="openDepositInstructions()">
+          📤 How to Deposit
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE PAGE -->
+  <div class="page" id="page-profile">
+    <div class="profile-container">
+      <div class="profile-header">
+        <h1>👤 Profile</h1>
+        <p>Manage your wallets, balances, and positions</p>
+      </div>
+
+      <div class="profile-grid">
+        <!-- Wallet Status Card -->
+        <div class="profile-card">
+          <div class="profile-card-header">
+            <h2>💼 Wallet Status</h2>
+          </div>
+          <div class="profile-card-body">
+            <div class="wallet-info">
+              <div class="wallet-row">
+                <span class="wallet-label">Connected Wallet</span>
+                <span class="wallet-value" id="profileConnectedWallet">Not connected</span>
+              </div>
+              <div class="wallet-row">
+                <span class="wallet-label">BTC Balance</span>
+                <span class="wallet-value" id="profileBTCBalance">-- BTC</span>
+              </div>
+            </div>
+
+            <div class="wallet-divider"></div>
+
+            <div class="wallet-info">
+              <div class="wallet-row">
+                <span class="wallet-label">RadFi Trading Wallet</span>
+                <span class="wallet-value" id="profileTradingWallet">Not created</span>
+              </div>
+              <div class="wallet-row">
+                <span class="wallet-label">Trading Balance</span>
+                <span class="wallet-value" id="profileTradingBalance">-- BTC</span>
+              </div>
+              <div id="createTradingWalletSection" style="display:none; margin-top: 1rem;">
+                <button class="profile-btn primary" onclick="createTradingWallet()">Create Trading Wallet</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Send/Receive Card -->
+        <div class="profile-card">
+          <div class="profile-card-header">
+            <h2>💸 Send / Receive</h2>
+          </div>
+          <div class="profile-card-body">
+            <div class="transfer-tabs">
+              <button class="transfer-tab active" onclick="switchTransferTab('receive')">Receive</button>
+              <button class="transfer-tab" onclick="switchTransferTab('send')">Send</button>
+            </div>
+
+            <div class="transfer-content" id="receiveTab">
+              <div class="receive-section">
+                <label>Your Trading Wallet Address</label>
+                <div class="address-display">
+                  <span id="receiveAddress">--</span>
+                  <button class="copy-btn" onclick="copyAddress()">📋</button>
+                </div>
+                <p class="transfer-note">Send BTC or Runes to this address to fund your trading wallet</p>
+              </div>
+            </div>
+
+            <div class="transfer-content" id="sendTab" style="display:none;">
+              <div class="send-section">
+                <label>Asset Type</label>
+                <select id="sendAssetType" class="profile-input" onchange="updateSendForm()">
+                  <option value="btc">Bitcoin (BTC)</option>
+                  <option value="rune">Rune Token</option>
+                </select>
+
+                <div id="sendRuneSelector" style="display:none; margin-top: 1rem;">
+                  <label>Select Rune</label>
+                  <select id="sendRuneToken" class="profile-input">
+                    <option value="">-- Choose Token --</option>
+                  </select>
+                </div>
+
+                <label style="margin-top: 1rem;">Recipient Address</label>
+                <input type="text" id="sendRecipient" class="profile-input" placeholder="bc1...">
+
+                <label style="margin-top: 1rem;">Amount</label>
+                <input type="number" id="sendAmount" class="profile-input" placeholder="0.001" step="0.00000001">
+
+                <button class="profile-btn primary" style="margin-top: 1rem;" onclick="sendFunds()">Send</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Token Holdings Card -->
+        <div class="profile-card full-width">
+          <div class="profile-card-header">
+            <h2>🪙 Token Holdings</h2>
+            <button class="profile-btn secondary" onclick="refreshHoldings()">🔄 Refresh</button>
+          </div>
+          <div class="profile-card-body">
+            <div id="tokenHoldingsList" class="holdings-list">
+              <p class="holdings-empty">Loading holdings...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- MM Positions Card -->
+        <div class="profile-card full-width">
+          <div class="profile-card-header">
+            <h2>📊 Market Maker Positions</h2>
+            <button class="profile-btn secondary" onclick="refreshMMPositions()">🔄 Refresh</button>
+          </div>
+          <div class="profile-card-body">
+            <div id="mmPositionsList" class="mm-positions-list">
+              <p class="holdings-empty">Loading positions...</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -3357,9 +4040,11 @@ async function fetchRealChartData(token, timeframeMinutes) {
         S.publicKey = publicKey;
         S.walletType = type;
         
-        toast('Signing authentication message...', 'info');
+        console.log(`[Auth] Connected wallet: ${userAddress}`);
         
         // Step 2: Sign message for BIP322 authentication
+        toast('Signing authentication message...', 'info');
+        
         const message = Date.now().toString();
         let signature = null;
         
@@ -3380,9 +4065,9 @@ async function fetchRealChartData(token, timeframeMinutes) {
           return;
         }
         
-        toast('Creating RadFi trading wallet...', 'info');
+        // Step 3: Authenticate with RadFi API (this returns your original trading wallet!)
+        toast('Authenticating with RadFi...', 'info');
         
-        // Step 3: Authenticate with RadFi API (creates/retrieves trading wallet)
         const authResponse = await fetch('/api/auth/authenticate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -3396,19 +4081,96 @@ async function fetchRealChartData(token, timeframeMinutes) {
         
         const authData = await authResponse.json();
         
-        if (!authData.success) {
+        console.log('[Auth] === FULL AUTH RESPONSE ===');
+        console.log(JSON.stringify(authData, null, 2));
+        console.log('[Auth] ========================');
+        
+        if (authData.code !== '1' || !authData.data) {
           toast('Authentication failed: ' + (authData.message || 'Unknown error'), 'error');
+          console.error('[Auth] Failed response:', authData);
           return;
         }
         
-        // Step 4: Store tokens and trading wallet address
+        // Step 4: RadFi auth response contains the tradingAddress (your original wallet!)
         S.accessToken = authData.data.accessToken;
         S.refreshToken = authData.data.refreshToken;
-        S.tradingAddress = authData.data.tradingAddress;
+        S.tradingAddress = authData.data.tradingAddress; // This is the source of truth!
         S.walletData = authData.data.wallet;
         
-        // Check if this is an existing wallet (created on RadFi before)
         const isExistingWallet = authData.data.wallet && authData.data.wallet.createdAt < (Date.now() - 60000);
+        
+        console.log(`[Auth] ✅ Authenticated! Trading wallet: ${S.tradingAddress}`);
+        console.log(`[Auth] User wallet: ${userAddress}`);
+        console.log(`[Auth] Wallet created:`, new Date(authData.data.wallet?.createdAt).toLocaleString());
+        console.log(`[Auth] Access token:`, S.accessToken ? 'SET' : 'MISSING');
+        
+        // CRITICAL: Verify we're using the RIGHT address
+        // If auth returned wrong wallet, query ALL wallets and find the OLDEST one
+        let correctedAddress = S.tradingAddress;
+        
+        if (S.tradingAddress === 'bc1pswy3y5vkcsdrp0t34r0nq0t8u8zvtlucddlpy4cwyfh3kld7pzssglrnzw') {
+          console.error('[Auth] ❌❌❌ WRONG WALLET! Auth returned the incorrect wallet!');
+          console.log('[Auth] 🔄 Querying all wallets to find your original one...');
+          
+          try {
+            // Query all wallets with proper authentication
+            const walletsResponse = await fetch('/api/wallets', {
+              headers: {
+                'Authorization': `Bearer ${S.accessToken}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            const walletsData = await walletsResponse.json();
+            console.log('[Auth] All wallets response:', walletsData);
+            console.log('[Auth] Total wallets returned:', walletsData.data?.length);
+            
+            if (walletsData.code === '1' && walletsData.data && walletsData.data.length > 0) {
+              // Debug: Log all wallets to see what we're working with
+              console.log('[Auth] === ANALYZING ALL WALLETS ===');
+              walletsData.data.forEach((w, i) => {
+                const matchStatus = w.userAddress === userAddress ? '✅ MATCH' : '❌';
+                console.log(`[Auth] Wallet ${i + 1}: ${matchStatus}`);
+                console.log(`  tradingAddress: ${w.tradingAddress}`);
+                console.log(`  userAddress: ${w.userAddress}`);
+                console.log(`  createdAt: ${new Date(w.createdAt).toLocaleString()} (${w.createdAt})`);
+              });
+              
+              // Filter wallets for this user and sort by createdAt (oldest first)
+              const userWallets = walletsData.data
+                .filter(w => w.userAddress === userAddress)
+                .sort((a, b) => a.createdAt - b.createdAt);
+              
+              console.log(`[Auth] Filtered to ${userWallets.length} wallet(s) for user ${userAddress.slice(0, 10)}...`);
+              
+              if (userWallets.length > 0) {
+                console.log('[Auth] === USER WALLETS (sorted oldest → newest) ===');
+                userWallets.forEach((w, i) => {
+                  console.log(`[Auth] ${i + 1}. ${w.tradingAddress} (${new Date(w.createdAt).toLocaleString()})`);
+                });
+                
+                correctedAddress = userWallets[0].tradingAddress;
+                console.log(`[Auth] 🎯 Using OLDEST wallet: ${correctedAddress}`);
+                
+                // Update state with corrected address
+                S.tradingAddress = correctedAddress;
+              } else {
+                console.error('[Auth] ⚠️ No wallets found for this user! This shouldn\'t happen.');
+              }
+            }
+          } catch (err) {
+            console.error('[Auth] Failed to query all wallets:', err);
+          }
+        }
+        
+        // Final verification
+        if (S.tradingAddress === 'bc1prjkny0jxeax3pxne92vqjqgjgk80atvp33uzwz9g9rk9h78zul4q8kkw79') {
+          console.log('[Auth] ✅✅✅ CORRECT WALLET DETECTED!');
+        } else if (S.tradingAddress === 'bc1pswy3y5vkcsdrp0t34r0nq0t8u8zvtlucddlpy4cwyfh3kld7pzssglrnzw') {
+          console.error('[Auth] ❌❌❌ STILL WRONG WALLET AFTER CORRECTION ATTEMPT!');
+        } else {
+          console.warn('[Auth] ⚠️ Unknown wallet:', S.tradingAddress);
+        }
         
         // Save to localStorage
         localStorage.setItem('radfi_auth', JSON.stringify({
@@ -3428,16 +4190,15 @@ async function fetchRealChartData(token, timeframeMinutes) {
         document.getElementById('tradeBtn').textContent = S.mode === 'buy' ? 'Buy' : 'Sell';
         
         if (isExistingWallet) {
-          toast(`✅ Synced existing RadFi wallet: ${S.tradingAddress.slice(0, 10)}...`, 'success');
+          toast(`✅ Welcome back! Trading wallet synced.`, 'success');
+          // Existing wallet - fetch balance and positions
+          await fetchTradingWalletBalance();
+          setTimeout(() => syncExistingPositions(), 2000);
         } else {
-          toast(`✅ Trading wallet ready: ${S.tradingAddress.slice(0, 10)}...`, 'success');
+          // New wallet created - show deposit prompt
+          toast(`✅ Trading wallet created!`, 'success');
+          setTimeout(() => showDepositModal(), 1000);
         }
-        
-        // Step 5: Fetch and display wallet balance
-        await fetchTradingWalletBalance();
-        
-        // Step 6: Sync existing RadFi positions (if any)
-        setTimeout(() => syncExistingPositions(), 2000);
         
       } catch (e) {
         console.error('Wallet connection error:', e);
@@ -3654,6 +4415,19 @@ To fund your trading wallet:
       if (stored) {
         try {
           const auth = JSON.parse(stored);
+          
+          console.log('[Restore] === RESTORING FROM LOCALSTORAGE ===');
+          console.log('[Restore] User address:', auth.userAddress);
+          console.log('[Restore] Trading address:', auth.tradingAddress);
+          
+          // CRITICAL: Check if this is the WRONG wallet
+          if (auth.tradingAddress === 'bc1pswy3y5vkcsdrp0t34r0nq0t8u8zvtlucddlpy4cwyfh3kld7pzssglrnzw') {
+            console.error('[Restore] ❌ WRONG WALLET IN LOCALSTORAGE! Clearing and forcing re-auth...');
+            localStorage.removeItem('radfi_auth');
+            toast('Cached wallet was incorrect. Please reconnect.', 'info');
+            return;
+          }
+          
           S.userAddress = auth.userAddress;
           S.tradingAddress = auth.tradingAddress;
           S.publicKey = auth.publicKey;
@@ -3668,7 +4442,7 @@ To fund your trading wallet:
           document.getElementById('tradeBtn').disabled = false;
           document.getElementById('tradeBtn').textContent = S.mode === 'buy' ? 'Buy' : 'Sell';
           
-          console.log('Session restored. Trading wallet:', S.tradingAddress);
+          console.log('[Restore] ✅ Session restored. Trading wallet:', S.tradingAddress);
           
           // Fetch balance for restored session
           fetchTradingWalletBalance();
@@ -3678,10 +4452,351 @@ To fund your trading wallet:
             if (S.tokens.length > 0) syncExistingPositions();
           }, 3000);
         } catch (e) {
-          console.error('Failed to restore session:', e);
+          console.error('[Restore] Failed to restore session:', e);
           localStorage.removeItem('radfi_auth');
         }
+      } else {
+        console.log('[Restore] No stored session found');
       }
+    }
+    
+    // DEBUGGING: Global function to completely reset everything
+    window.radlabsReset = function() {
+      console.log('[Reset] Clearing ALL storage and state...');
+      localStorage.clear();
+      sessionStorage.clear();
+      S.userAddress = null;
+      S.tradingAddress = null;
+      S.publicKey = null;
+      S.walletType = null;
+      S.accessToken = null;
+      S.refreshToken = null;
+      S.walletData = null;
+      console.log('[Reset] ✅ Done! Reload page: location.reload(true)');
+    };
+    
+    // DEBUGGING: Check current state
+    window.radlabsDebug = function() {
+      console.log('=== RADLABS DEBUG ===');
+      console.log('User Address:', S.userAddress);
+      console.log('Trading Address:', S.tradingAddress);
+      console.log('Wallet Type:', S.walletType);
+      console.log('Access Token:', S.accessToken ? 'SET' : 'NOT SET');
+      console.log('\n=== LOCALSTORAGE ===');
+      const stored = localStorage.getItem('radfi_auth');
+      if (stored) {
+        const auth = JSON.parse(stored);
+        console.log('Stored User:', auth.userAddress);
+        console.log('Stored Trading:', auth.tradingAddress);
+      } else {
+        console.log('No stored auth');
+      }
+      console.log('\n=== VERIFICATION ===');
+      if (S.tradingAddress === 'bc1prjkny0jxeax3pxne92vqjqgjgk80atvp33uzwz9g9rk9h78zul4q8kkw79') {
+        console.log('✅ CORRECT wallet');
+      } else if (S.tradingAddress === 'bc1pswy3y5vkcsdrp0t34r0nq0t8u8zvtlucddlpy4cwyfh3kld7pzssglrnzw') {
+        console.log('❌ WRONG wallet');
+      } else {
+        console.log('⚠️ Unknown wallet');
+      }
+    };
+
+    // ========== PROFILE PAGE ==========
+    
+    async function loadProfilePage() {
+      if (!S.userAddress) {
+        toast('Please connect your wallet first');
+        return;
+      }
+      
+      // Update wallet addresses
+      document.getElementById('profileConnectedWallet').textContent = 
+        S.userAddress.slice(0, 8) + '...' + S.userAddress.slice(-6);
+      
+      if (S.tradingAddress) {
+        document.getElementById('profileTradingWallet').textContent = 
+          S.tradingAddress.slice(0, 8) + '...' + S.tradingAddress.slice(-6);
+        document.getElementById('receiveAddress').textContent = S.tradingAddress;
+        document.getElementById('createTradingWalletSection').style.display = 'none';
+      } else {
+        document.getElementById('profileTradingWallet').textContent = 'Not created';
+        document.getElementById('receiveAddress').textContent = '--';
+        document.getElementById('createTradingWalletSection').style.display = 'block';
+      }
+      
+      // Load balances
+      await loadWalletBalances();
+      
+      // Load holdings
+      await loadTokenHoldings();
+      
+      // Load MM positions
+      await loadProfileMMPositions();
+    }
+    
+    async function loadWalletBalances() {
+      try {
+        // Load BTC wallet balance via mempool.space API
+        if (S.userAddress) {
+          const res = await fetch(`https://mempool.space/api/address/${S.userAddress}`);
+          const data = await res.json();
+          const btcBalance = (data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum) / 100000000;
+          document.getElementById('profileBTCBalance').textContent = btcBalance.toFixed(8) + ' BTC';
+        }
+        
+        // Load RadFi trading wallet balance
+        if (S.tradingAddress) {
+          const res = await fetch(`https://mempool.space/api/address/${S.tradingAddress}`);
+          const data = await res.json();
+          const tradingBalance = (data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum) / 100000000;
+          document.getElementById('profileTradingBalance').textContent = tradingBalance.toFixed(8) + ' BTC';
+        }
+      } catch (e) {
+        console.error('Failed to load wallet balances:', e);
+        toast('Failed to load balances');
+      }
+    }
+    
+    async function loadTokenHoldings() {
+      const container = document.getElementById('tokenHoldingsList');
+      
+      if (!S.tradingAddress) {
+        container.innerHTML = '<p class="holdings-empty">Create a trading wallet to see token holdings</p>';
+        return;
+      }
+      
+      try {
+        // Fetch LP positions to determine which tokens user has
+        const res = await fetch(`${API}/api/positions?tradingAddress=${S.tradingAddress}`);
+        const result = await res.json();
+        
+        if (!result.data || result.data.length === 0) {
+          container.innerHTML = '<p class="holdings-empty">No token holdings found</p>';
+          return;
+        }
+        
+        // Get unique tokens from positions
+        const tokenIds = new Set();
+        result.data.forEach(pos => {
+          if (pos.token0Id !== '0:0') tokenIds.add(pos.token0Id);
+          if (pos.token1Id !== '0:0') tokenIds.add(pos.token1Id);
+        });
+        
+        // Fetch token details
+        const tokens = S.tokens.filter(t => tokenIds.has(t.tokenId));
+        
+        if (tokens.length === 0) {
+          container.innerHTML = '<p class="holdings-empty">No token holdings found</p>';
+          return;
+        }
+        
+        // Render token holdings
+        container.innerHTML = tokens.map(token => `
+          <div class="holding-item">
+            <div class="holding-info">
+              <div class="holding-icon">${token.emoji || '🪙'}</div>
+              <div class="holding-details">
+                <h3>${token.displayTicker || token.symbol}</h3>
+                <p>${token.spacedRune || token.rune}</p>
+              </div>
+            </div>
+            <div class="holding-balance">
+              <span class="holding-amount">In LP</span>
+              <span class="holding-usd">$${formatNum(token.marketCap)}</span>
+            </div>
+          </div>
+        `).join('');
+        
+      } catch (e) {
+        console.error('Failed to load token holdings:', e);
+        container.innerHTML = '<p class="holdings-empty">Failed to load holdings</p>';
+      }
+    }
+    
+    async function loadProfileMMPositions() {
+      const container = document.getElementById('mmPositionsList');
+      
+      // Load from localStorage
+      const positions = loadMMLoc();
+      
+      if (positions.length === 0) {
+        container.innerHTML = '<p class="holdings-empty">No market maker positions</p>';
+        return;
+      }
+      
+      // Render positions
+      container.innerHTML = positions.map(pos => {
+        const token = S.tokens.find(t => t.tokenId === pos.tokenId);
+        const statusClass = pos.status === 'active' ? 'active' : 'pending';
+        const pnlClass = pos.totalPnL >= 0 ? 'positive' : 'negative';
+        
+        return `
+          <div class="mm-position-item">
+            <div class="mm-position-header">
+              <div class="mm-position-token">${token?.displayTicker || pos.symbol}</div>
+              <div class="mm-position-status ${statusClass}">${pos.status.toUpperCase()}</div>
+            </div>
+            <div class="mm-position-stats">
+              <div class="mm-position-stat">
+                <span class="mm-position-stat-label">Deposited</span>
+                <span class="mm-position-stat-value">${pos.deposited.toFixed(4)} BTC</span>
+              </div>
+              <div class="mm-position-stat">
+                <span class="mm-position-stat-label">Current Value</span>
+                <span class="mm-position-stat-value">${pos.value.toFixed(4)} BTC</span>
+              </div>
+              <div class="mm-position-stat">
+                <span class="mm-position-stat-label">Fees Earned</span>
+                <span class="mm-position-stat-value">${pos.fees.toFixed(4)} BTC</span>
+              </div>
+              <div class="mm-position-stat">
+                <span class="mm-position-stat-label">Total P&L</span>
+                <span class="mm-position-stat-value ${pnlClass}">${pos.totalPnL >= 0 ? '+' : ''}${pos.totalPnL.toFixed(4)} BTC</span>
+              </div>
+              <div class="mm-position-stat">
+                <span class="mm-position-stat-label">APY</span>
+                <span class="mm-position-stat-value">${pos.apy.toFixed(1)}%</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    async function createTradingWallet() {
+      if (!S.userAddress || !S.publicKey) {
+        toast('Please connect your wallet first');
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${API}/api/wallets`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            walletAddress: S.userAddress,
+            publicKey: S.publicKey
+          })
+        });
+        
+        const result = await res.json();
+        
+        if (result.code === '1' && result.data.tradingAddress) {
+          S.tradingAddress = result.data.tradingAddress;
+          toast('Trading wallet created successfully!');
+          await loadProfilePage();
+        } else {
+          toast('Failed to create trading wallet: ' + result.message);
+        }
+      } catch (e) {
+        console.error('Failed to create trading wallet:', e);
+        toast('Error creating trading wallet');
+      }
+    }
+    
+    function switchTransferTab(tab) {
+      document.querySelectorAll('.transfer-tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      document.getElementById('receiveTab').style.display = tab === 'receive' ? 'block' : 'none';
+      document.getElementById('sendTab').style.display = tab === 'send' ? 'block' : 'none';
+    }
+    
+    function updateSendForm() {
+      const assetType = document.getElementById('sendAssetType').value;
+      document.getElementById('sendRuneSelector').style.display = assetType === 'rune' ? 'block' : 'none';
+      
+      if (assetType === 'rune') {
+        // Populate rune tokens
+        const select = document.getElementById('sendRuneToken');
+        select.innerHTML = '<option value="">-- Choose Token --</option>' + 
+          S.tokens.filter(t => t.hasPool).map(t => 
+            `<option value="${t.tokenId}">${t.displayTicker || t.symbol}</option>`
+          ).join('');
+      }
+    }
+    
+    async function sendFunds() {
+      const assetType = document.getElementById('sendAssetType').value;
+      const recipient = document.getElementById('sendRecipient').value.trim();
+      const amount = parseFloat(document.getElementById('sendAmount').value);
+      
+      if (!recipient || !amount || amount <= 0) {
+        toast('Please enter valid recipient and amount');
+        return;
+      }
+      
+      if (!S.tradingAddress || !S.accessToken) {
+        toast('Please connect your trading wallet first');
+        return;
+      }
+      
+      try {
+        let transactionType = 'withdraw';
+        let transactionData = {
+          tradingAddress: S.tradingAddress,
+          toAddress: recipient,
+          amount: Math.floor(amount * 100000000) // Convert to sats
+        };
+        
+        if (assetType === 'rune') {
+          const tokenId = document.getElementById('sendRuneToken').value;
+          if (!tokenId) {
+            toast('Please select a token');
+            return;
+          }
+          transactionData.tokenId = tokenId;
+        }
+        
+        // Create transaction via RadFi API
+        const res = await fetch(`${API}/api/transactions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${S.accessToken}`
+          },
+          body: JSON.stringify({
+            type: transactionType,
+            ...transactionData
+          })
+        });
+        
+        const result = await res.json();
+        
+        if (result.code === '1') {
+          toast('Transaction created! Please sign in your wallet');
+          // Transaction signing would happen here via wallet provider
+        } else {
+          toast('Failed to create transaction: ' + result.message);
+        }
+      } catch (e) {
+        console.error('Failed to send funds:', e);
+        toast('Error sending funds');
+      }
+    }
+    
+    function copyAddress() {
+      const address = S.tradingAddress;
+      if (!address || address === '--') {
+        toast('No address to copy');
+        return;
+      }
+      
+      navigator.clipboard.writeText(address).then(() => {
+        toast('Address copied to clipboard!');
+      }).catch(() => {
+        toast('Failed to copy address');
+      });
+    }
+    
+    async function refreshHoldings() {
+      await loadTokenHoldings();
+      toast('Holdings refreshed');
+    }
+    
+    async function refreshMMPositions() {
+      await loadProfileMMPositions();
+      toast('Positions refreshed');
     }
 
     // NAV
@@ -3693,6 +4808,7 @@ To fund your trading wallet:
       
       if (page === 'tokens') renderAllTokens();
       if (page === 'radpad') loadEtchedRunes();
+      if (page === 'profile') loadProfilePage();
     }
 
     document.querySelectorAll('.nav a[data-page]').forEach(a => {
@@ -3744,7 +4860,51 @@ To fund your trading wallet:
       setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    // CLOSE MODALS
+    // DEPOSIT MODAL FUNCTIONS
+    function showDepositModal() {
+      if (!S.tradingAddress) {
+        toast('No trading wallet address available', 'error');
+        return;
+      }
+      
+      document.getElementById('depositAddress').textContent = S.tradingAddress;
+      document.getElementById('depositModal').classList.add('active');
+    }
+    
+    function hideDepositModal() {
+      document.getElementById('depositModal').classList.remove('active');
+    }
+    
+    async function copyDepositAddress() {
+      try {
+        await navigator.clipboard.writeText(S.tradingAddress);
+        toast('✅ Address copied to clipboard!', 'success');
+      } catch (err) {
+        console.error('Copy failed:', err);
+        toast('Failed to copy address', 'error');
+      }
+    }
+    
+    function skipDeposit() {
+      hideDepositModal();
+      toast('You can deposit anytime from your Profile page', 'info');
+    }
+    
+    function openDepositInstructions() {
+      hideDepositModal();
+      // Navigate to profile page which has deposit instructions
+      navigate('profile');
+      toast('Visit the "Send/Receive" section to deposit funds', 'info');
+    }
+
+    // CLOSE MODALS (including deposit modal)
+    document.querySelectorAll('.modal-overlay, .deposit-modal-overlay').forEach(m => {
+      m.addEventListener('click', e => { 
+        if (e.target === m) {
+          m.classList.remove('active');
+        }
+      });
+    });
     document.querySelectorAll('.modal-overlay').forEach(m => {
       m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
     });
