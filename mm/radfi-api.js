@@ -2,9 +2,8 @@
  * RadFi API Helper for Volume Bot
  * 
  * Provides authenticated API calls to RadFi for real trading.
+ * Uses native fetch (Node 18+)
  */
-
-const fetch = require('node-fetch');
 
 const RADFI_API_BASE = 'https://api.radfi.co';
 
