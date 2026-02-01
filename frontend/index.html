@@ -2551,7 +2551,7 @@
       <a href="#" class="active" data-page="trade">Trade</a>
       <a href="#" data-page="tokens">Tokens</a>
       <a href="#" data-page="radpad">RadPad</a>
-      <a href="#" data-page="market-maker">Market Maker</a>
+      <a href="#" data-page="market-maker">Volume Bot</a>
       <a href="#" data-page="profile">Profile</a>
     </nav>
     
@@ -2884,21 +2884,21 @@
     </div>
   </div>
 
-  <!-- MARKET MAKER PAGE -->
+  <!-- VOLUME BOT PAGE -->
   <div class="page" id="page-market-maker">
     <div class="mm-header">
-      <h1>🏦 RadLabs Market Maker</h1>
-      <p>Provide liquidity and earn fees through automated market making on RadFi pools</p>
+      <h1>🚀 RadLabs Volume Bot</h1>
+      <p>Generate volume, grow tokens, earn fees — Automated trading that increases token visibility and liquidity</p>
     </div>
 
     <div class="mm-grid">
       <!-- Deposit Card -->
       <div class="mm-card">
         <h2>💰 Deploy Capital</h2>
-        <p class="mm-desc">Choose a token and deposit funds to start market making</p>
+        <p class="mm-desc">Choose a token and deposit funds to start generating volume</p>
         
         <div class="mm-select-token">
-          <label>Select Token to Market Make</label>
+          <label>Select Token for Volume Bot</label>
           <select id="mmTokenSelect" class="mm-dropdown">
             <option value="">-- Choose Token --</option>
           </select>
@@ -2933,25 +2933,25 @@
           </div>
         </div>
 
-        <button class="mm-btn primary" onclick="depositToMM()">Deposit & Start MM</button>
+        <button class="mm-btn primary" onclick="depositToMM()">Deposit & Start Volume Bot</button>
       </div>
 
       <!-- Strategy Card -->
       <div class="mm-card">
-        <h2>📊 RadFi LP Strategy</h2>
-        <p class="mm-desc">Automated liquidity provision with active rebalancing</p>
+        <h2>📊 Volume Bot Strategy</h2>
+        <p class="mm-desc">Generate trading volume to increase token visibility and capture appreciation</p>
 
         <div class="mm-strategy-list">
           <div class="mm-strategy-option active" onclick="selectMMStrategy('radfi-lp')">
             <div class="mm-strategy-header">
-              <span class="mm-strategy-icon">💧</span>
+              <span class="mm-strategy-icon">🔄</span>
               <div>
-                <h3>RadFi LP Market Making</h3>
-                <p>Provide liquidity and earn fees on all swaps</p>
+                <h3>Automated Volume Generation</h3>
+                <p>Ping-pong trading + ladder orders to boost token activity</p>
               </div>
             </div>
             <div class="mm-strategy-stats">
-              <span style="color: var(--green); font-weight: 600;">Estimated APY: 23-32%</span>
+              <span style="color: var(--green); font-weight: 600;">Estimated APY: 15-25%</span>
             </div>
           </div>
         </div>
@@ -2959,22 +2959,23 @@
         <div class="mm-strategy-details">
           <h4>How It Works</h4>
           <ul style="list-style: none; padding: 0; margin: 1rem 0;">
-            <li style="padding: 0.5rem 0;">✅ <strong>Pool Fees:</strong> Earn fees on every trade through the pool</li>
-            <li style="padding: 0.5rem 0;">✅ <strong>Active Management:</strong> Automated rebalancing to optimize returns</li>
-            <li style="padding: 0.5rem 0;">✅ <strong>RadFi Native:</strong> Low transaction costs enable frequent optimization</li>
-            <li style="padding: 0.5rem 0;">⚠️ <strong>Risk:</strong> Impermanent loss up to -25% on large price movements</li>
+            <li style="padding: 0.5rem 0;">✅ <strong>Volume Generation:</strong> Places ladder orders and executes ping-pong trades</li>
+            <li style="padding: 0.5rem 0;">✅ <strong>Token Appreciation:</strong> Increased volume → visibility → price growth (main profit source)</li>
+            <li style="padding: 0.5rem 0;">✅ <strong>Pool Fee Rebates:</strong> Earn back portion of fees from trading activity</li>
+            <li style="padding: 0.5rem 0;">✅ <strong>Bullish Bias:</strong> Holds slightly more tokens than BTC (captures upside from small-cap growth)</li>
+            <li style="padding: 0.5rem 0;">⚠️ <strong>Risk:</strong> Profitability depends on token price appreciation — you are bullish on selected tokens</li>
           </ul>
-          <div class="mm-stat" style="background: rgba(0,255,136,0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
-            <span style="font-size: 0.9rem; color: var(--text-secondary);">Based on backtested historical data</span>
-            <span style="font-size: 1.2rem; font-weight: 700; color: var(--green);">Real returns vary by pool</span>
+          <div class="mm-stat" style="background: rgba(255,165,0,0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem; border: 1px solid var(--miami-orange);">
+            <span style="font-size: 0.9rem; color: var(--text-secondary);">⚠️ Volume Bot Disclaimer</span>
+            <span style="font-size: 0.95rem; font-weight: 600; color: var(--miami-orange); display: block; margin-top: 0.5rem;">This strategy requires token price appreciation to overcome RadFi's 1% swap fees. Best for small-cap tokens you believe will grow with increased volume. Not market-neutral.</span>
           </div>
         </div>
 
         <div class="mm-toggle" style="margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 8px;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
-              <h4 style="margin: 0;">Auto-Rebalance</h4>
-              <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: var(--text-secondary);">Monitor and rebalance every 10 seconds</p>
+              <h4 style="margin: 0;">Auto-Trading</h4>
+              <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: var(--text-secondary);">Place orders and execute trades every 30 seconds</p>
             </div>
             <label class="toggle-switch">
               <input type="checkbox" id="mmAutoRebalance" checked>
@@ -2986,12 +2987,12 @@
 
       <!-- Active Positions Card -->
       <div class="mm-card full-width">
-        <h2>📈 Your Active Positions</h2>
+        <h2>📈 Your Active Volume Bots</h2>
         <div class="mm-positions" id="mmPositions">
           <div class="mm-empty-state">
-            <span style="font-size:3rem">💼</span>
-            <p>No active market making positions</p>
-            <p class="mm-desc">Deploy capital above to get started</p>
+            <span style="font-size:3rem">🤖</span>
+            <p>No active volume bot positions</p>
+            <p class="mm-desc">Deploy capital above to start generating volume</p>
           </div>
         </div>
       </div>
